@@ -1,0 +1,20 @@
+# GC-DOC-MCP Projects Configuration
+# Non-sensitive project definitions
+
+projects:
+  spreadjs:
+    collection: spreadjs_rag
+    raw_data: ./raw_data/spreadjs
+    description: SpreadJS 前端表格控件中文文档
+    chunker: markdown
+
+  gcexcel:
+    collection: gcexcel_rag
+    raw_data: ./raw_data/gcexcel
+    description: GcExcel 后端 Excel API 文档
+    chunker: javadoc
+
+search:
+  prefetch_limit: 20
+  rerank_top_k: 10
+  default_limit: 5
