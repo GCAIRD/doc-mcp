@@ -21,15 +21,12 @@ cp .env.example .env
 将文档放入 `raw_data/{project}/` 目录，然后运行：
 
 ```bash
-# 1. 启动开发环境（暴露 Qdrant 端口供本地 embed 使用）
-docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
-
+# 1. 启动qdrant
+docker compose up -d qdrant
 # 2. 构建索引
 python scripts/embed.py spreadjs
 python scripts/embed.py gcexcel
-
-# 3. 停止开发环境，启动正式环境
-docker compose -f docker-compose.yml -f docker-compose.dev.yml down
+# 3. 启动全部服务
 docker compose up -d
 ```
 

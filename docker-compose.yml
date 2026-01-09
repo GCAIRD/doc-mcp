@@ -3,11 +3,13 @@ version: "3.8"
 services:
   # Qdrant 向量数据库
   qdrant:
-    image: qdrant/qdrant:v1.12.1
+    image: qdrant/qdrant:v1.15.0
     container_name: gc-doc-qdrant
     restart: unless-stopped
+    ports:
+      - "6333:6333"
     volumes:
-      - qdrant_data:/qdrant/storage
+      - ./storage/qdrant:/qdrant/storage
     networks:
       - internal
     deploy:
@@ -17,20 +19,14 @@ services:
 
   # RAG 搜索服务（内部）
   rag-service:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    build: .
     container_name: gc-doc-rag
     restart: unless-stopped
     depends_on:
-      qdrant:
-        condition: service_started
+      - qdrant
     environment:
-      - VOYAGE_API_KEY=${VOYAGE_API_KEY}
-      - QDRANT_URL=http://qdrant:6333
-      - LOG_LEVEL=${LOG_LEVEL:-INFO}
-      - LOG_FORMAT=json
-      - SERVER_PORT=8888
+      VOYAGE_API_KEY: ${VOYAGE_API_KEY}
+      QDRANT_URL: http://qdrant:6333
     volumes:
       - ./storage/logs:/app/storage/logs
       - ./storage/checkpoints:/app/storage/checkpoints
@@ -38,16 +34,14 @@ services:
     networks:
       - internal
     healthcheck:
-      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8888/health')"]
-      interval: 30s
-      timeout: 10s
+      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8888/health').raise_for_status()"]
+      interval: 15s
+      timeout: 5s
       retries: 3
 
   # MCP 服务（对外）
   mcp-server:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    build: .
     container_name: gc-doc-mcp
     restart: unless-stopped
     depends_on:
@@ -55,12 +49,7 @@ services:
         condition: service_healthy
     command: ["python", "scripts/serve.py", "--mode", "mcp"]
     environment:
-      - RAG_SERVICE_URL=http://rag-service:8888
-      - MCP_PORT=8889
-      - LOG_LEVEL=${LOG_LEVEL:-INFO}
-      - LOG_FORMAT=json
-      # MCP服务不需要Voyage API Key，通过RAG服务调用
-      - VOYAGE_API_KEY=placeholder
+      RAG_SERVICE_URL: http://rag-service:8888
     ports:
       - "${MCP_PORT:-8889}:8889"
     volumes:
@@ -69,18 +58,13 @@ services:
       - internal
       - external
     healthcheck:
-      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8889/health')"]
-      interval: 30s
-      timeout: 10s
+      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8889/health').raise_for_status()"]
+      interval: 15s
+      timeout: 5s
       retries: 3
 
 networks:
   internal:
     driver: bridge
-    internal: true  # 隔离内部通信
-
   external:
     driver: bridge
-
-volumes:
-  qdrant_data:

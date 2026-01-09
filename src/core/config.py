@@ -11,7 +11,7 @@ class Settings(BaseSettings):
 	"""环境变量配置"""
 
 	# Voyage API
-	voyage_api_key: str = Field(..., validation_alias="VOYAGE_API_KEY")
+	voyage_api_key: str = Field("", validation_alias="VOYAGE_API_KEY")
 	voyage_embed_model: str = Field("voyage-code-3", validation_alias="VOYAGE_EMBED_MODEL")
 	voyage_rerank_model: str = Field("rerank-2.5", validation_alias="VOYAGE_RERANK_MODEL")
 	voyage_rpm_limit: int = Field(2000, validation_alias="VOYAGE_RPM_LIMIT")
