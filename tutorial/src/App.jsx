@@ -41,6 +41,7 @@ const getConfig = (client, product = 'spreadjs') => {
 	return {
 		mcpServers: {
 			[`GC-DOC-MCP-${product}`]: {
+				type: 'http',
 				url: url
 			}
 		}
