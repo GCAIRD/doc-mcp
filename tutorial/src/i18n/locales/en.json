@@ -1,0 +1,118 @@
+{
+	"title": "GC-DOC-MCP",
+	"subtitle": "GrapeCity Product Documentation RAG + MCP Service",
+	"description": "Follow the instructions below to configure the MCP service in your AI client",
+	"clients": {
+		"cursor": "Cursor",
+		"claude": "Claude Desktop",
+		"windsurf": "Windsurf",
+		"cline": "Cline",
+		"copilot": "GitHub Copilot",
+		"other": "Other"
+	},
+	"cursor": {
+		"title": "Configure MCP in Cursor",
+		"steps": [
+			"Press <kbd>Shift+Command+J</kbd> (Mac) or <kbd>Shift+Ctrl+J</kbd> (Windows/Linux) to open Cursor settings",
+			"Look for <strong>\"MCP & Integrations\"</strong> in the left sidebar",
+			"Click <strong>\"+ New MCP Server\"</strong>"
+		],
+		"note": "This will open the <code>mcp.json</code> file, which you need to edit.",
+		"addTitle": "Add MCP Server Configuration",
+		"addDesc": "Copy the configuration below and paste it under the <code>mcpServers</code> key in the <code>mcp.json</code> file."
+	},
+	"claude": {
+		"title": "Configure MCP in Claude Desktop",
+		"steps": [
+			"Open Claude Desktop application",
+			"Go to <strong>Settings → Developer → Edit Config</strong>",
+			"Edit the <code>claude_desktop_config.json</code> file"
+		],
+		"note": "Config file location:<br/>Mac: <code>~/Library/Application Support/Claude/claude_desktop_config.json</code><br/>Windows: <code>%APPDATA%\\Claude\\claude_desktop_config.json</code>",
+		"addTitle": "Add MCP Server Configuration",
+		"addDesc": "Add the following configuration to the config file."
+	},
+	"windsurf": {
+		"title": "Configure MCP in Windsurf",
+		"steps": [
+			"Open Windsurf editor",
+			"Go to <strong>Settings → Extensions → MCP</strong>",
+			"Click <strong>\"Add Server\"</strong>"
+		],
+		"note": "Windsurf uses the same configuration format as Cursor.",
+		"addTitle": "Add MCP Server Configuration",
+		"addDesc": "Copy the configuration below and add it to MCP settings."
+	},
+	"cline": {
+		"title": "Configure MCP in Cline",
+		"steps": [
+			"Open Cline extension in VS Code",
+			"Click the settings icon",
+			"Find the <strong>\"MCP Servers\"</strong> configuration"
+		],
+		"note": "Cline supports adding MCP servers via UI or config file.",
+		"addTitle": "Add MCP Server Configuration",
+		"addDesc": "Add the following configuration to Cline's MCP settings."
+	},
+	"copilot": {
+		"title": "Enable MCP Support in VS Code",
+		"steps": [
+			"Open VS Code Settings (<kbd>Cmd+,</kbd> on Mac or <kbd>Ctrl+,</kbd> on Windows/Linux)",
+			"Search for <strong>\"MCP\"</strong> in the settings search bar",
+			"Enable the <strong>\"chat.mcp.enabled\"</strong> setting"
+		],
+		"note": "You can configure MCP servers in two ways: <strong>Workspace Configuration</strong> (Recommended) or <strong>User Settings Configuration</strong>.",
+		"addTitle": "Workspace Configuration (Recommended)",
+		"addDesc": "Create a <code>.vscode/mcp.json</code> file in your project root:",
+		"altTitle": "Using the MCP: Add Server Command",
+		"altSteps": [
+			"Open the Command Palette (<kbd>Cmd+Shift+P</kbd> or <kbd>Ctrl+Shift+P</kbd>)",
+			"Type <strong>\"MCP: Add Server\"</strong> and select the command",
+			"Choose <strong>\"HTTP (sse)\"</strong> as the server type",
+			"Enter the server URL",
+			"Provide a name for the server: <strong>GC-DOC-MCP</strong>"
+		],
+		"usageTitle": "Using MCP Tools with GitHub Copilot",
+		"usageSteps": [
+			"Open Copilot Chat in VS Code (click the Copilot icon in the activity bar)",
+			"Switch to <strong>Agent mode</strong> from the chat dropdown menu",
+			"Click the <strong>Tools (🔧)</strong> button to view available MCP tools"
+		],
+		"manageTip": "Use the <strong>\"MCP: List Servers\"</strong> command to view and manage your configured servers: Start/Stop/Restart servers, view server logs, browse available tools."
+	},
+	"other": {
+		"title": "Universal MCP Integration",
+		"intro": "This service only supports Streamable HTTP protocol. Choose the MCP endpoint based on the product you are using:",
+		"spreadjsTitle": "SpreadJS MCP Service",
+		"spreadjsDesc": "For SpreadJS JavaScript spreadsheet component documentation:",
+		"gcexcelTitle": "GcExcel MCP Service",
+		"gcexcelDesc": "For GcExcel server-side Excel component documentation:",
+		"configTitle": "Common Configuration File Locations",
+		"configLocations": [
+			"<code>.vscode/mcp.json</code> (VS Code workspace)",
+			"<code>~/.config/app/mcp.json</code> (Linux)",
+			"<code>~/Library/Application Support/app/mcp.json</code> (macOS)",
+			"<code>%APPDATA%/app/mcp.json</code> (Windows)"
+		],
+		"stepsTitle": "Integration Steps",
+		"steps": [
+			"Locate MCP Settings in your application (look for \"MCP\", \"Model Context Protocol\", or \"Tools\")",
+			"Choose <strong>Streamable HTTP</strong> as the transport method",
+			"Configure connection using one of the patterns above",
+			"Restart your application and verify the server appears in available tools"
+		],
+		"troubleTitle": "Troubleshooting",
+		"troubleItems": [
+			"<strong>Connection Issues</strong>: Verify the server URL is accessible, ensure network connectivity",
+			"<strong>Tool Discovery</strong>: Ensure the client supports MCP capabilities, check configuration file syntax",
+			"<strong>Protocol Issues</strong>: This service only supports Streamable HTTP protocol, SSE or stdio are not supported"
+		]
+	},
+	"copied": "Copied!",
+	"copy": "Copy",
+	"products": {
+		"title": "Supported Products",
+		"spreadjs": "SpreadJS - JavaScript Spreadsheet Component",
+		"gcexcel": "GcExcel - Server-side Excel Component"
+	}
+}
