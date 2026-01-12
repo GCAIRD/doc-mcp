@@ -29,6 +29,7 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 COPY src/ ./src/
 COPY scripts/ ./scripts/
 COPY config/ ./config/
+COPY tutorial/dist/ ./tutorial/dist/
 
 # Create non-root user
 RUN useradd -m -u 1000 appuser && \

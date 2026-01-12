@@ -2,11 +2,14 @@
 
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Dict
 
 import httpx
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from ..core.config import ProjectConfig, Settings
 from ..core.logger import AccessLogger, setup_logging
@@ -145,14 +148,25 @@ def create_app(
 	if mode in ["mcp", "all"]:
 		app.include_router(mcp_router, tags=["mcp"])
 
-	@app.get("/")
-	async def root():
-		"""服务信息"""
-		return {
-			"name": "GC-DOC-MCP-Server",
-			"version": "1.0.0",
-			"mode": mode,
-			"projects": project_config.project_names,
-		}
+	# 静态文件服务（tutorial 页面）
+	static_dir = Path(__file__).parent.parent.parent / "tutorial" / "dist"
+	if static_dir.exists():
+		# 挂载静态资源（js, css, assets）
+		app.mount("/assets", StaticFiles(directory=static_dir / "assets"), name="assets")
+
+		@app.get("/")
+		async def serve_index():
+			"""返回 tutorial 首页"""
+			return FileResponse(static_dir / "index.html")
+	else:
+		@app.get("/")
+		async def root():
+			"""服务信息"""
+			return {
+				"name": "GC-DOC-MCP-Server",
+				"version": "1.0.0",
+				"mode": mode,
+				"projects": project_config.project_names,
+			}
 
 	return app
