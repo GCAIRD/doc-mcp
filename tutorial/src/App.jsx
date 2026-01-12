@@ -4,6 +4,22 @@ import { Copy, Check, Table2, FileSpreadsheet, MousePointer2, Terminal, MessageS
 import './i18n';
 import './App.css';
 
+// 兼容非 HTTPS 环境的复制函数
+const copyToClipboard = async (text) => {
+	if (navigator.clipboard?.writeText) {
+		await navigator.clipboard.writeText(text);
+	} else {
+		const textarea = document.createElement('textarea');
+		textarea.value = text;
+		textarea.style.position = 'fixed';
+		textarea.style.opacity = '0';
+		document.body.appendChild(textarea);
+		textarea.select();
+		document.execCommand('copy');
+		document.body.removeChild(textarea);
+	}
+};
+
 // MCP 服务器地址配置
 const MCP_BASE_URL = 'http://20.2.219.14:8889/mcp';
 const MCP_URLS = {
@@ -36,7 +52,7 @@ function CodeBlock({ code, lang = 'json', label }) {
 	const [copied, setCopied] = useState(false);
 
 	const handleCopy = async () => {
-		await navigator.clipboard.writeText(JSON.stringify(code, null, 2));
+		await copyToClipboard(JSON.stringify(code, null, 2));
 		setCopied(true);
 		setTimeout(() => setCopied(false), 2000);
 	};
@@ -109,7 +125,7 @@ function UrlBlock({ url, label }) {
 	const [copied, setCopied] = useState(false);
 
 	const handleCopy = async () => {
-		await navigator.clipboard.writeText(url);
+		await copyToClipboard(url);
 		setCopied(true);
 		setTimeout(() => setCopied(false), 2000);
 	};
