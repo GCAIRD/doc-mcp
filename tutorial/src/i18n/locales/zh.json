@@ -2,6 +2,11 @@
 	"title": "GC-DOC-MCP",
 	"subtitle": "GrapeCity 产品文档 RAG + MCP 服务",
 	"description": "按照以下说明在您的 AI 客户端中配置 MCP 服务",
+	"categories": {
+		"ide": "IDE",
+		"chat": "问答",
+		"general": "通用"
+	},
 	"clients": {
 		"copilot": "GitHub Copilot",
 		"cursor": "Cursor",
@@ -9,7 +14,9 @@
 		"cline": "Cline",
 		"trae": "TRAE",
 		"jetbrains": "JetBrains IDE",
-		"other": "其他"
+		"cherrystudio": "Cherry Studio",
+		"lobechat": "LobeChat",
+		"other": "通用配置"
 	},
 	"copilot": {
 		"title": "在 VS Code 中配置 GitHub Copilot MCP",
@@ -90,6 +97,35 @@
 		"note": "需要安装 AI Assistant 插件并确保已启用 MCP 支持。部分旧版本 IDE 可能不支持 MCP。",
 		"addTitle": "添加 MCP 服务器配置",
 		"addDesc": "在 MCP Servers 配置中添加以下服务器信息。"
+	},
+	"cherrystudio": {
+		"title": "在 Cherry Studio 中配置 MCP",
+		"steps": [
+			"打开 Cherry Studio 应用",
+			"点击左下角 <strong>设置</strong> 图标",
+			"在左侧菜单选择 <strong>MCP 服务器</strong>",
+			"点击 <strong>\"添加服务器\"</strong> 按钮"
+		],
+		"note": "Cherry Studio 1.1.10+ 版本支持 MCP。首次使用时会自动安装所需依赖（UV、Bun）。",
+		"addTitle": "添加 MCP 服务器配置",
+		"addDesc": "选择 <strong>Streamable HTTP</strong> 类型，填入以下配置信息。",
+		"configSteps": [
+			"服务器名称填写：<strong>GC-DOC-MCP-spreadjs</strong> 或 <strong>GC-DOC-MCP-gcexcel</strong>",
+			"类型选择：<strong>streamableHttp</strong>",
+			"URL 填写对应的服务地址（见下方配置）",
+			"点击保存，然后在聊天界面启用该 MCP 服务"
+		]
+	},
+	"lobechat": {
+		"title": "在 LobeChat 中配置 MCP",
+		"steps": [
+			"打开 LobeChat 应用或网页版",
+			"进入 <strong>设置 → 语言模型 → MCP</strong>",
+			"点击 <strong>\"添加 MCP 服务器\"</strong>"
+		],
+		"note": "LobeChat 是开源的多模型 AI 客户端，支持 MCP 协议。可访问 <a href=\"https://lobehub.com/mcp\" target=\"_blank\">LobeHub MCP 市场</a> 发现更多 MCP 服务。",
+		"addTitle": "添加 MCP 服务器配置",
+		"addDesc": "将以下配置添加到 LobeChat 的 MCP 设置中。"
 	},
 	"other": {
 		"title": "通用 MCP 集成",

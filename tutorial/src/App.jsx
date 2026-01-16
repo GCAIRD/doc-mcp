@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from '../node_modules/react-i18next';
-import { Copy, Check, Table2, FileSpreadsheet, MousePointer2, Terminal, MoreHorizontal, Github } from 'lucide-react';
+import { Copy, Check, Table2, FileSpreadsheet, ChevronDown } from 'lucide-react';
 import './i18n';
 import './App.css';
 
@@ -27,14 +27,20 @@ const MCP_URLS = {
 	gcexcel: `${MCP_BASE_URL}/gcexcel`
 };
 
-const clients = [
-	{ id: 'copilot', icon: Github },
-	{ id: 'cursor', icon: MousePointer2 },
-	{ id: 'windsurf', icon: Terminal },
-	{ id: 'cline', icon: Terminal },
-	{ id: 'trae', icon: Terminal },
-	{ id: 'jetbrains', icon: Terminal },
-	{ id: 'other', icon: MoreHorizontal }
+// 客户端分类
+const clientCategories = [
+	{
+		id: 'ide',
+		clients: ['copilot', 'cursor', 'windsurf', 'cline', 'trae', 'jetbrains']
+	},
+	{
+		id: 'chat',
+		clients: ['cherrystudio', 'lobechat']
+	},
+	{
+		id: 'general',
+		clients: ['other']
+	}
 ];
 
 const getConfig = (client, product = 'spreadjs') => {
@@ -65,6 +71,24 @@ const getConfig = (client, product = 'spreadjs') => {
 			mcpServers: [
 				{ name: serverName, url, type: 'sse' }
 			]
+		};
+	}
+
+	// Cherry Studio 使用 streamableHttp 类型
+	if (client === 'cherrystudio') {
+		return {
+			mcpServers: {
+				[serverName]: { type: 'streamableHttp', url }
+			}
+		};
+	}
+
+	// LobeChat 使用标准格式
+	if (client === 'lobechat') {
+		return {
+			mcpServers: {
+				[serverName]: { type: 'http', url }
+			}
 		};
 	}
 
@@ -257,11 +281,47 @@ function OtherContent() {
 	);
 }
 
+function CherryStudioContent() {
+	const { t } = useTranslation();
+	const spreadjsConfig = getConfig('cherrystudio', 'spreadjs');
+	const gcexcelConfig = getConfig('cherrystudio', 'gcexcel');
+
+	return (
+		<div className="content-panel">
+			<h2>{t('cherrystudio.title')}</h2>
+			<ol className="steps">
+				{t('cherrystudio.steps', { returnObjects: true }).map((step, i) => (
+					<li key={i} dangerouslySetInnerHTML={{ __html: step }} />
+				))}
+			</ol>
+			<div className="note" dangerouslySetInnerHTML={{ __html: t('cherrystudio.note') }} />
+
+			<h3 className="section-title">{t('cherrystudio.addTitle')}</h3>
+			<p className="section-desc" dangerouslySetInnerHTML={{ __html: t('cherrystudio.addDesc') }} />
+			<ol className="steps">
+				{t('cherrystudio.configSteps', { returnObjects: true }).map((step, i) => (
+					<li key={i} dangerouslySetInnerHTML={{ __html: step }} />
+				))}
+			</ol>
+			<UrlBlock url={MCP_URLS.spreadjs} label="SpreadJS URL" />
+			<UrlBlock url={MCP_URLS.gcexcel} label="GcExcel URL" />
+
+			<h3 className="section-title" style={{ marginTop: '2rem' }}>JSON 配置参考</h3>
+			<CodeBlock code={spreadjsConfig} label="SpreadJS" />
+			<CodeBlock code={gcexcelConfig} label="GcExcel" />
+		</div>
+	);
+}
+
 function ClientContent({ client }) {
 	const { t } = useTranslation();
 
 	if (client === 'copilot') {
 		return <CopilotContent />;
+	}
+
+	if (client === 'cherrystudio') {
+		return <CherryStudioContent />;
 	}
 
 	if (client === 'other') {
@@ -291,12 +351,29 @@ function ClientContent({ client }) {
 function App() {
 	const { t, i18n } = useTranslation();
 	const [activeClient, setActiveClient] = useState('copilot');
+	const [dropdownOpen, setDropdownOpen] = useState(false);
+	const dropdownRef = useRef(null);
 
 	const languages = [
 		{ code: 'zh', label: '中文' },
 		{ code: 'en', label: 'EN' },
 		{ code: 'ja', label: '日本語' }
 	];
+
+	useEffect(() => {
+		const handleClickOutside = (e) => {
+			if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+				setDropdownOpen(false);
+			}
+		};
+		document.addEventListener('mousedown', handleClickOutside);
+		return () => document.removeEventListener('mousedown', handleClickOutside);
+	}, []);
+
+	const handleClientSelect = (clientId) => {
+		setActiveClient(clientId);
+		setDropdownOpen(false);
+	};
 
 	return (
 		<div className="app">
@@ -325,17 +402,29 @@ function App() {
 					<p className="description">{t('description')}</p>
 				</div>
 
-				<div className="tabs">
-					{clients.map(({ id, icon: Icon }) => (
-						<button
-							key={id}
-							className={`tab ${activeClient === id ? 'active' : ''}`}
-							onClick={() => setActiveClient(id)}
-						>
-							<Icon size={20} className="tab-icon" />
-							<span>{t(`clients.${id}`)}</span>
-						</button>
-					))}
+				<div className="client-selector" ref={dropdownRef}>
+					<div className="dropdown" onClick={() => setDropdownOpen(!dropdownOpen)}>
+						<span className="dropdown-label">{t(`clients.${activeClient}`)}</span>
+						<ChevronDown size={20} className={`dropdown-icon ${dropdownOpen ? 'open' : ''}`} />
+					</div>
+					{dropdownOpen && (
+						<div className="dropdown-menu">
+							{clientCategories.map(category => (
+								<div key={category.id} className="dropdown-group">
+									<div className="dropdown-group-label">{t(`categories.${category.id}`)}</div>
+									{category.clients.map(clientId => (
+										<div
+											key={clientId}
+											className={`dropdown-item ${activeClient === clientId ? 'active' : ''}`}
+											onClick={() => handleClientSelect(clientId)}
+										>
+											{t(`clients.${clientId}`)}
+										</div>
+									))}
+								</div>
+							))}
+						</div>
+					)}
 				</div>
 
 				<ClientContent client={activeClient} />

@@ -2,6 +2,11 @@
 	"title": "GC-DOC-MCP",
 	"subtitle": "GrapeCity Product Documentation RAG + MCP Service",
 	"description": "Follow the instructions below to configure the MCP service in your AI client",
+	"categories": {
+		"ide": "IDE",
+		"chat": "Chat",
+		"general": "General"
+	},
 	"clients": {
 		"copilot": "GitHub Copilot",
 		"cursor": "Cursor",
@@ -9,7 +14,9 @@
 		"cline": "Cline",
 		"trae": "TRAE",
 		"jetbrains": "JetBrains IDE",
-		"other": "Other"
+		"cherrystudio": "Cherry Studio",
+		"lobechat": "LobeChat",
+		"other": "Universal Config"
 	},
 	"copilot": {
 		"title": "Configure GitHub Copilot MCP in VS Code",
@@ -90,6 +97,35 @@
 		"note": "Requires AI Assistant plugin installed with MCP support enabled. Some older IDE versions may not support MCP.",
 		"addTitle": "Add MCP Server Configuration",
 		"addDesc": "Add the following server information in MCP Servers configuration."
+	},
+	"cherrystudio": {
+		"title": "Configure MCP in Cherry Studio",
+		"steps": [
+			"Open Cherry Studio application",
+			"Click the <strong>Settings</strong> icon at the bottom left",
+			"Select <strong>MCP Servers</strong> from the left menu",
+			"Click <strong>\"Add Server\"</strong> button"
+		],
+		"note": "Cherry Studio 1.1.10+ supports MCP. Dependencies (UV, Bun) will be auto-installed on first use.",
+		"addTitle": "Add MCP Server Configuration",
+		"addDesc": "Select <strong>Streamable HTTP</strong> type and fill in the configuration below.",
+		"configSteps": [
+			"Server name: <strong>GC-DOC-MCP-spreadjs</strong> or <strong>GC-DOC-MCP-gcexcel</strong>",
+			"Type: <strong>streamableHttp</strong>",
+			"URL: Enter the corresponding service URL (see config below)",
+			"Save and enable the MCP service in the chat interface"
+		]
+	},
+	"lobechat": {
+		"title": "Configure MCP in LobeChat",
+		"steps": [
+			"Open LobeChat app or web version",
+			"Go to <strong>Settings → Language Model → MCP</strong>",
+			"Click <strong>\"Add MCP Server\"</strong>"
+		],
+		"note": "LobeChat is an open-source multi-model AI client with MCP support. Visit <a href=\"https://lobehub.com/mcp\" target=\"_blank\">LobeHub MCP Marketplace</a> to discover more MCP services.",
+		"addTitle": "Add MCP Server Configuration",
+		"addDesc": "Add the following configuration to LobeChat's MCP settings."
 	},
 	"other": {
 		"title": "Universal MCP Integration",

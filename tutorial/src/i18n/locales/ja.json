@@ -2,6 +2,11 @@
 	"title": "GC-DOC-MCP",
 	"subtitle": "GrapeCity 製品ドキュメント RAG + MCP サービス",
 	"description": "以下の手順に従って、AI クライアントで MCP サービスを設定してください",
+	"categories": {
+		"ide": "IDE",
+		"chat": "チャット",
+		"general": "汎用"
+	},
 	"clients": {
 		"copilot": "GitHub Copilot",
 		"cursor": "Cursor",
@@ -9,7 +14,9 @@
 		"cline": "Cline",
 		"trae": "TRAE",
 		"jetbrains": "JetBrains IDE",
-		"other": "その他"
+		"cherrystudio": "Cherry Studio",
+		"lobechat": "LobeChat",
+		"other": "汎用設定"
 	},
 	"copilot": {
 		"title": "VS Code で GitHub Copilot MCP を設定",
@@ -90,6 +97,35 @@
 		"note": "AI Assistant プラグインがインストールされ、MCP サポートが有効になっている必要があります。一部の古い IDE バージョンでは MCP がサポートされていない場合があります。",
 		"addTitle": "MCP サーバー設定を追加",
 		"addDesc": "MCP Servers 設定に以下のサーバー情報を追加してください。"
+	},
+	"cherrystudio": {
+		"title": "Cherry Studio で MCP を設定",
+		"steps": [
+			"Cherry Studio アプリを開く",
+			"左下の<strong>設定</strong>アイコンをクリック",
+			"左メニューから <strong>MCP サーバー</strong> を選択",
+			"<strong>\"サーバーを追加\"</strong> ボタンをクリック"
+		],
+		"note": "Cherry Studio 1.1.10 以降で MCP をサポート。初回使用時に必要な依存関係（UV、Bun）が自動インストールされます。",
+		"addTitle": "MCP サーバー設定を追加",
+		"addDesc": "<strong>Streamable HTTP</strong> タイプを選択し、以下の設定を入力してください。",
+		"configSteps": [
+			"サーバー名：<strong>GC-DOC-MCP-spreadjs</strong> または <strong>GC-DOC-MCP-gcexcel</strong>",
+			"タイプ：<strong>streamableHttp</strong>",
+			"URL：対応するサービス URL を入力（下記の設定を参照）",
+			"保存して、チャット画面で MCP サービスを有効にする"
+		]
+	},
+	"lobechat": {
+		"title": "LobeChat で MCP を設定",
+		"steps": [
+			"LobeChat アプリまたは Web 版を開く",
+			"<strong>設定 → 言語モデル → MCP</strong> に移動",
+			"<strong>\"MCP サーバーを追加\"</strong> をクリック"
+		],
+		"note": "LobeChat は MCP をサポートするオープンソースのマルチモデル AI クライアントです。<a href=\"https://lobehub.com/mcp\" target=\"_blank\">LobeHub MCP マーケットプレイス</a>で他の MCP サービスを探すことができます。",
+		"addTitle": "MCP サーバー設定を追加",
+		"addDesc": "以下の設定を LobeChat の MCP 設定に追加してください。"
 	},
 	"other": {
 		"title": "汎用 MCP 統合",
