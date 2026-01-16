@@ -12,13 +12,12 @@
 		"other": "Other"
 	},
 	"copilot": {
-		"title": "Enable MCP Support in VS Code",
+		"title": "Configure GitHub Copilot MCP in VS Code",
 		"steps": [
-			"Open VS Code Settings (<kbd>Cmd+,</kbd> on Mac or <kbd>Ctrl+,</kbd> on Windows/Linux)",
-			"Search for <strong>\"MCP\"</strong> in the settings search bar",
-			"Enable the <strong>\"chat.mcp.enabled\"</strong> setting"
+			"Ensure <strong>GitHub Copilot</strong> and <strong>GitHub Copilot Chat</strong> extensions are installed",
+			"Latest VS Code has MCP support enabled by default, no additional setup required"
 		],
-		"note": "You can configure MCP servers in two ways: <strong>Workspace Configuration</strong> (Recommended) or <strong>User Settings Configuration</strong>.",
+		"note": "You can configure MCP servers in two ways: <strong>Workspace Configuration</strong> (Recommended) or <strong>Command Palette</strong>.",
 		"addTitle": "Workspace Configuration (Recommended)",
 		"addDesc": "Create a <code>.vscode/mcp.json</code> file in your project root:",
 		"altTitle": "Using the MCP: Add Server Command",

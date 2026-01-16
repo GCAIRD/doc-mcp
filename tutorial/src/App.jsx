@@ -39,12 +39,39 @@ const clients = [
 
 const getConfig = (client, product = 'spreadjs') => {
 	const url = MCP_URLS[product] || MCP_URLS.spreadjs;
+	const serverName = `GC-DOC-MCP-${product}`;
+
+	// VSCode (copilot) 使用 servers 字段
+	if (client === 'copilot') {
+		return {
+			servers: {
+				[serverName]: { type: 'http', url }
+			}
+		};
+	}
+
+	// Windsurf 使用 serverUrl 而非 url
+	if (client === 'windsurf') {
+		return {
+			mcpServers: {
+				[serverName]: { serverUrl: url }
+			}
+		};
+	}
+
+	// Trae 使用数组格式
+	if (client === 'trae') {
+		return {
+			mcpServers: [
+				{ name: serverName, url, type: 'sse' }
+			]
+		};
+	}
+
+	// Cursor, Cline, JetBrains, Other 使用标准格式
 	return {
 		mcpServers: {
-			[`GC-DOC-MCP-${product}`]: {
-				type: 'http',
-				url: url
-			}
+			[serverName]: { type: 'http', url }
 		}
 	};
 };

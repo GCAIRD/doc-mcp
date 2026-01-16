@@ -12,13 +12,12 @@
 		"other": "その他"
 	},
 	"copilot": {
-		"title": "VS Code で MCP サポートを有効化",
+		"title": "VS Code で GitHub Copilot MCP を設定",
 		"steps": [
-			"VS Code 設定を開く (<kbd>Cmd+,</kbd> Mac または <kbd>Ctrl+,</kbd> Windows/Linux)",
-			"設定検索バーで <strong>\"MCP\"</strong> を検索",
-			"<strong>\"chat.mcp.enabled\"</strong> 設定を有効化"
+			"<strong>GitHub Copilot</strong> と <strong>GitHub Copilot Chat</strong> 拡張機能がインストールされていることを確認",
+			"最新の VS Code では MCP サポートがデフォルトで有効化されており、追加設定は不要"
 		],
-		"note": "MCP サーバーは2つの方法で設定できます：<strong>ワークスペース設定</strong>（推奨）または<strong>ユーザー設定</strong>。",
+		"note": "MCP サーバーは2つの方法で設定できます：<strong>ワークスペース設定</strong>（推奨）または<strong>コマンドパレット</strong>。",
 		"addTitle": "ワークスペース設定（推奨）",
 		"addDesc": "プロジェクトルートに <code>.vscode/mcp.json</code> ファイルを作成：",
 		"altTitle": "MCP: Add Server コマンドを使用",

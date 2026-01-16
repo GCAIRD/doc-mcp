@@ -12,13 +12,12 @@
 		"other": "其他"
 	},
 	"copilot": {
-		"title": "在 VS Code 中启用 GitHub Copilot MCP",
+		"title": "在 VS Code 中配置 GitHub Copilot MCP",
 		"steps": [
-			"打开 VS Code 设置 (<kbd>Cmd+,</kbd> Mac 或 <kbd>Ctrl+,</kbd> Windows/Linux)",
-			"在设置搜索栏中搜索 <strong>\"MCP\"</strong>",
-			"启用 <strong>\"chat.mcp.enabled\"</strong> 设置"
+			"确保已安装 <strong>GitHub Copilot</strong> 和 <strong>GitHub Copilot Chat</strong> 扩展",
+			"VS Code 最新版本已默认启用 MCP 支持，无需额外设置"
 		],
-		"note": "您可以通过两种方式配置 MCP 服务器：<strong>工作区配置</strong>（推荐）或<strong>用户设置配置</strong>。",
+		"note": "您可以通过两种方式配置 MCP 服务器：<strong>工作区配置</strong>（推荐）或<strong>命令面板</strong>。",
 		"addTitle": "工作区配置（推荐）",
 		"addDesc": "在项目根目录创建 <code>.vscode/mcp.json</code> 文件：",
 		"altTitle": "使用命令面板添加",
