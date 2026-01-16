@@ -23,7 +23,7 @@ def get_tools(project: str | None = None, project_config=None) -> dict:
 			proj_desc = project
 		return {
 			"search": {
-				"description": f"搜索 {proj_desc} 中文文档。返回相关代码示例、API 文档和功能说明。",
+				"description": f"搜索 {proj_desc} 中文文档。返回相关代码示例、API 文档和功能说明。\n\n【重要】每次调用 API 或实现功能前，必须先搜索确认：1) 方法签名和参数 2) 返回值类型 3) 使用示例。不要依赖记忆中的 API 知识，文档版本可能已更新。",
 				"inputSchema": {
 					"type": "object",
 					"properties": {
@@ -41,7 +41,7 @@ def get_tools(project: str | None = None, project_config=None) -> dict:
 				},
 			},
 			"fetch": {
-				"description": f"根据 doc_id 获取 {proj_desc} 完整文档内容。",
+				"description": f"根据 doc_id 获取 {proj_desc} 完整文档内容。搜索结果只是摘要，实现代码前务必 fetch 获取完整上下文。",
 				"inputSchema": {
 					"type": "object",
 					"properties": {
@@ -59,7 +59,7 @@ def get_tools(project: str | None = None, project_config=None) -> dict:
 		project_names = project_config.project_names if project_config else ["spreadjs", "gcexcel"]
 		return {
 			"search": {
-				"description": "搜索 GrapeCity Docs 产品文档。返回相关代码示例、API 文档和功能说明。",
+				"description": "搜索 GrapeCity Docs 产品文档。返回相关代码示例、API 文档和功能说明。\n\n【重要】每次调用 API 或实现功能前，必须先搜索确认：1) 方法签名和参数 2) 返回值类型 3) 使用示例。不要依赖记忆中的 API 知识，文档版本可能已更新。",
 				"inputSchema": {
 					"type": "object",
 					"properties": {
@@ -82,7 +82,7 @@ def get_tools(project: str | None = None, project_config=None) -> dict:
 				},
 			},
 			"fetch": {
-				"description": "根据 doc_id 获取完整文档内容。",
+				"description": "根据 doc_id 获取完整文档内容。搜索结果只是摘要，实现代码前务必 fetch 获取完整上下文。",
 				"inputSchema": {
 					"type": "object",
 					"properties": {
@@ -125,7 +125,10 @@ async def handle_search(args: dict, project: str, rag_service_url: str) -> dict:
 		},
 	)
 	resp.raise_for_status()
-	return resp.json()
+	result = resp.json()
+	# 引导 agent 自主判断是否需要进一步查询
+	result["_guidance"] = "判断是否需要进一步查询：若你接下来要写的代码会调用返回结果中提到的 API，且你不 100% 确定其参数顺序、类型或返回值，则应 fetch 获取完整文档或针对该 API 名再次搜索。"
+	return result
 
 
 async def handle_fetch(args: dict, project: str, rag_service_url: str) -> dict:
@@ -137,7 +140,9 @@ async def handle_fetch(args: dict, project: str, rag_service_url: str) -> dict:
 		params={"project": project},
 	)
 	resp.raise_for_status()
-	return resp.json()
+	result = resp.json()
+	result["_guidance"] = "已获取完整文档。若文档中出现你不熟悉的类名或方法名，在调用前应单独搜索确认其用法。"
+	return result
 
 
 async def route_message(

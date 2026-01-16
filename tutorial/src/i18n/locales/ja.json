@@ -3,56 +3,13 @@
 	"subtitle": "GrapeCity 製品ドキュメント RAG + MCP サービス",
 	"description": "以下の手順に従って、AI クライアントで MCP サービスを設定してください",
 	"clients": {
+		"copilot": "GitHub Copilot",
 		"cursor": "Cursor",
-		"claude": "Claude Desktop",
 		"windsurf": "Windsurf",
 		"cline": "Cline",
-		"copilot": "GitHub Copilot",
+		"trae": "TRAE",
+		"jetbrains": "JetBrains IDE",
 		"other": "その他"
-	},
-	"cursor": {
-		"title": "Cursor で MCP を設定",
-		"steps": [
-			"<kbd>Shift+Command+J</kbd> (Mac) または <kbd>Shift+Ctrl+J</kbd> (Windows/Linux) を押して Cursor の設定を開く",
-			"左サイドバーで <strong>\"MCP & Integrations\"</strong> を探す",
-			"<strong>\"+ New MCP Server\"</strong> をクリック"
-		],
-		"note": "これにより <code>mcp.json</code> ファイルが開きます。編集が必要です。",
-		"addTitle": "MCP サーバー設定を追加",
-		"addDesc": "以下の設定をコピーして、<code>mcp.json</code> ファイルの <code>mcpServers</code> キーの下に貼り付けてください。"
-	},
-	"claude": {
-		"title": "Claude Desktop で MCP を設定",
-		"steps": [
-			"Claude Desktop アプリを開く",
-			"<strong>設定 → 開発者 → 設定を編集</strong> に移動",
-			"<code>claude_desktop_config.json</code> ファイルを編集"
-		],
-		"note": "設定ファイルの場所：<br/>Mac: <code>~/Library/Application Support/Claude/claude_desktop_config.json</code><br/>Windows: <code>%APPDATA%\\Claude\\claude_desktop_config.json</code>",
-		"addTitle": "MCP サーバー設定を追加",
-		"addDesc": "以下の設定を設定ファイルに追加してください。"
-	},
-	"windsurf": {
-		"title": "Windsurf で MCP を設定",
-		"steps": [
-			"Windsurf エディタを開く",
-			"<strong>設定 → Extensions → MCP</strong> に移動",
-			"<strong>\"Add Server\"</strong> をクリック"
-		],
-		"note": "Windsurf は Cursor と同じ設定形式を使用します。",
-		"addTitle": "MCP サーバー設定を追加",
-		"addDesc": "以下の設定をコピーして MCP 設定に追加してください。"
-	},
-	"cline": {
-		"title": "Cline で MCP を設定",
-		"steps": [
-			"VS Code で Cline 拡張機能を開く",
-			"設定アイコンをクリック",
-			"<strong>\"MCP Servers\"</strong> 設定を探す"
-		],
-		"note": "Cline は UI または設定ファイルから MCP サーバーを追加できます。",
-		"addTitle": "MCP サーバー設定を追加",
-		"addDesc": "以下の設定を Cline の MCP 設定に追加してください。"
 	},
 	"copilot": {
 		"title": "VS Code で MCP サポートを有効化",
@@ -79,6 +36,61 @@
 			"<strong>ツール (🔧)</strong> ボタンをクリックして利用可能な MCP ツールを表示"
 		],
 		"manageTip": "<strong>\"MCP: List Servers\"</strong> コマンドで設定済みサーバーを管理：サーバーの開始/停止/再起動、ログの表示、利用可能なツールの参照。"
+	},
+	"cursor": {
+		"title": "Cursor で MCP を設定",
+		"steps": [
+			"<kbd>Shift+Command+J</kbd> (Mac) または <kbd>Shift+Ctrl+J</kbd> (Windows/Linux) を押して Cursor の設定を開く",
+			"左サイドバーで <strong>\"MCP & Integrations\"</strong> を探す",
+			"<strong>\"+ New MCP Server\"</strong> をクリック"
+		],
+		"note": "これにより <code>mcp.json</code> ファイルが開きます。編集が必要です。",
+		"addTitle": "MCP サーバー設定を追加",
+		"addDesc": "以下の設定をコピーして、<code>mcp.json</code> ファイルの <code>mcpServers</code> キーの下に貼り付けてください。"
+	},
+	"windsurf": {
+		"title": "Windsurf で MCP を設定",
+		"steps": [
+			"Windsurf エディタを開く",
+			"<strong>設定 → Extensions → MCP</strong> に移動",
+			"<strong>\"Add Server\"</strong> をクリック"
+		],
+		"note": "Windsurf は Cursor と同じ設定形式を使用します。",
+		"addTitle": "MCP サーバー設定を追加",
+		"addDesc": "以下の設定をコピーして MCP 設定に追加してください。"
+	},
+	"cline": {
+		"title": "Cline で MCP を設定",
+		"steps": [
+			"VS Code で Cline 拡張機能を開く",
+			"設定アイコンをクリック",
+			"<strong>\"MCP Servers\"</strong> 設定を探す"
+		],
+		"note": "Cline は UI または設定ファイルから MCP サーバーを追加できます。",
+		"addTitle": "MCP サーバー設定を追加",
+		"addDesc": "以下の設定を Cline の MCP 設定に追加してください。"
+	},
+	"trae": {
+		"title": "TRAE で MCP を設定",
+		"steps": [
+			"TRAE（ByteDance AI IDE）を開く",
+			"<strong>設定 → AI アシスタント → MCP サーバー</strong> に移動",
+			"<strong>\"サーバーを追加\"</strong> をクリック"
+		],
+		"note": "TRAE は ByteDance の AI IDE で、Doubao LLM を搭載し、MCP プロトコルをサポートしています。",
+		"addTitle": "MCP サーバー設定を追加",
+		"addDesc": "以下の設定を TRAE の MCP 設定に追加してください。"
+	},
+	"jetbrains": {
+		"title": "JetBrains IDE で MCP を設定",
+		"steps": [
+			"JetBrains IDE（IntelliJ IDEA、WebStorm、PyCharm など）を開く",
+			"<strong>Settings/Preferences → Tools → AI Assistant → MCP Servers</strong> に移動",
+			"<strong>\"+\"</strong> ボタンをクリックして新しいサーバーを追加"
+		],
+		"note": "AI Assistant プラグインがインストールされ、MCP サポートが有効になっている必要があります。一部の古い IDE バージョンでは MCP がサポートされていない場合があります。",
+		"addTitle": "MCP サーバー設定を追加",
+		"addDesc": "MCP Servers 設定に以下のサーバー情報を追加してください。"
 	},
 	"other": {
 		"title": "汎用 MCP 統合",

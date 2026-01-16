@@ -3,56 +3,13 @@
 	"subtitle": "GrapeCity Product Documentation RAG + MCP Service",
 	"description": "Follow the instructions below to configure the MCP service in your AI client",
 	"clients": {
+		"copilot": "GitHub Copilot",
 		"cursor": "Cursor",
-		"claude": "Claude Desktop",
 		"windsurf": "Windsurf",
 		"cline": "Cline",
-		"copilot": "GitHub Copilot",
+		"trae": "TRAE",
+		"jetbrains": "JetBrains IDE",
 		"other": "Other"
-	},
-	"cursor": {
-		"title": "Configure MCP in Cursor",
-		"steps": [
-			"Press <kbd>Shift+Command+J</kbd> (Mac) or <kbd>Shift+Ctrl+J</kbd> (Windows/Linux) to open Cursor settings",
-			"Look for <strong>\"MCP & Integrations\"</strong> in the left sidebar",
-			"Click <strong>\"+ New MCP Server\"</strong>"
-		],
-		"note": "This will open the <code>mcp.json</code> file, which you need to edit.",
-		"addTitle": "Add MCP Server Configuration",
-		"addDesc": "Copy the configuration below and paste it under the <code>mcpServers</code> key in the <code>mcp.json</code> file."
-	},
-	"claude": {
-		"title": "Configure MCP in Claude Desktop",
-		"steps": [
-			"Open Claude Desktop application",
-			"Go to <strong>Settings → Developer → Edit Config</strong>",
-			"Edit the <code>claude_desktop_config.json</code> file"
-		],
-		"note": "Config file location:<br/>Mac: <code>~/Library/Application Support/Claude/claude_desktop_config.json</code><br/>Windows: <code>%APPDATA%\\Claude\\claude_desktop_config.json</code>",
-		"addTitle": "Add MCP Server Configuration",
-		"addDesc": "Add the following configuration to the config file."
-	},
-	"windsurf": {
-		"title": "Configure MCP in Windsurf",
-		"steps": [
-			"Open Windsurf editor",
-			"Go to <strong>Settings → Extensions → MCP</strong>",
-			"Click <strong>\"Add Server\"</strong>"
-		],
-		"note": "Windsurf uses the same configuration format as Cursor.",
-		"addTitle": "Add MCP Server Configuration",
-		"addDesc": "Copy the configuration below and add it to MCP settings."
-	},
-	"cline": {
-		"title": "Configure MCP in Cline",
-		"steps": [
-			"Open Cline extension in VS Code",
-			"Click the settings icon",
-			"Find the <strong>\"MCP Servers\"</strong> configuration"
-		],
-		"note": "Cline supports adding MCP servers via UI or config file.",
-		"addTitle": "Add MCP Server Configuration",
-		"addDesc": "Add the following configuration to Cline's MCP settings."
 	},
 	"copilot": {
 		"title": "Enable MCP Support in VS Code",
@@ -79,6 +36,61 @@
 			"Click the <strong>Tools (🔧)</strong> button to view available MCP tools"
 		],
 		"manageTip": "Use the <strong>\"MCP: List Servers\"</strong> command to view and manage your configured servers: Start/Stop/Restart servers, view server logs, browse available tools."
+	},
+	"cursor": {
+		"title": "Configure MCP in Cursor",
+		"steps": [
+			"Press <kbd>Shift+Command+J</kbd> (Mac) or <kbd>Shift+Ctrl+J</kbd> (Windows/Linux) to open Cursor settings",
+			"Look for <strong>\"MCP & Integrations\"</strong> in the left sidebar",
+			"Click <strong>\"+ New MCP Server\"</strong>"
+		],
+		"note": "This will open the <code>mcp.json</code> file, which you need to edit.",
+		"addTitle": "Add MCP Server Configuration",
+		"addDesc": "Copy the configuration below and paste it under the <code>mcpServers</code> key in the <code>mcp.json</code> file."
+	},
+	"windsurf": {
+		"title": "Configure MCP in Windsurf",
+		"steps": [
+			"Open Windsurf editor",
+			"Go to <strong>Settings → Extensions → MCP</strong>",
+			"Click <strong>\"Add Server\"</strong>"
+		],
+		"note": "Windsurf uses the same configuration format as Cursor.",
+		"addTitle": "Add MCP Server Configuration",
+		"addDesc": "Copy the configuration below and add it to MCP settings."
+	},
+	"cline": {
+		"title": "Configure MCP in Cline",
+		"steps": [
+			"Open Cline extension in VS Code",
+			"Click the settings icon",
+			"Find the <strong>\"MCP Servers\"</strong> configuration"
+		],
+		"note": "Cline supports adding MCP servers via UI or config file.",
+		"addTitle": "Add MCP Server Configuration",
+		"addDesc": "Add the following configuration to Cline's MCP settings."
+	},
+	"trae": {
+		"title": "Configure MCP in TRAE",
+		"steps": [
+			"Open TRAE (ByteDance AI IDE)",
+			"Go to <strong>Settings → AI Assistant → MCP Servers</strong>",
+			"Click <strong>\"Add Server\"</strong>"
+		],
+		"note": "TRAE is ByteDance's AI IDE powered by Doubao LLM, with MCP protocol support.",
+		"addTitle": "Add MCP Server Configuration",
+		"addDesc": "Add the following configuration to TRAE's MCP settings."
+	},
+	"jetbrains": {
+		"title": "Configure MCP in JetBrains IDE",
+		"steps": [
+			"Open JetBrains IDE (IntelliJ IDEA, WebStorm, PyCharm, etc.)",
+			"Go to <strong>Settings/Preferences → Tools → AI Assistant → MCP Servers</strong>",
+			"Click the <strong>\"+\"</strong> button to add a new server"
+		],
+		"note": "Requires AI Assistant plugin installed with MCP support enabled. Some older IDE versions may not support MCP.",
+		"addTitle": "Add MCP Server Configuration",
+		"addDesc": "Add the following server information in MCP Servers configuration."
 	},
 	"other": {
 		"title": "Universal MCP Integration",

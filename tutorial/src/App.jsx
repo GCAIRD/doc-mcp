@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from '../node_modules/react-i18next';
-import { Copy, Check, Table2, FileSpreadsheet, MousePointer2, Terminal, MessageSquare, MoreHorizontal, Github } from 'lucide-react';
+import { Copy, Check, Table2, FileSpreadsheet, MousePointer2, Terminal, MoreHorizontal, Github } from 'lucide-react';
 import './i18n';
 import './App.css';
 
@@ -28,11 +28,12 @@ const MCP_URLS = {
 };
 
 const clients = [
+	{ id: 'copilot', icon: Github },
 	{ id: 'cursor', icon: MousePointer2 },
-	{ id: 'claude', icon: MessageSquare },
 	{ id: 'windsurf', icon: Terminal },
 	{ id: 'cline', icon: Terminal },
-	{ id: 'copilot', icon: Github },
+	{ id: 'trae', icon: Terminal },
+	{ id: 'jetbrains', icon: Terminal },
 	{ id: 'other', icon: MoreHorizontal }
 ];
 
@@ -262,7 +263,7 @@ function ClientContent({ client }) {
 
 function App() {
 	const { t, i18n } = useTranslation();
-	const [activeClient, setActiveClient] = useState('cursor');
+	const [activeClient, setActiveClient] = useState('copilot');
 
 	const languages = [
 		{ code: 'zh', label: '中文' },

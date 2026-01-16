@@ -3,56 +3,13 @@
 	"subtitle": "GrapeCity 产品文档 RAG + MCP 服务",
 	"description": "按照以下说明在您的 AI 客户端中配置 MCP 服务",
 	"clients": {
+		"copilot": "GitHub Copilot",
 		"cursor": "Cursor",
-		"claude": "Claude Desktop",
 		"windsurf": "Windsurf",
 		"cline": "Cline",
-		"copilot": "GitHub Copilot",
+		"trae": "TRAE",
+		"jetbrains": "JetBrains IDE",
 		"other": "其他"
-	},
-	"cursor": {
-		"title": "在 Cursor 中配置 MCP",
-		"steps": [
-			"按 <kbd>Shift+Command+J</kbd> (Mac) 或 <kbd>Shift+Ctrl+J</kbd> (Windows/Linux) 打开 Cursor 设置",
-			"在左侧边栏找到 <strong>\"MCP & Integrations\"</strong>",
-			"点击 <strong>\"+ New MCP Server\"</strong>"
-		],
-		"note": "这将打开 <code>mcp.json</code> 文件，您需要编辑它。",
-		"addTitle": "添加 MCP 服务器配置",
-		"addDesc": "复制以下配置并粘贴到 <code>mcp.json</code> 文件的 <code>mcpServers</code> 键下。"
-	},
-	"claude": {
-		"title": "在 Claude Desktop 中配置 MCP",
-		"steps": [
-			"打开 Claude Desktop 应用",
-			"进入 <strong>设置 → 开发者 → 编辑配置</strong>",
-			"编辑 <code>claude_desktop_config.json</code> 文件"
-		],
-		"note": "配置文件位置：<br/>Mac: <code>~/Library/Application Support/Claude/claude_desktop_config.json</code><br/>Windows: <code>%APPDATA%\\Claude\\claude_desktop_config.json</code>",
-		"addTitle": "添加 MCP 服务器配置",
-		"addDesc": "将以下配置添加到配置文件中。"
-	},
-	"windsurf": {
-		"title": "在 Windsurf 中配置 MCP",
-		"steps": [
-			"打开 Windsurf 编辑器",
-			"进入 <strong>设置 → Extensions → MCP</strong>",
-			"点击 <strong>\"Add Server\"</strong>"
-		],
-		"note": "Windsurf 使用与 Cursor 相同的配置格式。",
-		"addTitle": "添加 MCP 服务器配置",
-		"addDesc": "复制以下配置并添加到 MCP 设置中。"
-	},
-	"cline": {
-		"title": "在 Cline 中配置 MCP",
-		"steps": [
-			"在 VS Code 中打开 Cline 扩展",
-			"点击设置图标",
-			"找到 <strong>\"MCP Servers\"</strong> 配置项"
-		],
-		"note": "Cline 支持通过 UI 或配置文件添加 MCP 服务器。",
-		"addTitle": "添加 MCP 服务器配置",
-		"addDesc": "将以下配置添加到 Cline 的 MCP 设置中。"
 	},
 	"copilot": {
 		"title": "在 VS Code 中启用 GitHub Copilot MCP",
@@ -79,6 +36,61 @@
 			"点击 <strong>工具 (🔧)</strong> 按钮查看可用的 MCP 工具"
 		],
 		"manageTip": "使用 <strong>\"MCP: List Servers\"</strong> 命令查看和管理已配置的服务器：启动/停止/重启服务器、查看日志、浏览可用工具。"
+	},
+	"cursor": {
+		"title": "在 Cursor 中配置 MCP",
+		"steps": [
+			"按 <kbd>Shift+Command+J</kbd> (Mac) 或 <kbd>Shift+Ctrl+J</kbd> (Windows/Linux) 打开 Cursor 设置",
+			"在左侧边栏找到 <strong>\"MCP & Integrations\"</strong>",
+			"点击 <strong>\"+ New MCP Server\"</strong>"
+		],
+		"note": "这将打开 <code>mcp.json</code> 文件，您需要编辑它。",
+		"addTitle": "添加 MCP 服务器配置",
+		"addDesc": "复制以下配置并粘贴到 <code>mcp.json</code> 文件的 <code>mcpServers</code> 键下。"
+	},
+	"windsurf": {
+		"title": "在 Windsurf 中配置 MCP",
+		"steps": [
+			"打开 Windsurf 编辑器",
+			"进入 <strong>设置 → Extensions → MCP</strong>",
+			"点击 <strong>\"Add Server\"</strong>"
+		],
+		"note": "Windsurf 使用与 Cursor 相同的配置格式。",
+		"addTitle": "添加 MCP 服务器配置",
+		"addDesc": "复制以下配置并添加到 MCP 设置中。"
+	},
+	"cline": {
+		"title": "在 Cline 中配置 MCP",
+		"steps": [
+			"在 VS Code 中打开 Cline 扩展",
+			"点击设置图标",
+			"找到 <strong>\"MCP Servers\"</strong> 配置项"
+		],
+		"note": "Cline 支持通过 UI 或配置文件添加 MCP 服务器。",
+		"addTitle": "添加 MCP 服务器配置",
+		"addDesc": "将以下配置添加到 Cline 的 MCP 设置中。"
+	},
+	"trae": {
+		"title": "在 TRAE 中配置 MCP",
+		"steps": [
+			"打开 TRAE（字节跳动 AI IDE）",
+			"进入 <strong>设置 → AI 助手 → MCP 服务器</strong>",
+			"点击 <strong>\"添加服务器\"</strong>"
+		],
+		"note": "TRAE 是字节跳动推出的 AI IDE，基于豆包大模型，支持 MCP 协议。",
+		"addTitle": "添加 MCP 服务器配置",
+		"addDesc": "将以下配置添加到 TRAE 的 MCP 设置中。"
+	},
+	"jetbrains": {
+		"title": "在 JetBrains IDE 中配置 MCP",
+		"steps": [
+			"打开 JetBrains IDE（IntelliJ IDEA、WebStorm、PyCharm 等）",
+			"进入 <strong>Settings/Preferences → Tools → AI Assistant → MCP Servers</strong>",
+			"点击 <strong>\"+\"</strong> 按钮添加新服务器"
+		],
+		"note": "需要安装 AI Assistant 插件并确保已启用 MCP 支持。部分旧版本 IDE 可能不支持 MCP。",
+		"addTitle": "添加 MCP 服务器配置",
+		"addDesc": "在 MCP Servers 配置中添加以下服务器信息。"
 	},
 	"other": {
 		"title": "通用 MCP 集成",
