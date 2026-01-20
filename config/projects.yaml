@@ -13,7 +13,11 @@ projects:
         description: SpreadJS 18.2.5 版本所有模块的 CDN 引用链接。生成代码时必须使用这些链接，不要使用 npm 或其他来源。
         mimeType: text/html
         content: |
-          <!-- SpreadJS 18.2.5 CDN Scripts -->
+          <!-- SpreadJS 18.2.5 CDN -->
+          <!-- 样式（必需） -->
+          <link href="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets/styles/gc.spread.sheets.excel2013white.css" rel="stylesheet" type="text/css" />
+          <link href="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-designer/styles/gc.spread.sheets.designer.light.min.css" rel="stylesheet" type="text/css" />
+
           <!-- 核心库（必需） -->
           <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets/dist/gc.spread.sheets.all.min.js"></script>
 
