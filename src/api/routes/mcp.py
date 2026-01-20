@@ -19,11 +19,19 @@ def get_tools(project: str | None = None, project_config=None) -> dict:
 		# 固定项目模式：不需要 project 参数
 		if project_config:
 			proj_desc = project_config.get_description(project) or project
+			has_resources = bool(project_config.get_resources(project))
 		else:
 			proj_desc = project
-		return {
+			has_resources = False
+
+		# 基础 description
+		search_desc = f"搜索 {proj_desc} 中文文档。返回相关代码示例、API 文档和功能说明。\n\n【重要】每次调用 API 或实现功能前，必须先搜索确认：1) 方法签名和参数 2) 返回值类型 3) 使用示例。不要依赖记忆中的 API 知识，文档版本可能已更新。"
+		if has_resources:
+			search_desc += "\n\n【强制】如需生成包含 script 引用或 import 的代码，必须先调用 get_code_guidelines 获取正确的引用方式。"
+
+		tools = {
 			"search": {
-				"description": f"搜索 {proj_desc} 中文文档。返回相关代码示例、API 文档和功能说明。\n\n【重要】每次调用 API 或实现功能前，必须先搜索确认：1) 方法签名和参数 2) 返回值类型 3) 使用示例。不要依赖记忆中的 API 知识，文档版本可能已更新。",
+				"description": search_desc,
 				"inputSchema": {
 					"type": "object",
 					"properties": {
@@ -54,12 +62,45 @@ def get_tools(project: str | None = None, project_config=None) -> dict:
 				},
 			},
 		}
+
+		# 只有配置了 resources 的项目才暴露 get_code_guidelines
+		if has_resources:
+			tools["get_code_guidelines"] = {
+				"description": f"获取 {proj_desc} 代码生成规范，包括 CDN 链接、包引用方式等。【强制】在生成任何包含 script 引用或 import 语句的代码之前，必须先调用此工具。不调用将导致使用错误的引用链接。",
+				"inputSchema": {
+					"type": "object",
+					"properties": {
+						"guideline_type": {
+							"type": "string",
+							"enum": ["cdn_scripts", "npm_packages", "all"],
+							"description": "规范类型：cdn_scripts=CDN脚本引用, npm_packages=NPM包引用, all=全部",
+							"default": "all",
+						}
+					},
+					"required": [],
+				},
+			}
+
+		return tools
 	else:
-		# 多项目模式：从 project_config 动态获取项目列表
+		# 多项目模式
 		project_names = project_config.project_names if project_config else ["spreadjs", "gcexcel"]
-		return {
+
+		# 找出有 resources 配置的项目
+		projects_with_resources = []
+		if project_config:
+			for pn in project_names:
+				if project_config.get_resources(pn):
+					projects_with_resources.append(pn)
+
+		# 基础 description
+		search_desc = "搜索 GrapeCity Docs 产品文档。返回相关代码示例、API 文档和功能说明。\n\n【重要】每次调用 API 或实现功能前，必须先搜索确认：1) 方法签名和参数 2) 返回值类型 3) 使用示例。不要依赖记忆中的 API 知识，文档版本可能已更新。"
+		if projects_with_resources:
+			search_desc += f"\n\n【强制】如需为 {'/'.join(projects_with_resources)} 生成包含 script 引用或 import 的代码，必须先调用 get_code_guidelines 获取正确的引用方式。"
+
+		tools = {
 			"search": {
-				"description": "搜索 GrapeCity Docs 产品文档。返回相关代码示例、API 文档和功能说明。\n\n【重要】每次调用 API 或实现功能前，必须先搜索确认：1) 方法签名和参数 2) 返回值类型 3) 使用示例。不要依赖记忆中的 API 知识，文档版本可能已更新。",
+				"description": search_desc,
 				"inputSchema": {
 					"type": "object",
 					"properties": {
@@ -97,6 +138,31 @@ def get_tools(project: str | None = None, project_config=None) -> dict:
 				},
 			},
 		}
+
+		# 只有存在配置了 resources 的项目才暴露 get_code_guidelines
+		if projects_with_resources:
+			tools["get_code_guidelines"] = {
+				"description": f"获取指定项目的代码生成规范，包括 CDN 链接、包引用方式等。【强制】在生成任何包含 script 引用或 import 语句的代码之前，必须先调用此工具。不调用将导致使用错误的引用链接。仅 {'/'.join(projects_with_resources)} 支持此工具。",
+				"inputSchema": {
+					"type": "object",
+					"properties": {
+						"project": {
+							"type": "string",
+							"description": f"项目：{' 或 '.join(projects_with_resources)}",
+							"enum": projects_with_resources,
+						},
+						"guideline_type": {
+							"type": "string",
+							"enum": ["cdn_scripts", "npm_packages", "all"],
+							"description": "规范类型：cdn_scripts=CDN脚本引用, npm_packages=NPM包引用, all=全部",
+							"default": "all",
+						}
+					},
+					"required": ["project"],
+				},
+			}
+
+		return tools
 
 
 def create_response(message_id: str | int | None, result: dict) -> dict:
@@ -145,6 +211,38 @@ async def handle_fetch(args: dict, project: str, rag_service_url: str) -> dict:
 	return result
 
 
+async def handle_get_code_guidelines(args: dict, project: str, project_config) -> dict:
+	"""获取代码生成规范"""
+	guideline_type = args.get("guideline_type", "all")
+	resources = project_config.get_resources(project) if project_config else {}
+
+	if not resources:
+		return {"guidelines": {}, "_note": f"项目 {project} 暂无代码规范配置"}
+
+	if guideline_type == "all":
+		result = {}
+		for res_id, res_info in resources.items():
+			result[res_id] = {
+				"name": res_info.get("name", res_id),
+				"description": res_info.get("description", ""),
+				"content": res_info.get("content", ""),
+			}
+		return {"guidelines": result}
+	elif guideline_type in resources:
+		res_info = resources[guideline_type]
+		return {
+			"guidelines": {
+				guideline_type: {
+					"name": res_info.get("name", guideline_type),
+					"description": res_info.get("description", ""),
+					"content": res_info.get("content", ""),
+				}
+			}
+		}
+	else:
+		return {"guidelines": {}, "_note": f"未找到类型 {guideline_type} 的规范，可用类型：{list(resources.keys())}"}
+
+
 async def route_message(
 	message: dict, project: str | None, rag_service_url: str
 ) -> dict | None:
@@ -181,6 +279,18 @@ async def route_message(
 		actual_project = project or arguments.get("project")
 		if not actual_project:
 			return create_error(message_id, -32002, "project is required")
+
+		# get_code_guidelines 特殊处理（不需要 RAG 服务）
+		if tool_name == "get_code_guidelines":
+			try:
+				from ..app import get_project_config
+				result = await handle_get_code_guidelines(arguments, actual_project, get_project_config())
+				return create_response(
+					message_id,
+					{"content": [{"type": "text", "text": json.dumps(result, ensure_ascii=False)}]},
+				)
+			except Exception as e:
+				return create_error(message_id, -32004, f"Tool error: {str(e)}")
 
 		handlers = {
 			"search": handle_search,

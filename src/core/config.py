@@ -96,6 +96,10 @@ class ProjectConfig:
 	def get_description(self, project: str) -> str:
 		return self.get_project(project).get("description", "")
 
+	def get_resources(self, project: str) -> dict:
+		"""获取项目的 resources 配置"""
+		return self.get_project(project).get("resources", {})
+
 	# Search配置
 	@property
 	def prefetch_limit(self) -> int:

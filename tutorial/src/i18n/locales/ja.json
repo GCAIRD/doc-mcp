@@ -102,7 +102,7 @@
 		"title": "Cherry Studio で MCP を設定",
 		"steps": [
 			"Cherry Studio アプリを開く",
-			"左下の<strong>設定</strong>アイコンをクリック",
+			"<strong>設定</strong>アイコンをクリック（位置はナビゲーションバーの設定により異なります：サイドバーナビの場合は左下、トップナビの場合は右上）",
 			"左メニューから <strong>MCP サーバー</strong> を選択",
 			"<strong>\"サーバーを追加\"</strong> ボタンをクリック"
 		],

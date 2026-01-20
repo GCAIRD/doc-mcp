@@ -102,7 +102,7 @@
 		"title": "Configure MCP in Cherry Studio",
 		"steps": [
 			"Open Cherry Studio application",
-			"Click the <strong>Settings</strong> icon at the bottom left",
+			"Click the <strong>Settings</strong> icon (location depends on navigation bar setting: bottom-left for sidebar nav, top-right for top nav)",
 			"Select <strong>MCP Servers</strong> from the left menu",
 			"Click <strong>\"Add Server\"</strong> button"
 		],

@@ -120,11 +120,23 @@ function CodeBlock({ code, lang = 'json', label }) {
 				return (
 					<span key={key}>
 						{spaces}<span className="key">"{key}"</span>: [
-						{value.map((v, vi) => (
-							<span key={vi}>
-								{'\n'}{spaces}  <span className="string">"{v}"</span>{vi < value.length - 1 ? ',' : ''}
-							</span>
-						))}
+						{value.map((v, vi) => {
+							const itemComma = vi < value.length - 1 ? ',' : '';
+							if (typeof v === 'object' && v !== null) {
+								return (
+									<span key={vi}>
+										{'\n'}{spaces}  {'{\n'}
+										{formatJson(v, indent + 2)}
+										{spaces}  {'}'}{itemComma}
+									</span>
+								);
+							}
+							return (
+								<span key={vi}>
+									{'\n'}{spaces}  <span className="string">"{v}"</span>{itemComma}
+								</span>
+							);
+						})}
 						{'\n'}{spaces}]{comma}{'\n'}
 					</span>
 				);

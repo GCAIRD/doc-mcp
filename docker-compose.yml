@@ -54,6 +54,8 @@ services:
       - "${MCP_PORT:-8889}:8889"
     volumes:
       - ./storage/logs:/app/storage/logs
+      - ./tutorial/dist:/app/tutorial/dist:ro
+      - ./config:/app/config:ro
     networks:
       - internal
       - external
