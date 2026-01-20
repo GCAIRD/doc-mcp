@@ -10,7 +10,7 @@ projects:
     resources:
       cdn_scripts:
         name: SpreadJS CDN 脚本引用
-        description: SpreadJS 18.2.5 版本所有模块的 CDN 引用链接。生成代码时必须使用这些链接，不要使用 npm 或其他来源。
+        description: SpreadJS 18.2.5 版本所有模块的 CDN 引用链接。适用于纯 HTML 页面或快速原型开发。
         mimeType: text/html
         content: |
           <!-- SpreadJS 18.2.5 CDN -->
@@ -43,6 +43,62 @@ projects:
           <!-- 设计器（可选） -->
           <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-designer-resources-cn/dist/gc.spread.sheets.designer.resource.cn.min.js"></script>
           <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-designer/dist/gc.spread.sheets.designer.all.min.js"></script>
+
+      npm_packages:
+        name: SpreadJS npm 包引用
+        description: SpreadJS 18.2.5 版本 npm 包列表。适用于 React/Vue/Angular 等框架项目。
+        mimeType: text/plain
+        content: |
+          # SpreadJS npm 包 (版本 18.2.5)
+          # 作用域: @grapecity-software
+
+          ## 核心包（必需）
+          @grapecity-software/spread-sheets          # 核心库
+
+          ## 可选功能模块
+          @grapecity-software/spread-sheets-shapes           # 形状
+          @grapecity-software/spread-sheets-charts           # 图表
+          @grapecity-software/spread-sheets-datacharts-addon # 数据图表插件
+          @grapecity-software/spread-sheets-slicers          # 切片器
+          @grapecity-software/spread-sheets-print            # 打印
+          @grapecity-software/spread-sheets-barcode          # 条形码
+          @grapecity-software/spread-sheets-pdf              # PDF 导出
+          @grapecity-software/spread-sheets-pivot-addon      # 数据透视表
+          @grapecity-software/spread-sheets-tablesheet       # 数据管理表格
+          @grapecity-software/spread-sheets-ganttsheet       # 甘特图
+          @grapecity-software/spread-sheets-reportsheet-addon # 报表
+          @grapecity-software/spread-sheets-formula-panel    # 公式面板
+          @grapecity-software/spread-sheets-ai-addon         # AI 插件
+          @grapecity-software/spread-sheets-io               # Excel 导入导出
+
+          ## 中文资源
+          @grapecity-software/spread-sheets-resources-zh     # 中文语言包
+
+          ## 设计器（可选）
+          @grapecity-software/spread-sheets-designer              # 设计器核心
+          @grapecity-software/spread-sheets-designer-resources-cn # 设计器中文资源
+
+          ## React 封装
+          @grapecity-software/spread-sheets-react            # React 组件
+          @grapecity-software/spread-sheets-designer-react   # React 设计器组件
+
+          ## Vue 封装
+          @grapecity-software/spread-sheets-vue              # Vue 组件
+          @grapecity-software/spread-sheets-designer-vue     # Vue 设计器组件
+
+          ## Angular 封装
+          @grapecity-software/spread-sheets-angular          # Angular 组件
+          @grapecity-software/spread-sheets-designer-angular # Angular 设计器组件
+
+          ---
+          安装示例 (React):
+          npm install @grapecity-software/spread-sheets @grapecity-software/spread-sheets-react
+
+          安装示例 (Vue):
+          npm install @grapecity-software/spread-sheets @grapecity-software/spread-sheets-vue
+
+          安装示例 (Angular):
+          npm install @grapecity-software/spread-sheets @grapecity-software/spread-sheets-angular
 
   gcexcel:
     collection: gcexcel_rag
