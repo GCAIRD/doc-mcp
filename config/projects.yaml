@@ -44,6 +44,12 @@ projects:
           <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-designer-resources-cn/dist/gc.spread.sheets.designer.resource.cn.min.js"></script>
           <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-designer/dist/gc.spread.sheets.designer.all.min.js"></script>
 
+          <!-- 三方框架支持(可选) -->
+          <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-react/dist/gc.spread.sheets.react.min.js"></script>
+          <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-vue/dist/gc.spread.sheets.vue.min.js"></script>
+          <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-designer-vue/dist/gc.spread.sheets.designer.vue.min.js"></script>
+          <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-designer-react/dist/gc.spread.sheets.designer.react.min.js"></script>
+
       npm_packages:
         name: SpreadJS npm 包引用
         description: SpreadJS 18.2.5 版本 npm 包列表。适用于 React/Vue/Angular 等框架项目。
@@ -60,6 +66,7 @@ projects:
           @grapecity-software/spread-sheets-charts           # 图表
           @grapecity-software/spread-sheets-datacharts-addon # 数据图表插件
           @grapecity-software/spread-sheets-slicers          # 切片器
+          @grapecity-software/spread-sheets-sparklines       # 迷你图
           @grapecity-software/spread-sheets-print            # 打印
           @grapecity-software/spread-sheets-barcode          # 条形码
           @grapecity-software/spread-sheets-pdf              # PDF 导出
@@ -77,6 +84,15 @@ projects:
           ## 设计器（可选）
           @grapecity-software/spread-sheets-designer              # 设计器核心
           @grapecity-software/spread-sheets-designer-resources-cn # 设计器中文资源
+
+          ## 协同功能（可选）
+          @grapecity-software/js-collaboration              # 协同核心库
+          @grapecity-software/js-collaboration-client       # 协同客户端
+          @grapecity-software/js-collaboration-ot           # 操作转换 (OT)
+          @grapecity-software/js-collaboration-ot-client    # OT 客户端
+          @grapecity-software/js-collaboration-presence     # 在线状态
+          @grapecity-software/js-collaboration-presence-client # 在线状态客户端
+          @grapecity-software/js-collaboration-ot-sqlite    # OT SQLite 存储
 
           ## React 封装
           @grapecity-software/spread-sheets-react            # React 组件
