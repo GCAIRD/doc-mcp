@@ -4,7 +4,7 @@
 projects:
   spreadjs:
     collection: spreadjs_rag
-    raw_data: ./raw_data/spreadjs
+    raw_data: ./raw_data/cn/spreadjs
     description: SpreadJS 前端表格控件中文文档
     chunker: markdown
     resources:
@@ -118,7 +118,7 @@ projects:
 
   gcexcel:
     collection: gcexcel_rag
-    raw_data: ./raw_data/gcexcel
+    raw_data: ./raw_data/cn/gcexcel
     description: GcExcel 后端 Excel API 文档
     chunker: javadoc
 
