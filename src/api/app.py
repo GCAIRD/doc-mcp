@@ -150,7 +150,7 @@ def create_app(
 
 	# Static file service (tutorial page)
 	static_dir = Path(__file__).parent.parent.parent / "tutorial" / "dist"
-	playground_file = Path(__file__).parent.parent.parent / "playground.html"
+	playground_file = static_dir / "playground.html"
 
 	if static_dir.exists():
 		# Mount static assets (js, css, assets)
