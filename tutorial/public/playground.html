@@ -3,11 +3,12 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>RAG Playground</title>
+	<title id="page-title">RAG Playground</title>
 	<!-- Favicon -->
 	<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='10' y='15' width='55' height='70' rx='4' fill='%23c45d35'/><rect x='18' y='28' width='30' height='4' rx='2' fill='%23fff'/><rect x='18' y='40' width='38' height='4' rx='2' fill='%23fff'/><rect x='18' y='52' width='25' height='4' rx='2' fill='%23fff'/><circle cx='65' cy='60' r='20' fill='none' stroke='%232a7c7c' stroke-width='6'/><line x1='79' y1='74' x2='92' y2='87' stroke='%232a7c7c' stroke-width='6' stroke-linecap='round'/></svg>">
-	<!-- Markdown -->
+	<!-- Markdown + Highlight integration -->
 	<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/marked-highlight/lib/index.umd.js"></script>
 	<!-- Code Highlight -->
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github.min.css">
 	<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
@@ -978,8 +979,6 @@
 			document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
 				el.placeholder = t(el.dataset.i18nPlaceholder);
 			});
-			// Update page title
-			document.title = 'RAG Playground';
 		}
 
 		function switchLang(lang) {
@@ -1000,10 +999,9 @@
 		}
 
 		// ========== Marked config ==========
-		marked.setOptions({
-			breaks: true,
-			gfm: true,
-			highlight: function(code, lang) {
+		marked.use(markedHighlight.markedHighlight({
+			langPrefix: 'hljs language-',
+			highlight(code, lang) {
 				if (lang && hljs.getLanguage(lang)) {
 					try {
 						return hljs.highlight(code, { language: lang }).value;
@@ -1011,7 +1009,8 @@
 				}
 				return hljs.highlightAuto(code).value;
 			}
-		});
+		}));
+		marked.setOptions({ breaks: true, gfm: true });
 
 		// ========== State ==========
 		let searchResultsData = [];
@@ -1114,7 +1113,7 @@
 		}
 
 		function closeModal(event) {
-			if (event && event.target !== event.currentTarget) return;
+			if (event && event.target && event.target !== event.currentTarget) return;
 			document.getElementById('toolModal').classList.remove('open');
 			document.body.style.overflow = '';
 		}
