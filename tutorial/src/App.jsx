@@ -377,16 +377,22 @@ function App() {
 					<div className="logo-icon">MCS</div>
 					<span className="logo-text">{t('title')}</span>
 				</div>
-				<div className="lang-switcher">
-					{languages.map(lang => (
-						<button
-							key={lang.code}
-							className={`lang-btn ${i18n.language === lang.code ? 'active' : ''}`}
-							onClick={() => i18n.changeLanguage(lang.code)}
-						>
-							{lang.label}
-						</button>
-					))}
+				<div className="header-actions">
+					<a href="/playground" className="try-now-header" title={t('tryNow.description')}>
+						<Play size={16} />
+						<span>{t('tryNow.button')}</span>
+					</a>
+					<div className="lang-switcher">
+						{languages.map(lang => (
+							<button
+								key={lang.code}
+								className={`lang-btn ${i18n.language === lang.code ? 'active' : ''}`}
+								onClick={() => i18n.changeLanguage(lang.code)}
+							>
+								{lang.label}
+							</button>
+						))}
+					</div>
 				</div>
 			</header>
 
@@ -438,15 +444,6 @@ function App() {
 						</div>
 						*/}
 					</div>
-				</div>
-
-				<div className="try-now">
-					<h3>{t('tryNow.title')}</h3>
-					<p className="try-now-desc">{t('tryNow.description')}</p>
-					<a href="/playground" className="try-now-btn">
-						<Play size={18} />
-						{t('tryNow.button')}
-					</a>
 				</div>
 			</main>
 		</div>
