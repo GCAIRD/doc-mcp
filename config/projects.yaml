@@ -109,11 +109,11 @@ projects:
           Install example (Angular):
           npm install @mescius/spread-sheets @mescius/spread-sheets-angular
 
-  gcexcel:
-    collection: gcexcel_rag
-    raw_data: ./raw_data/en/gcexcel
-    description: GcExcel backend Excel API documentation
-    chunker: javadoc
+  # gcexcel:
+  #   collection: gcexcel_rag
+  #   raw_data: ./raw_data/en/gcexcel
+  #   description: GcExcel backend Excel API documentation
+  #   chunker: javadoc
 
 search:
   prefetch_limit: 20

@@ -23,8 +23,8 @@ const copyToClipboard = async (text) => {
 // MCP server URL config
 const MCP_BASE_URL = 'http://20.2.219.14:8901/mcp';
 const MCP_URLS = {
-	spreadjs: `${MCP_BASE_URL}/spreadjs`,
-	gcexcel: `${MCP_BASE_URL}/gcexcel`
+	spreadjs: `${MCP_BASE_URL}/spreadjs`
+	// gcexcel: `${MCP_BASE_URL}/gcexcel` // Temporarily unavailable
 };
 
 // Client categories
@@ -214,7 +214,6 @@ function UrlBlock({ url, label }) {
 function CopilotContent() {
 	const { t } = useTranslation();
 	const spreadjsConfig = getConfig('copilot', 'spreadjs');
-	const gcexcelConfig = getConfig('copilot', 'gcexcel');
 
 	return (
 		<div className="content-panel">
@@ -229,7 +228,6 @@ function CopilotContent() {
 			<h3 className="section-title">{t('copilot.addTitle')}</h3>
 			<p className="section-desc" dangerouslySetInnerHTML={{ __html: t('copilot.addDesc') }} />
 			<CodeBlock code={spreadjsConfig} label=".vscode/mcp.json (SpreadJS)" />
-			<CodeBlock code={gcexcelConfig} label=".vscode/mcp.json (GcExcel)" />
 
 			<h3 className="section-title" style={{ marginTop: '2rem' }}>{t('copilot.altTitle')}</h3>
 			<ol className="steps">
@@ -252,7 +250,6 @@ function CopilotContent() {
 function OtherContent() {
 	const { t } = useTranslation();
 	const spreadjsConfig = getConfig('other', 'spreadjs');
-	const gcexcelConfig = getConfig('other', 'gcexcel');
 
 	return (
 		<div className="content-panel">
@@ -263,11 +260,6 @@ function OtherContent() {
 			<p className="section-desc">{t('other.spreadjsDesc')}</p>
 			<UrlBlock url={MCP_URLS.spreadjs} label="Streamable HTTP Endpoint" />
 			<CodeBlock code={spreadjsConfig} label="SpreadJS Configuration" />
-
-			<h3 className="section-title" style={{ marginTop: '2rem' }}>{t('other.gcexcelTitle')}</h3>
-			<p className="section-desc">{t('other.gcexcelDesc')}</p>
-			<UrlBlock url={MCP_URLS.gcexcel} label="Streamable HTTP Endpoint" />
-			<CodeBlock code={gcexcelConfig} label="GcExcel Configuration" />
 
 			<h3 className="section-title" style={{ marginTop: '2rem' }}>{t('other.configTitle')}</h3>
 			<ul className="config-locations">
@@ -296,7 +288,6 @@ function OtherContent() {
 function CherryStudioContent() {
 	const { t } = useTranslation();
 	const spreadjsConfig = getConfig('cherrystudio', 'spreadjs');
-	const gcexcelConfig = getConfig('cherrystudio', 'gcexcel');
 
 	return (
 		<div className="content-panel">
@@ -316,11 +307,9 @@ function CherryStudioContent() {
 				))}
 			</ol>
 			<UrlBlock url={MCP_URLS.spreadjs} label="SpreadJS URL" />
-			<UrlBlock url={MCP_URLS.gcexcel} label="GcExcel URL" />
 
 			<h3 className="section-title" style={{ marginTop: '2rem' }}>JSON Config Reference</h3>
 			<CodeBlock code={spreadjsConfig} label="SpreadJS" />
-			<CodeBlock code={gcexcelConfig} label="GcExcel" />
 		</div>
 	);
 }
@@ -337,7 +326,6 @@ function ClientContent({ client }) {
 	}
 
 	const spreadjsConfig = getConfig(client, 'spreadjs');
-	const gcexcelConfig = getConfig(client, 'gcexcel');
 
 	return (
 		<div className="content-panel" key={client}>
@@ -351,7 +339,6 @@ function ClientContent({ client }) {
 			<h3 className="section-title">{t(`${client}.addTitle`)}</h3>
 			<p className="section-desc" dangerouslySetInnerHTML={{ __html: t(`${client}.addDesc`) }} />
 			<CodeBlock code={spreadjsConfig} label="SpreadJS" />
-			<CodeBlock code={gcexcelConfig} label="GcExcel" />
 		</div>
 	);
 }
@@ -444,10 +431,12 @@ function App() {
 							<Table2 className="product-icon" />
 							<span>{t('products.spreadjs')}</span>
 						</div>
+						{/* GcExcel temporarily unavailable for EN version
 						<div className="product-item">
 							<FileSpreadsheet className="product-icon" />
 							<span>{t('products.gcexcel')}</span>
 						</div>
+						*/}
 					</div>
 				</div>
 			</main>
