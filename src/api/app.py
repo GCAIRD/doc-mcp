@@ -107,7 +107,7 @@ def create_app(
 	# Create application
 	app = FastAPI(
 		title="MCS-DOC-MCP Service",
-		description="Mescius Documentation MCP Service",
+		description="MESCIUS Documentation MCP Service",
 		version="1.0.0",
 		lifespan=lifespan,
 	)
@@ -150,6 +150,8 @@ def create_app(
 
 	# Static file service (tutorial page)
 	static_dir = Path(__file__).parent.parent.parent / "tutorial" / "dist"
+	playground_file = Path(__file__).parent.parent.parent / "playground.html"
+
 	if static_dir.exists():
 		# Mount static assets (js, css, assets)
 		app.mount("/assets", StaticFiles(directory=static_dir / "assets"), name="assets")
@@ -158,6 +160,7 @@ def create_app(
 		async def serve_index():
 			"""Return tutorial homepage"""
 			return FileResponse(static_dir / "index.html")
+
 	else:
 		@app.get("/")
 		async def root():
@@ -168,5 +171,12 @@ def create_app(
 				"mode": mode,
 				"projects": project_config.project_names,
 			}
+
+	# Playground page
+	if playground_file.exists():
+		@app.get("/playground")
+		async def serve_playground():
+			"""Return playground page"""
+			return FileResponse(playground_file)
 
 	return app

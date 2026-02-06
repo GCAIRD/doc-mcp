@@ -1,6 +1,6 @@
 {
 	"title": "MCS-DOC-MCP",
-	"subtitle": "Mescius 製品ドキュメント RAG + MCP サービス",
+	"subtitle": "MESCIUS 製品ドキュメント RAG + MCP サービス",
 	"description": "以下の手順に従って、AI クライアントで MCP サービスを設定してください",
 	"categories": {
 		"ide": "IDE",
@@ -154,5 +154,10 @@
 		"title": "対応製品",
 		"spreadjs": "SpreadJS - JavaScript スプレッドシートコンポーネント",
 		"gcexcel": "GcExcel - サーバーサイド Excel コンポーネント"
+	},
+	"tryNow": {
+		"title": "今すぐ試す",
+		"description": "ブラウザで RAG 検索機能を直接体験",
+		"button": "Playground を開く"
 	}
 }

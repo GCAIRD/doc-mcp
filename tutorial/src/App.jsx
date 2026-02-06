@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from '../node_modules/react-i18next';
-import { Copy, Check, Table2, FileSpreadsheet, ChevronDown } from 'lucide-react';
+import { Copy, Check, Table2, FileSpreadsheet, ChevronDown, Play } from 'lucide-react';
 import './i18n';
 import './App.css';
 
@@ -438,6 +438,15 @@ function App() {
 						</div>
 						*/}
 					</div>
+				</div>
+
+				<div className="try-now">
+					<h3>{t('tryNow.title')}</h3>
+					<p className="try-now-desc">{t('tryNow.description')}</p>
+					<a href="/playground" className="try-now-btn">
+						<Play size={18} />
+						{t('tryNow.button')}
+					</a>
 				</div>
 			</main>
 		</div>

@@ -94,7 +94,7 @@ def get_tools(project: str | None = None, project_config=None) -> dict:
 					projects_with_resources.append(pn)
 
 		# Base description
-		search_desc = "Search Mescius product documentation. Returns relevant code examples, API docs and feature descriptions.\n\n[IMPORTANT] Before calling any API or implementing features, always search to confirm: 1) Method signatures and parameters 2) Return types 3) Usage examples. Do not rely on memorized API knowledge as documentation may have been updated."
+		search_desc = "Search MESCIUS product documentation. Returns relevant code examples, API docs and feature descriptions.\n\n[IMPORTANT] Before calling any API or implementing features, always search to confirm: 1) Method signatures and parameters 2) Return types 3) Usage examples. Do not rely on memorized API knowledge as documentation may have been updated."
 		if projects_with_resources:
 			search_desc += f"\n\n[REQUIRED] Before generating code with script references or imports for {'/'.join(projects_with_resources)}, you MUST call get_code_guidelines to obtain correct reference paths."
 

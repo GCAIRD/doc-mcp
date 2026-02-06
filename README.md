@@ -1,6 +1,6 @@
 # MCS-DOC-MCP
 
-Mescius product documentation RAG + MCP service.
+MESCIUS product documentation RAG + MCP service.
 
 ## Installation
 

@@ -1,1 +1,1 @@
-# MCS-DOC-MCP: Mescius Documentation MCP Service
+# MCS-DOC-MCP: MESCIUS Documentation MCP Service

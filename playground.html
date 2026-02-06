@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>RAG Playground</title>
+	<!-- Favicon -->
+	<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='10' y='15' width='55' height='70' rx='4' fill='%23c45d35'/><rect x='18' y='28' width='30' height='4' rx='2' fill='%23fff'/><rect x='18' y='40' width='38' height='4' rx='2' fill='%23fff'/><rect x='18' y='52' width='25' height='4' rx='2' fill='%23fff'/><circle cx='65' cy='60' r='20' fill='none' stroke='%232a7c7c' stroke-width='6'/><line x1='79' y1='74' x2='92' y2='87' stroke='%232a7c7c' stroke-width='6' stroke-linecap='round'/></svg>">
+	<!-- Markdown -->
+	<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+	<!-- Code Highlight -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github.min.css">
+	<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+	<!-- Fonts -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+	<style>
+		:root {
+			--bg-cream: #f7f4ed;
+			--bg-paper: #fffdf8;
+			--ink-black: #1a1814;
+			--ink-muted: #5c5750;
+			--accent-rust: #c45d35;
+			--accent-teal: #2a7c7c;
+			--accent-gold: #d4a853;
+			--border-light: #e5e0d5;
+			--shadow-soft: rgba(26, 24, 20, 0.08);
+		}
+
+		* { box-sizing: border-box; margin: 0; padding: 0; }
+
+		html { font-size: 16px; }
+
+		body {
+			font-family: 'Noto Sans SC', 'Crimson Pro', Georgia, serif;
+			background: var(--bg-cream);
+			color: var(--ink-black);
+			min-height: 100vh;
+			line-height: 1.7;
+		}
+
+		body::before {
+			content: '';
+			position: fixed;
+			inset: 0;
+			background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+			opacity: 0.02;
+			pointer-events: none;
+			z-index: 0;
+		}
+
+		.app {
+			position: relative;
+			z-index: 1;
+			max-width: 1400px;
+			margin: 0 auto;
+			padding: 2.5rem 2rem;
+		}
+
+		/* Header */
+		header {
+			margin-bottom: 2rem;
+			padding-bottom: 1.5rem;
+			border-bottom: 1px solid var(--border-light);
+		}
+
+		.brand {
+			display: flex;
+			align-items: baseline;
+			gap: 0.75rem;
+			margin-bottom: 0.25rem;
+		}
+
+		h1 {
+			font-family: 'Crimson Pro', Georgia, serif;
+			font-size: 2.25rem;
+			font-weight: 700;
+			letter-spacing: -0.02em;
+		}
+
+		.brand-tag {
+			font-size: 0.7rem;
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: 0.08em;
+			color: white;
+			background: var(--accent-rust);
+			padding: 0.2rem 0.5rem;
+			border-radius: 2px;
+		}
+
+		.lang-switch {
+			margin-left: auto;
+			display: flex;
+			align-items: center;
+			gap: 0.4rem;
+			font-size: 0.85rem;
+			font-weight: 500;
+		}
+
+		.lang-btn {
+			background: none;
+			border: none;
+			padding: 0.2rem 0.5rem;
+			font-size: 0.85rem;
+			font-weight: 500;
+			color: var(--ink-muted);
+			cursor: pointer;
+			border-radius: 3px;
+			transition: all 0.15s;
+		}
+
+		.lang-btn:hover {
+			color: var(--accent-teal);
+		}
+
+		.lang-btn.active {
+			color: white;
+			background: var(--accent-rust);
+			font-weight: 600;
+		}
+
+		.lang-sep {
+			color: var(--border-light);
+		}
+
+		.subtitle {
+			font-size: 0.95rem;
+			color: var(--ink-muted);
+		}
+
+		/* Controls */
+		.controls {
+			display: flex;
+			gap: 0.75rem;
+			align-items: stretch;
+			flex-wrap: wrap;
+			margin-bottom: 1.25rem;
+		}
+
+		.select-wrapper {
+			position: relative;
+		}
+
+		.select-wrapper::after {
+			content: '▾';
+			position: absolute;
+			right: 0.875rem;
+			top: 50%;
+			transform: translateY(-50%);
+			color: var(--ink-muted);
+			pointer-events: none;
+			font-size: 0.75rem;
+		}
+
+		select {
+			appearance: none;
+			padding: 0.75rem 2.25rem 0.75rem 0.875rem;
+			border: 2px solid var(--border-light);
+			border-radius: 4px;
+			background: var(--bg-paper);
+			color: var(--ink-black);
+			font-size: 0.9rem;
+			font-family: inherit;
+			font-weight: 500;
+			cursor: pointer;
+			transition: border-color 0.2s;
+		}
+
+		select:hover, select:focus {
+			border-color: var(--accent-teal);
+			outline: none;
+		}
+
+		.search-box {
+			flex: 1;
+			min-width: 280px;
+		}
+
+		.search-box input {
+			width: 100%;
+			padding: 0.75rem 1rem;
+			border: 2px solid var(--border-light);
+			border-radius: 4px;
+			background: var(--bg-paper);
+			color: var(--ink-black);
+			font-size: 0.95rem;
+			font-family: inherit;
+			transition: border-color 0.2s;
+		}
+
+		.search-box input:focus {
+			outline: none;
+			border-color: var(--accent-rust);
+		}
+
+		.btn-group {
+			display: flex;
+			gap: 0.5rem;
+		}
+
+		button {
+			padding: 0.75rem 1.25rem;
+			border: 2px solid transparent;
+			border-radius: 4px;
+			font-size: 0.85rem;
+			font-family: inherit;
+			font-weight: 600;
+			cursor: pointer;
+			transition: all 0.15s;
+		}
+
+		.btn-secondary {
+			background: var(--bg-paper);
+			border-color: var(--border-light);
+			color: var(--ink-black);
+		}
+
+		.btn-secondary:hover {
+			border-color: var(--ink-muted);
+		}
+
+		.btn-primary {
+			background: var(--accent-rust);
+			color: white;
+		}
+
+		.btn-primary:hover {
+			background: #b35330;
+		}
+
+		/* Tools */
+		.tools-section { margin-bottom: 1.5rem; }
+
+		.section-label {
+			font-size: 0.7rem;
+			text-transform: uppercase;
+			letter-spacing: 0.1em;
+			color: var(--ink-muted);
+			margin-bottom: 0.5rem;
+			font-weight: 500;
+		}
+
+		.tools-list {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.4rem;
+		}
+
+		.tool-chip {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.35rem;
+			padding: 0.35rem 0.7rem;
+			background: var(--bg-paper);
+			border: 1px solid var(--border-light);
+			border-radius: 100px;
+			font-size: 0.75rem;
+			font-family: 'JetBrains Mono', monospace;
+			color: var(--ink-black);
+			cursor: pointer;
+			transition: all 0.15s;
+		}
+
+		.tool-chip::before {
+			content: '◆';
+			font-size: 0.45rem;
+			color: var(--accent-teal);
+		}
+
+		.tool-chip:hover {
+			background: var(--accent-teal);
+			color: white;
+			border-color: var(--accent-teal);
+		}
+
+		.tool-chip:hover::before { color: white; }
+
+		/* Log */
+		.log-section { margin-bottom: 1.5rem; }
+
+		.log-toggle {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.4rem;
+			font-size: 0.7rem;
+			text-transform: uppercase;
+			letter-spacing: 0.1em;
+			color: var(--ink-muted);
+			cursor: pointer;
+			padding: 0.4rem 0;
+			border: none;
+			background: none;
+			font-weight: 500;
+		}
+
+		.log-toggle:hover { color: var(--ink-black); }
+
+		.log-toggle .arrow { transition: transform 0.2s; }
+
+		.log-toggle.open .arrow { transform: rotate(90deg); }
+
+		.log-container {
+			max-height: 0;
+			overflow: hidden;
+			transition: max-height 0.3s;
+		}
+
+		.log-container.open { max-height: 180px; }
+
+		.log {
+			background: var(--ink-black);
+			padding: 0.875rem;
+			border-radius: 6px;
+			font-family: 'JetBrains Mono', monospace;
+			font-size: 0.7rem;
+			max-height: 160px;
+			overflow-y: auto;
+			margin-top: 0.4rem;
+		}
+
+		.log-entry { margin: 0.2rem 0; line-height: 1.5; }
+		.log-entry.req { color: #7ec8e3; }
+		.log-entry.res { color: #98c379; }
+		.log-entry.err { color: #e06c75; }
+
+		/* Main content */
+		.main-content {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 1.5rem;
+		}
+
+		.panel {
+			background: var(--bg-paper);
+			border-radius: 8px;
+			box-shadow: 0 2px 8px var(--shadow-soft);
+			overflow: hidden;
+			display: flex;
+			flex-direction: column;
+		}
+
+		.panel-header {
+			padding: 1rem 1.25rem;
+			border-bottom: 1px solid var(--border-light);
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			flex-shrink: 0;
+		}
+
+		.panel-header h2 {
+			font-family: 'Crimson Pro', Georgia, serif;
+			font-size: 1.15rem;
+			font-weight: 600;
+		}
+
+		.panel-badge {
+			font-size: 0.65rem;
+			font-weight: 600;
+			padding: 0.15rem 0.5rem;
+			background: var(--accent-gold);
+			color: var(--ink-black);
+			border-radius: 100px;
+		}
+
+		.panel-body {
+			padding: 1.25rem;
+			min-height: 480px;
+			max-height: 65vh;
+			overflow-y: auto;
+			flex: 1;
+		}
+
+		/* Result items */
+		.result-item {
+			padding: 1rem;
+			margin-bottom: 0.875rem;
+			background: var(--bg-cream);
+			border-radius: 6px;
+			border-left: 4px solid var(--accent-teal);
+			overflow: hidden;
+		}
+
+		.result-item:last-child { margin-bottom: 0; }
+
+		.result-header {
+			display: flex;
+			align-items: flex-start;
+			gap: 0.5rem;
+			margin-bottom: 0.5rem;
+			flex-wrap: wrap;
+		}
+
+		.result-rank {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			min-width: 1.4rem;
+			height: 1.4rem;
+			background: var(--accent-teal);
+			color: white;
+			font-size: 0.7rem;
+			font-weight: 700;
+			border-radius: 50%;
+			flex-shrink: 0;
+		}
+
+		.result-title {
+			font-weight: 600;
+			font-size: 0.875rem;
+			color: var(--ink-black);
+			flex: 1;
+			min-width: 0;
+			word-break: break-word;
+		}
+
+		.result-score {
+			font-family: 'JetBrains Mono', monospace;
+			font-size: 0.7rem;
+			color: var(--accent-rust);
+			font-weight: 500;
+			background: rgba(196, 93, 53, 0.1);
+			padding: 0.15rem 0.4rem;
+			border-radius: 3px;
+			flex-shrink: 0;
+		}
+
+		.result-meta {
+			display: flex;
+			gap: 0.4rem;
+			margin-bottom: 0.5rem;
+			flex-wrap: wrap;
+		}
+
+		.meta-tag {
+			font-size: 0.65rem;
+			padding: 0.1rem 0.4rem;
+			background: var(--bg-paper);
+			border: 1px solid var(--border-light);
+			border-radius: 3px;
+			color: var(--ink-muted);
+			font-family: 'JetBrains Mono', monospace;
+		}
+
+		.result-preview {
+			font-size: 0.8rem;
+			line-height: 1.6;
+			color: var(--ink-muted);
+			overflow: hidden;
+			max-height: 4.8em;
+			word-break: break-word;
+		}
+
+		.result-preview code {
+			background: var(--bg-paper);
+			padding: 0.1rem 0.3rem;
+			border-radius: 2px;
+			font-family: 'JetBrains Mono', monospace;
+			font-size: 0.85em;
+		}
+
+		.result-preview pre {
+			background: var(--bg-paper);
+			padding: 0.5rem;
+			border-radius: 4px;
+			overflow-x: auto;
+			font-size: 0.8rem;
+			margin: 0.4rem 0;
+		}
+
+		.result-actions {
+			margin-top: 0.75rem;
+			display: flex;
+			gap: 0.4rem;
+		}
+
+		.result-actions button {
+			padding: 0.4rem 0.75rem;
+			font-size: 0.75rem;
+		}
+
+		.btn-ghost {
+			background: transparent;
+			border: 1px solid var(--border-light);
+			color: var(--ink-muted);
+		}
+
+		.btn-ghost:hover {
+			border-color: var(--accent-teal);
+			color: var(--accent-teal);
+		}
+
+		/* Status */
+		.status {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			height: 180px;
+			color: var(--ink-muted);
+			font-size: 0.9rem;
+		}
+
+		.status.loading::before {
+			content: '';
+			width: 18px;
+			height: 18px;
+			border: 2px solid var(--border-light);
+			border-top-color: var(--accent-rust);
+			border-radius: 50%;
+			margin-right: 0.6rem;
+			animation: spin 0.8s linear infinite;
+		}
+
+		@keyframes spin { to { transform: rotate(360deg); } }
+
+		.status.error { color: var(--accent-rust); }
+		.status.error::before { content: '⚠'; margin-right: 0.4rem; }
+
+		/* Markdown Container */
+		.markdown-body {
+			font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+			font-size: 0.9rem;
+			line-height: 1.7;
+			word-wrap: break-word;
+			color: var(--ink-black);
+		}
+
+		.markdown-body h1, .markdown-body h2, .markdown-body h3, .markdown-body h4 {
+			margin-top: 1.25em;
+			margin-bottom: 0.5em;
+			font-weight: 600;
+			line-height: 1.3;
+			color: var(--ink-black);
+		}
+
+		.markdown-body h1 { font-size: 1.5em; border-bottom: 1px solid var(--border-light); padding-bottom: 0.3em; }
+		.markdown-body h2 { font-size: 1.3em; border-bottom: 1px solid var(--border-light); padding-bottom: 0.3em; }
+		.markdown-body h3 { font-size: 1.15em; }
+		.markdown-body h4 { font-size: 1em; }
+
+		.markdown-body p { margin: 0.75em 0; }
+
+		.markdown-body a {
+			color: var(--accent-rust);
+			text-decoration: none;
+		}
+
+		.markdown-body a:hover {
+			text-decoration: underline;
+		}
+
+		.markdown-body code {
+			background: #f0ebe3;
+			padding: 0.2em 0.4em;
+			border-radius: 4px;
+			font-family: 'JetBrains Mono', Consolas, monospace;
+			font-size: 0.88em;
+		}
+
+		.markdown-body pre {
+			background: #f8f5ef;
+			border: 1px solid var(--border-light);
+			padding: 1em;
+			border-radius: 6px;
+			overflow-x: auto;
+			margin: 1em 0;
+		}
+
+		.markdown-body pre code {
+			background: none;
+			padding: 0;
+			color: var(--ink-black);
+			font-size: 0.85rem;
+			line-height: 1.5;
+		}
+
+		.markdown-body ul, .markdown-body ol {
+			padding-left: 1.5em;
+			margin: 0.75em 0;
+		}
+
+		.markdown-body li { margin: 0.35em 0; }
+
+		.markdown-body blockquote {
+			border-left: 4px solid var(--accent-teal);
+			padding-left: 1em;
+			margin: 1em 0;
+			color: var(--ink-muted);
+		}
+
+		.markdown-body table {
+			width: 100%;
+			border-collapse: collapse;
+			margin: 1em 0;
+			font-size: 0.85rem;
+		}
+
+		.markdown-body th, .markdown-body td {
+			border: 1px solid var(--border-light);
+			padding: 0.5em 0.75em;
+			text-align: left;
+		}
+
+		.markdown-body th {
+			background: var(--bg-cream);
+			font-weight: 600;
+		}
+
+		.markdown-body hr {
+			border: none;
+			border-top: 1px solid var(--border-light);
+			margin: 1.5em 0;
+		}
+
+		.markdown-body img {
+			max-width: 100%;
+			height: auto;
+		}
+
+		/* hljs override */
+		.markdown-body .hljs {
+			background: transparent;
+			padding: 0;
+		}
+
+		/* Modal */
+		.modal-overlay {
+			position: fixed;
+			inset: 0;
+			background: rgba(26, 24, 20, 0.6);
+			backdrop-filter: blur(4px);
+			z-index: 1000;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			opacity: 0;
+			visibility: hidden;
+			transition: opacity 0.2s, visibility 0.2s;
+		}
+
+		.modal-overlay.open {
+			opacity: 1;
+			visibility: visible;
+		}
+
+		.modal {
+			background: var(--bg-paper);
+			border-radius: 12px;
+			box-shadow: 0 20px 60px rgba(26, 24, 20, 0.3);
+			max-width: 600px;
+			width: 90%;
+			max-height: 80vh;
+			display: flex;
+			flex-direction: column;
+			transform: translateY(20px) scale(0.95);
+			transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+		}
+
+		.modal-overlay.open .modal {
+			transform: translateY(0) scale(1);
+		}
+
+		.modal-header {
+			padding: 1.25rem 1.5rem;
+			border-bottom: 1px solid var(--border-light);
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+		}
+
+		.modal-header h3 {
+			font-family: 'JetBrains Mono', monospace;
+			font-size: 1.1rem;
+			font-weight: 600;
+			color: var(--accent-teal);
+		}
+
+		.modal-close {
+			width: 32px;
+			height: 32px;
+			border: none;
+			background: transparent;
+			color: var(--ink-muted);
+			font-size: 1.5rem;
+			cursor: pointer;
+			border-radius: 6px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: background 0.15s, color 0.15s;
+		}
+
+		.modal-close:hover {
+			background: var(--bg-cream);
+			color: var(--ink-black);
+		}
+
+		.modal-body {
+			padding: 1.5rem;
+			overflow-y: auto;
+			flex: 1;
+		}
+
+		.modal-section {
+			margin-bottom: 1.25rem;
+		}
+
+		.modal-section:last-child {
+			margin-bottom: 0;
+		}
+
+		.modal-label {
+			font-size: 0.7rem;
+			text-transform: uppercase;
+			letter-spacing: 0.1em;
+			color: var(--ink-muted);
+			margin-bottom: 0.5rem;
+			font-weight: 500;
+		}
+
+		.modal-desc {
+			font-size: 0.9rem;
+			line-height: 1.6;
+			color: var(--ink-black);
+		}
+
+		.modal-schema {
+			background: #f8f5ef;
+			border: 1px solid var(--border-light);
+			border-radius: 6px;
+			padding: 1rem;
+			font-family: 'JetBrains Mono', monospace;
+			font-size: 0.8rem;
+			line-height: 1.5;
+			overflow-x: auto;
+			color: var(--ink-black);
+		}
+
+		.modal-schema .key { color: #c45d35; }
+		.modal-schema .string { color: #2a7c7c; }
+		.modal-schema .number { color: #d4a853; }
+		.modal-schema .boolean { color: #8b5cf6; }
+		.modal-schema .null { color: var(--ink-muted); }
+
+		/* Responsive */
+		@media (max-width: 1000px) {
+			.main-content { grid-template-columns: 1fr; }
+			.app { padding: 1.5rem 1rem; }
+			h1 { font-size: 1.75rem; }
+		}
+
+		@media (max-width: 600px) {
+			.controls { flex-direction: column; }
+			.search-box { min-width: 100%; }
+			.btn-group { width: 100%; }
+			.btn-group button { flex: 1; }
+		}
+	</style>
+</head>
+<body>
+	<div class="app">
+		<header>
+			<div class="brand">
+				<h1>RAG Playground</h1>
+				<span class="brand-tag">DEMO</span>
+				<div class="lang-switch">
+					<button class="lang-btn" data-lang="zh" onclick="switchLang('zh')">中文</button>
+					<span class="lang-sep">|</span>
+					<button class="lang-btn" data-lang="en" onclick="switchLang('en')">EN</button>
+					<span class="lang-sep">|</span>
+					<button class="lang-btn" data-lang="ja" onclick="switchLang('ja')">日本語</button>
+				</div>
+			</div>
+			<p class="subtitle" data-i18n="subtitle"></p>
+		</header>
+
+		<div class="controls">
+			<div class="select-wrapper">
+				<select id="server"></select>
+			</div>
+			<div class="search-box">
+				<input type="text" id="query" data-i18n-placeholder="queryPlaceholder">
+			</div>
+			<div class="btn-group">
+				<button class="btn-secondary" onclick="listTools()" data-i18n="listTools"></button>
+				<button class="btn-primary" onclick="doSearch()" data-i18n="search"></button>
+			</div>
+		</div>
+
+		<div class="tools-section">
+			<div class="section-label" data-i18n="availableTools"></div>
+			<div class="tools-list" id="tools">
+				<span style="color: var(--ink-muted); font-size: 0.8rem;" data-i18n="loading"></span>
+			</div>
+		</div>
+
+		<div class="log-section">
+			<button class="log-toggle" onclick="toggleLog()">
+				<span class="arrow">▶</span> <span data-i18n="requestLog"></span>
+			</button>
+			<div class="log-container" id="logContainer">
+				<div class="log" id="log"></div>
+			</div>
+		</div>
+
+		<div class="main-content">
+			<div class="panel">
+				<div class="panel-header">
+					<h2 data-i18n="searchResults"></h2>
+					<span class="panel-badge" id="resultCount" style="display: none;">0</span>
+				</div>
+				<div class="panel-body" id="results">
+					<div class="status" data-i18n="waitingQuery"></div>
+				</div>
+			</div>
+			<div class="panel">
+				<div class="panel-header">
+					<h2 data-i18n="docDetails"></h2>
+				</div>
+				<div class="panel-body" id="doc-view">
+					<div class="status" data-i18n="selectResult"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Tool Info Modal -->
+	<div class="modal-overlay" id="toolModal" onclick="closeModal(event)">
+		<div class="modal" onclick="event.stopPropagation()">
+			<div class="modal-header">
+				<h3 id="modalToolName"></h3>
+				<button class="modal-close" onclick="closeModal()">&times;</button>
+			</div>
+			<div class="modal-body">
+				<div class="modal-section">
+					<div class="modal-label" data-i18n="description"></div>
+					<div class="modal-desc" id="modalToolDesc"></div>
+				</div>
+				<div class="modal-section">
+					<div class="modal-label" data-i18n="paramSchema"></div>
+					<pre class="modal-schema" id="modalToolSchema"></pre>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		// ========== i18n ==========
+		const i18n = {
+			zh: {
+				subtitle: '语义检索，精准定位文档知识',
+				queryPlaceholder: '输入查询内容，如：如何创建工作簿',
+				listTools: '列出工具',
+				search: '搜索文档',
+				availableTools: '可用工具',
+				loading: '加载中...',
+				requestLog: '请求日志',
+				searchResults: '搜索结果',
+				docDetails: '文档详情',
+				waitingQuery: '等待查询...',
+				selectResult: '选择一个结果查看完整文档',
+				description: '描述',
+				paramSchema: '参数 Schema',
+				noDesc: '暂无描述',
+				none: '无',
+				noTools: '暂无可用工具',
+				loadFailed: '加载失败',
+				searching: '搜索中...',
+				noSearchTool: '未找到可用的搜索工具',
+				searchFailed: '搜索失败',
+				noMatch: '无匹配结果',
+				viewContent: '查看内容',
+				fetchDoc: '获取完整文档',
+				loadingDoc: '加载文档...',
+				noFetchTool: '未找到文档获取工具',
+				fetchFailed: '获取失败',
+				enterQuery: '请输入查询内容',
+				result: '结果',
+				rawResponse: '原始响应',
+				spreadjs: 'SpreadJS',
+				gcexcel: 'GCExcel'
+			},
+			en: {
+				subtitle: 'Semantic search for precise document retrieval',
+				queryPlaceholder: 'Enter query, e.g., How to create a workbook',
+				listTools: 'List Tools',
+				search: 'Search',
+				availableTools: 'Available Tools',
+				loading: 'Loading...',
+				requestLog: 'Request Log',
+				searchResults: 'Search Results',
+				docDetails: 'Document Details',
+				waitingQuery: 'Waiting for query...',
+				selectResult: 'Select a result to view full document',
+				description: 'Description',
+				paramSchema: 'Parameter Schema',
+				noDesc: 'No description',
+				none: 'None',
+				noTools: 'No tools available',
+				loadFailed: 'Load failed',
+				searching: 'Searching...',
+				noSearchTool: 'No search tool found',
+				searchFailed: 'Search failed',
+				noMatch: 'No matching results',
+				viewContent: 'View Content',
+				fetchDoc: 'Fetch Full Doc',
+				loadingDoc: 'Loading document...',
+				noFetchTool: 'No fetch tool found',
+				fetchFailed: 'Fetch failed',
+				enterQuery: 'Please enter a query',
+				result: 'Result',
+				rawResponse: 'Raw Response',
+				spreadjs: 'SpreadJS',
+				gcexcel: 'GCExcel'
+			},
+			ja: {
+				subtitle: 'セマンティック検索でドキュメントを正確に取得',
+				queryPlaceholder: 'クエリを入力、例：ワークブックの作成方法',
+				listTools: 'ツール一覧',
+				search: '検索',
+				availableTools: '利用可能なツール',
+				loading: '読み込み中...',
+				requestLog: 'リクエストログ',
+				searchResults: '検索結果',
+				docDetails: 'ドキュメント詳細',
+				waitingQuery: 'クエリ待機中...',
+				selectResult: '結果を選択して完全なドキュメントを表示',
+				description: '説明',
+				paramSchema: 'パラメータスキーマ',
+				noDesc: '説明なし',
+				none: 'なし',
+				noTools: '利用可能なツールがありません',
+				loadFailed: '読み込み失敗',
+				searching: '検索中...',
+				noSearchTool: '検索ツールが見つかりません',
+				searchFailed: '検索失敗',
+				noMatch: '一致する結果がありません',
+				viewContent: '内容を表示',
+				fetchDoc: '完全なドキュメントを取得',
+				loadingDoc: 'ドキュメントを読み込み中...',
+				noFetchTool: '取得ツールが見つかりません',
+				fetchFailed: '取得失敗',
+				enterQuery: 'クエリを入力してください',
+				result: '結果',
+				rawResponse: '生レスポンス',
+				spreadjs: 'SpreadJS',
+				gcexcel: 'GCExcel'
+			}
+		};
+
+		// ========== Config ==========
+		// Branch: 'cn' or 'en' (EN端部署时改为 'en')
+		const BRANCH = 'en';
+		const IS_EN_BRANCH = BRANCH === 'en';
+
+		// Default language based on branch
+		let currentLang = IS_EN_BRANCH ? 'en' : 'zh';
+
+		// MCP base URL (localhost for server deployment)
+		const MCP_BASE = '/mcp';
+
+		// Products config
+		const PRODUCTS = IS_EN_BRANCH
+			? [{ id: 'spreadjs', label: 'spreadjs' }]
+			: [{ id: 'spreadjs', label: 'spreadjs' }, { id: 'gcexcel', label: 'gcexcel' }];
+
+		// ========== i18n Functions ==========
+		function t(key) {
+			return i18n[currentLang][key] || key;
+		}
+
+		function applyI18n() {
+			document.querySelectorAll('[data-i18n]').forEach(el => {
+				el.textContent = t(el.dataset.i18n);
+			});
+			document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+				el.placeholder = t(el.dataset.i18nPlaceholder);
+			});
+			// Update page title
+			document.title = 'RAG Playground';
+		}
+
+		function switchLang(lang) {
+			currentLang = lang;
+			document.querySelectorAll('.lang-btn').forEach(btn => {
+				btn.classList.toggle('active', btn.dataset.lang === lang);
+			});
+			applyI18n();
+			updateServerOptions();
+			listTools();
+		}
+
+		function updateServerOptions() {
+			const serverEl = document.getElementById('server');
+			serverEl.innerHTML = PRODUCTS.map(p =>
+				`<option value="${MCP_BASE}/${p.id}">${t(p.label)}</option>`
+			).join('');
+		}
+
+		// ========== Marked config ==========
+		marked.setOptions({
+			breaks: true,
+			gfm: true,
+			highlight: function(code, lang) {
+				if (lang && hljs.getLanguage(lang)) {
+					try {
+						return hljs.highlight(code, { language: lang }).value;
+					} catch {}
+				}
+				return hljs.highlightAuto(code).value;
+			}
+		});
+
+		// ========== State ==========
+		let searchResultsData = [];
+		let requestId = 1;
+		const logEl = document.getElementById('log');
+
+		// ========== Utilities ==========
+		function log(type, msg) {
+			const entry = document.createElement('div');
+			entry.className = `log-entry ${type}`;
+			entry.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+			logEl.appendChild(entry);
+			logEl.scrollTop = logEl.scrollHeight;
+		}
+
+		function toggleLog() {
+			document.querySelector('.log-toggle').classList.toggle('open');
+			document.getElementById('logContainer').classList.toggle('open');
+		}
+
+		function escapeHtml(text) {
+			if (!text) return '';
+			const div = document.createElement('div');
+			div.textContent = text;
+			return div.innerHTML;
+		}
+
+		function escapeAttr(text) {
+			if (!text) return '';
+			return text.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+		}
+
+		// ========== MCP API ==========
+		async function mcpCall(method, params = {}) {
+			const server = document.getElementById('server').value;
+			const body = {
+				jsonrpc: '2.0',
+				id: requestId++,
+				method: method,
+				params: params
+			};
+
+			log('req', `${method} → ${JSON.stringify(params).slice(0, 80)}...`);
+
+			try {
+				const res = await fetch(server, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(body)
+				});
+				const data = await res.json();
+				if (data.error) {
+					log('err', `Error: ${data.error.message}`);
+					throw new Error(data.error.message);
+				}
+				log('res', `OK (${JSON.stringify(data.result).length} bytes)`);
+				return data.result;
+			} catch (e) {
+				log('err', e.message);
+				throw e;
+			}
+		}
+
+		// ========== Tools ==========
+		async function listTools() {
+			const toolsEl = document.getElementById('tools');
+			toolsEl.innerHTML = `<span style="color: var(--ink-muted); font-size: 0.8rem;">${t('loading')}</span>`;
+			try {
+				const result = await mcpCall('tools/list');
+				const tools = result.tools || [];
+				if (tools.length === 0) {
+					toolsEl.innerHTML = `<span style="color: var(--ink-muted); font-size: 0.8rem;">${t('noTools')}</span>`;
+					return;
+				}
+				toolsEl.innerHTML = tools.map(tool =>
+					`<button class="tool-chip" onclick="showToolInfo('${tool.name}')" title="${escapeAttr(tool.description || '')}">${tool.name}</button>`
+				).join('');
+				window._tools = tools;
+			} catch (e) {
+				toolsEl.innerHTML = `<span style="color: var(--accent-rust); font-size: 0.8rem;">${t('loadFailed')}: ${escapeHtml(e.message)}</span>`;
+			}
+		}
+
+		function showToolInfo(name) {
+			const tool = window._tools?.find(t => t.name === name);
+			if (tool) {
+				document.getElementById('modalToolName').textContent = tool.name;
+				document.getElementById('modalToolDesc').textContent = tool.description || t('noDesc');
+
+				const schemaEl = document.getElementById('modalToolSchema');
+				if (tool.inputSchema) {
+					schemaEl.innerHTML = syntaxHighlightJson(tool.inputSchema);
+				} else {
+					schemaEl.textContent = t('none');
+				}
+
+				document.getElementById('toolModal').classList.add('open');
+				document.body.style.overflow = 'hidden';
+			}
+		}
+
+		function closeModal(event) {
+			if (event && event.target !== event.currentTarget) return;
+			document.getElementById('toolModal').classList.remove('open');
+			document.body.style.overflow = '';
+		}
+
+		function syntaxHighlightJson(obj, indent = 0) {
+			const spaces = '  '.repeat(indent);
+
+			if (obj === null) return `<span class="null">null</span>`;
+			if (typeof obj === 'boolean') return `<span class="boolean">${obj}</span>`;
+			if (typeof obj === 'number') return `<span class="number">${obj}</span>`;
+			if (typeof obj === 'string') return `<span class="string">"${escapeHtml(obj)}"</span>`;
+
+			if (Array.isArray(obj)) {
+				if (obj.length === 0) return '[]';
+				const items = obj.map(item => spaces + '  ' + syntaxHighlightJson(item, indent + 1));
+				return `[\n${items.join(',\n')}\n${spaces}]`;
+			}
+
+			if (typeof obj === 'object') {
+				const keys = Object.keys(obj);
+				if (keys.length === 0) return '{}';
+				const items = keys.map(key =>
+					`${spaces}  <span class="key">"${escapeHtml(key)}"</span>: ${syntaxHighlightJson(obj[key], indent + 1)}`
+				);
+				return `{\n${items.join(',\n')}\n${spaces}}`;
+			}
+
+			return String(obj);
+		}
+
+		// ========== Search ==========
+		async function doSearch() {
+			const query = document.getElementById('query').value.trim();
+			if (!query) {
+				alert(t('enterQuery'));
+				return;
+			}
+
+			const resultsEl = document.getElementById('results');
+			const countEl = document.getElementById('resultCount');
+			resultsEl.innerHTML = `<div class="status loading">${t('searching')}</div>`;
+			countEl.style.display = 'none';
+			searchResultsData = [];
+
+			try {
+				const toolsResult = await mcpCall('tools/list');
+				const tools = toolsResult.tools || [];
+
+				const searchTool = tools.find(tool =>
+					tool.name.toLowerCase().includes('search') ||
+					tool.name.toLowerCase().includes('query') ||
+					tool.name.toLowerCase().includes('retrieve') ||
+					tool.name.toLowerCase().includes('rag')
+				);
+
+				if (!searchTool) {
+					resultsEl.innerHTML = `<div class="status error">${t('noSearchTool')}</div>`;
+					return;
+				}
+
+				let args = {};
+				const schema = searchTool.inputSchema;
+				if (schema && schema.properties) {
+					const props = Object.keys(schema.properties);
+					const queryParams = ['query', 'q', 'question', 'text', 'search', 'keyword'];
+					const matchedParam = props.find(p => queryParams.includes(p.toLowerCase()));
+					args[matchedParam || props[0]] = query;
+				} else {
+					args = { query: query };
+				}
+
+				const result = await mcpCall('tools/call', {
+					name: searchTool.name,
+					arguments: args
+				});
+
+				renderResults(result);
+			} catch (e) {
+				resultsEl.innerHTML = `<div class="status error">${t('searchFailed')}: ${escapeHtml(e.message)}</div>`;
+			}
+		}
+
+		function renderResults(result) {
+			const resultsEl = document.getElementById('results');
+			const countEl = document.getElementById('resultCount');
+
+			let items = [];
+			if (result && result.content && Array.isArray(result.content)) {
+				for (const c of result.content) {
+					if (c.type === 'text' && c.text) {
+						try {
+							const parsed = JSON.parse(c.text);
+							if (parsed.results && Array.isArray(parsed.results)) {
+								items = parsed.results;
+							} else if (Array.isArray(parsed)) {
+								items = parsed;
+							} else {
+								items = [parsed];
+							}
+						} catch {
+							items.push({ content: c.text, title: t('result') });
+						}
+					}
+				}
+			} else if (Array.isArray(result)) {
+				items = result;
+			} else if (result && result.results) {
+				items = result.results;
+			} else if (result && result.documents) {
+				items = result.documents;
+			} else if (result) {
+				items = [{ content: JSON.stringify(result, null, 2), title: t('rawResponse') }];
+			}
+
+			if (items.length === 0) {
+				resultsEl.innerHTML = `<div class="status">${t('noMatch')}</div>`;
+				countEl.style.display = 'none';
+				return;
+			}
+
+			searchResultsData = items;
+
+			countEl.textContent = items.length;
+			countEl.style.display = 'inline-block';
+
+			resultsEl.innerHTML = items.map((item, i) => {
+				const rank = item.rank || (i + 1);
+				const title = item.doc_id || item.title || item.name || item.id || `${t('result')} ${rank}`;
+				const score = item.score || item.similarity || item.relevance;
+				const content = item.content_preview || item.content || item.text || item.snippet || '';
+				const docId = item.doc_id || item.id || item.document_id || '';
+				const metadata = item.metadata || {};
+
+				let metaTags = '';
+				if (metadata.category) {
+					metaTags += `<span class="meta-tag">${escapeHtml(metadata.category)}</span>`;
+				}
+				if (metadata.file_name) {
+					metaTags += `<span class="meta-tag">${escapeHtml(metadata.file_name)}</span>`;
+				}
+				if (metadata.path_hierarchy && Array.isArray(metadata.path_hierarchy)) {
+					metaTags += `<span class="meta-tag">${escapeHtml(metadata.path_hierarchy.join(' / '))}</span>`;
+				}
+
+				const preview = content.length > 200 ? content.slice(0, 200) + '...' : content;
+				const previewText = preview.replace(/[#*`\[\]]/g, '').replace(/\n/g, ' ');
+
+				return `
+					<div class="result-item">
+						<div class="result-header">
+							<span class="result-rank">${rank}</span>
+							<span class="result-title">${escapeHtml(formatDocId(title))}</span>
+							${score ? `<span class="result-score">${(score * 100).toFixed(1)}%</span>` : ''}
+						</div>
+						${metaTags ? `<div class="result-meta">${metaTags}</div>` : ''}
+						<div class="result-preview">${escapeHtml(previewText)}</div>
+						<div class="result-actions">
+							<button class="btn-ghost" onclick="viewContent(${i})">${t('viewContent')}</button>
+							${docId ? `<button class="btn-ghost" onclick="fetchDoc('${escapeAttr(docId)}')">${t('fetchDoc')}</button>` : ''}
+						</div>
+					</div>
+				`;
+			}).join('');
+		}
+
+		function formatDocId(docId) {
+			return docId.replace(/_/g, ' / ').replace(/chunk\d+/gi, '').replace(/\s+\/\s+$/, '');
+		}
+
+		function viewContent(index) {
+			const item = searchResultsData[index];
+			if (!item) return;
+
+			const content = item.content || item.text || item.content_preview || '';
+			renderMarkdown(content);
+		}
+
+		async function fetchDoc(docId) {
+			const docView = document.getElementById('doc-view');
+			docView.innerHTML = `<div class="status loading">${t('loadingDoc')}</div>`;
+
+			try {
+				const toolsResult = await mcpCall('tools/list');
+				const tools = toolsResult.tools || [];
+
+				const fetchTool = tools.find(tool =>
+					tool.name.toLowerCase() === 'fetch' ||
+					tool.name.toLowerCase().includes('get_doc') ||
+					tool.name.toLowerCase().includes('fetch_doc') ||
+					tool.name.toLowerCase().includes('read')
+				);
+
+				if (!fetchTool) {
+					docView.innerHTML = `<div class="status error">${t('noFetchTool')}</div>`;
+					return;
+				}
+
+				let args = {};
+				const schema = fetchTool.inputSchema;
+				if (schema && schema.properties) {
+					const props = Object.keys(schema.properties);
+					const idParams = ['doc_id', 'id', 'document_id', 'docId'];
+					const matchedParam = props.find(p => idParams.includes(p));
+					args[matchedParam || props[0]] = docId;
+				} else {
+					args = { doc_id: docId };
+				}
+
+				const result = await mcpCall('tools/call', {
+					name: fetchTool.name,
+					arguments: args
+				});
+
+				let content = '';
+				if (result && result.content && Array.isArray(result.content)) {
+					for (const c of result.content) {
+						if (c.type === 'text') {
+							try {
+								const parsed = JSON.parse(c.text);
+								if (parsed.full_content) {
+									content = parsed.full_content;
+								} else if (parsed.content) {
+									content = parsed.content;
+								} else {
+									content = c.text;
+								}
+							} catch {
+								content += c.text + '\n';
+							}
+						}
+					}
+				} else if (typeof result === 'string') {
+					content = result;
+				} else {
+					content = JSON.stringify(result, null, 2);
+				}
+
+				renderMarkdown(content);
+			} catch (e) {
+				docView.innerHTML = `<div class="status error">${t('fetchFailed')}: ${escapeHtml(e.message)}</div>`;
+			}
+		}
+
+		function renderMarkdown(content) {
+			const docView = document.getElementById('doc-view');
+			const html = marked.parse(content);
+			docView.innerHTML = `<div class="markdown-body">${html}</div>`;
+
+			docView.querySelectorAll('pre code').forEach((block) => {
+				hljs.highlightElement(block);
+			});
+		}
+
+		// ========== Events ==========
+		document.addEventListener('keydown', (e) => {
+			if (e.key === 'Escape') closeModal();
+		});
+
+		document.getElementById('query').addEventListener('keydown', (e) => {
+			if (e.key === 'Enter') doSearch();
+		});
+
+		// ========== Init ==========
+		function init() {
+			// Set active language button
+			document.querySelectorAll('.lang-btn').forEach(btn => {
+				btn.classList.toggle('active', btn.dataset.lang === currentLang);
+			});
+			applyI18n();
+			updateServerOptions();
+			listTools();
+		}
+
+		init();
+	</script>
+</body>
+</html>

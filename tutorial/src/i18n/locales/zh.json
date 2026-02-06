@@ -1,6 +1,6 @@
 {
 	"title": "MCS-DOC-MCP",
-	"subtitle": "Mescius 产品文档 RAG + MCP 服务",
+	"subtitle": "MESCIUS 产品文档 RAG + MCP 服务",
 	"description": "按照以下说明在您的 AI 客户端中配置 MCP 服务",
 	"categories": {
 		"ide": "IDE",
@@ -154,5 +154,10 @@
 		"title": "支持的产品",
 		"spreadjs": "SpreadJS - JavaScript 电子表格组件",
 		"gcexcel": "GcExcel - 服务端 Excel 组件"
+	},
+	"tryNow": {
+		"title": "在线体验",
+		"description": "在浏览器中直接体验 RAG 搜索能力",
+		"button": "打开 Playground"
 	}
 }
