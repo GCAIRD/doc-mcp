@@ -4,7 +4,7 @@ import { Copy, Check, Table2, FileSpreadsheet, ChevronDown } from 'lucide-react'
 import './i18n';
 import './App.css';
 
-// 兼容非 HTTPS 环境的复制函数
+// Clipboard copy function (compatible with non-HTTPS)
 const copyToClipboard = async (text) => {
 	if (navigator.clipboard?.writeText) {
 		await navigator.clipboard.writeText(text);
@@ -20,22 +20,22 @@ const copyToClipboard = async (text) => {
 	}
 };
 
-// MCP 服务器地址配置
-const MCP_BASE_URL = 'http://20.2.219.14:8889/mcp';
+// MCP server URL config
+const MCP_BASE_URL = 'http://20.2.219.14:8901/mcp';
 const MCP_URLS = {
 	spreadjs: `${MCP_BASE_URL}/spreadjs`,
 	gcexcel: `${MCP_BASE_URL}/gcexcel`
 };
 
-// 客户端分类
+// Client categories
 const clientCategories = [
 	{
 		id: 'ide',
-		clients: ['copilot', 'cursor', 'windsurf', 'cline', 'trae', 'jetbrains']
+		clients: ['copilot', 'cursor', 'windsurf', 'cline', 'claudedesktop', 'codex', 'jetbrains']
 	},
 	{
 		id: 'chat',
-		clients: ['cherrystudio', 'lobechat']
+		clients: ['lobechat']
 	},
 	{
 		id: 'general',
@@ -45,9 +45,9 @@ const clientCategories = [
 
 const getConfig = (client, product = 'spreadjs') => {
 	const url = MCP_URLS[product] || MCP_URLS.spreadjs;
-	const serverName = `GC-DOC-MCP-${product}`;
+	const serverName = `MCS-DOC-MCP-${product}`;
 
-	// VSCode (copilot) 使用 servers 字段
+	// VSCode (copilot) uses servers field
 	if (client === 'copilot') {
 		return {
 			servers: {
@@ -56,7 +56,7 @@ const getConfig = (client, product = 'spreadjs') => {
 		};
 	}
 
-	// Windsurf 使用 serverUrl 而非 url
+	// Windsurf uses serverUrl instead of url
 	if (client === 'windsurf') {
 		return {
 			mcpServers: {
@@ -65,25 +65,25 @@ const getConfig = (client, product = 'spreadjs') => {
 		};
 	}
 
-	// Trae 使用数组格式
-	if (client === 'trae') {
-		return {
-			mcpServers: [
-				{ name: serverName, url, type: 'sse' }
-			]
-		};
-	}
-
-	// Cherry Studio 使用 streamableHttp 类型
-	if (client === 'cherrystudio') {
+	// Claude Desktop uses standard format
+	if (client === 'claudedesktop') {
 		return {
 			mcpServers: {
-				[serverName]: { type: 'streamableHttp', url }
+				[serverName]: { type: 'http', url }
 			}
 		};
 	}
 
-	// LobeChat 使用标准格式
+	// OpenAI Codex uses standard format
+	if (client === 'codex') {
+		return {
+			mcpServers: {
+				[serverName]: { type: 'http', url }
+			}
+		};
+	}
+
+	// LobeChat uses standard format
 	if (client === 'lobechat') {
 		return {
 			mcpServers: {
@@ -92,7 +92,7 @@ const getConfig = (client, product = 'spreadjs') => {
 		};
 	}
 
-	// Cursor, Cline, JetBrains, Other 使用标准格式
+	// Cursor, Cline, JetBrains, Other use standard format
 	return {
 		mcpServers: {
 			[serverName]: { type: 'http', url }
@@ -318,7 +318,7 @@ function CherryStudioContent() {
 			<UrlBlock url={MCP_URLS.spreadjs} label="SpreadJS URL" />
 			<UrlBlock url={MCP_URLS.gcexcel} label="GcExcel URL" />
 
-			<h3 className="section-title" style={{ marginTop: '2rem' }}>JSON 配置参考</h3>
+			<h3 className="section-title" style={{ marginTop: '2rem' }}>JSON Config Reference</h3>
 			<CodeBlock code={spreadjsConfig} label="SpreadJS" />
 			<CodeBlock code={gcexcelConfig} label="GcExcel" />
 		</div>
@@ -330,10 +330,6 @@ function ClientContent({ client }) {
 
 	if (client === 'copilot') {
 		return <CopilotContent />;
-	}
-
-	if (client === 'cherrystudio') {
-		return <CherryStudioContent />;
 	}
 
 	if (client === 'other') {
@@ -391,7 +387,7 @@ function App() {
 		<div className="app">
 			<header className="header">
 				<div className="logo">
-					<div className="logo-icon">GC</div>
+					<div className="logo-icon">MCS</div>
 					<span className="logo-text">{t('title')}</span>
 				</div>
 				<div className="lang-switcher">

@@ -1,4 +1,4 @@
-"""RAG搜索器 - Dense + Sparse RRF + Rerank"""
+"""RAG Searcher - Dense + Sparse RRF + Rerank"""
 
 import logging
 import time
@@ -14,7 +14,7 @@ from ..core.config import ProjectConfig, Settings
 
 logger = logging.getLogger(__name__)
 
-# 语言代码映射
+# Language code mapping
 LANG_CODE_MAP = {
 	"zh": Language.CHINESE,
 	"en": Language.ENGLISH,
@@ -25,7 +25,7 @@ LANG_REVERSE_MAP = {v: k for k, v in LANG_CODE_MAP.items()}
 
 @dataclass
 class SearchResult:
-	"""搜索结果"""
+	"""Search result"""
 
 	rank: int
 	doc_id: str
@@ -38,32 +38,32 @@ class SearchResult:
 
 class VoyageSearcher:
 	"""
-	Voyage RAG搜索器
+	Voyage RAG Searcher
 
-	搜索流程:
+	Search flow:
 	1. Query Embedding (voyage-code-3 + BM25)
-	2. 混合搜索 (dense + sparse prefetch)
-	   - query 语言与文档主语言匹配: Dense + BM25 RRF 融合
-	   - query 语言与文档主语言不匹配: 仅 Dense（跨语言场景 BM25 无效）
+	2. Hybrid search (dense + sparse prefetch)
+	   - Query lang matches doc lang: Dense + BM25 RRF fusion
+	   - Query lang differs from doc lang: Dense only (BM25 ineffective for cross-lingual)
 	3. Voyage Rerank (rerank-2.5)
-	4. 返回Top-K结果
+	4. Return Top-K results
 
-	语言检测使用 lingua-py，支持 zh/en/ja。
-	文档主语言通过 DOC_LANGUAGE 环境变量配置。
+	Language detection uses lingua-py, supports zh/en/ja.
+	Primary doc language configured via DOC_LANGUAGE env var.
 	"""
 
-	# 类级别共享语言检测器（只初始化一次）
+	# Class-level shared language detector (initialized once)
 	_lang_detector = None
 
 	@classmethod
 	def _get_lang_detector(cls):
-		"""获取共享的语言检测器（延迟初始化）"""
+		"""Get shared language detector (lazy init)"""
 		if cls._lang_detector is None:
 			cls._lang_detector = (
 				LanguageDetectorBuilder.from_languages(
 					Language.CHINESE, Language.ENGLISH, Language.JAPANESE
 				)
-				.with_minimum_relative_distance(0.25)  # 提高短文本准确度
+				.with_minimum_relative_distance(0.25)  # Improve short text accuracy
 				.build()
 			)
 		return cls._lang_detector
@@ -81,32 +81,32 @@ class VoyageSearcher:
 		self.rerank_top_k = project_config.rerank_top_k
 		self.doc_language = settings.doc_language
 
-		# 初始化Voyage客户端
+		# Init Voyage client
 		self.voyage_client = voyageai.Client(api_key=settings.voyage_api_key)
 
-		# 初始化BM25稀疏编码器
-		logger.info("初始化BM25 sparse encoder...")
+		# Init BM25 sparse encoder
+		logger.info("Initializing BM25 sparse encoder...")
 		self.sparse_encoder = SparseTextEmbedding(model_name="Qdrant/bm25")
 
-		# 初始化Qdrant客户端
-		logger.info(f"连接到 Qdrant 服务: {settings.qdrant_url}")
+		# Init Qdrant client
+		logger.info(f"Connecting to Qdrant: {settings.qdrant_url}")
 		self.qdrant = QdrantClient(url=settings.qdrant_url)
 
-		logger.info(f"文档主语言: {self.doc_language}")
+		logger.info(f"Primary doc language: {self.doc_language}")
 
 	def _detect_language(self, text: str) -> str:
 		"""
-		检测文本语言
+		Detect text language
 
 		Returns:
-			语言代码: 'zh', 'en', 'ja', 或 'unknown'
+			Language code: 'zh', 'en', 'ja', or 'unknown'
 		"""
 		detector = self._get_lang_detector()
 		detected = detector.detect_language_of(text)
 		return LANG_REVERSE_MAP.get(detected, "unknown")
 
 	def _get_query_embeddings(self, query: str):
-		"""获取query的dense和sparse embedding"""
+		"""Get query dense and sparse embeddings"""
 		# Dense
 		dense_result = self.voyage_client.embed(
 			[query],
@@ -129,10 +129,10 @@ class VoyageSearcher:
 		self, query: str, dense_vector, sparse_vector, limit: int
 	) -> Tuple[List[Dict], str, str]:
 		"""
-		混合搜索：根据 query 语言动态选择策略
+		Hybrid search: dynamically select strategy based on query language
 
-		- query 语言与文档主语言匹配: Dense + BM25 RRF 融合
-		- query 语言与文档主语言不匹配: 仅 Dense（跨语言场景 BM25 无效）
+		- Query lang matches doc lang: Dense + BM25 RRF fusion
+		- Query lang differs from doc lang: Dense only (BM25 ineffective cross-lingual)
 
 		Returns:
 			(candidates, fusion_mode, detected_lang)
@@ -141,14 +141,14 @@ class VoyageSearcher:
 		use_bm25 = detected_lang == self.doc_language
 
 		if use_bm25:
-			# 语言匹配：RRF 融���
+			# Language match: RRF fusion
 			prefetch = [
 				models.Prefetch(query=dense_vector, using="dense", limit=limit),
 				models.Prefetch(query=sparse_vector, using="sparse", limit=limit),
 			]
 			fusion_mode = "rrf"
 		else:
-			# 语言不匹配：仅 Dense（跨语言检索）
+			# Language mismatch: Dense only (cross-lingual)
 			prefetch = [
 				models.Prefetch(query=dense_vector, using="dense", limit=limit),
 			]
@@ -214,14 +214,14 @@ class VoyageSearcher:
 		use_rerank: bool = True,
 		debug: bool = False,
 	) -> Dict:
-		"""执行RAG搜索"""
+		"""Execute RAG search"""
 		if limit is None:
 			limit = self.project_config.default_limit
 
 		start_time = time.time()
 		prefetch_limit = self.prefetch_limit if use_rerank else limit
 
-		# 获取embeddings并搜索
+		# Get embeddings and search
 		dense_vector, sparse_vector, embed_tokens = self._get_query_embeddings(query)
 		candidates, fusion_mode, detected_lang = self._hybrid_search(
 			query, dense_vector, sparse_vector, prefetch_limit
@@ -234,7 +234,7 @@ class VoyageSearcher:
 		else:
 			candidates = candidates[:limit]
 
-		# 构建结果
+		# Build results
 		results = []
 		for rank, c in enumerate(candidates):
 			score = c.get("rerank_score", c.get("rrf_score", 0))
@@ -293,7 +293,7 @@ class VoyageSearcher:
 		return response
 
 	def get_doc_chunks(self, doc_id: str) -> List[Dict]:
-		"""根据doc_id获取所有相关chunks"""
+		"""Get all chunks by doc_id"""
 		results = self.qdrant.scroll(
 			collection_name=self.collection_name,
 			scroll_filter=models.Filter(
@@ -326,7 +326,7 @@ class VoyageSearcher:
 		return chunks
 
 	def search_simple(self, query: str, limit: int = 5) -> List[Dict]:
-		"""简化搜索接口"""
+		"""Simplified search interface"""
 		result = self.search(query=query, limit=limit, use_rerank=True)
 
 		return [

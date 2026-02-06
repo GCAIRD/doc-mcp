@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 """
-服务启动脚本
+Service startup script
 
-用法:
-	python scripts/serve.py                    # RAG服务
-	python scripts/serve.py --mode mcp         # MCP服务
-	python scripts/serve.py --mode all         # 同时启动
-	python scripts/serve.py --port 8888        # 指定端口
+Usage:
+	python scripts/serve.py                    # RAG service
+	python scripts/serve.py --mode mcp         # MCP service
+	python scripts/serve.py --mode all         # Both services
+	python scripts/serve.py --port 8900        # Specify port
 """
 
 import argparse
@@ -14,7 +14,7 @@ import logging
 import sys
 from pathlib import Path
 
-# 添加src到路径
+# Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import uvicorn
@@ -26,22 +26,22 @@ logger = logging.getLogger(__name__)
 
 
 def main():
-	parser = argparse.ArgumentParser(description="启动服务")
+	parser = argparse.ArgumentParser(description="Start service")
 	parser.add_argument(
 		"--mode",
 		choices=["rag", "mcp", "all"],
 		default="rag",
-		help="运行模式: rag(搜索服务), mcp(MCP服务), all(两者)",
+		help="Run mode: rag(search), mcp(MCP service), all(both)",
 	)
-	parser.add_argument("--port", type=int, default=None, help="服务端口")
-	parser.add_argument("--host", default=None, help="服务地址")
+	parser.add_argument("--port", type=int, default=None, help="Service port")
+	parser.add_argument("--host", default=None, help="Service host")
 	args = parser.parse_args()
 
-	# 初始化配置
+	# Initialize config
 	settings = Settings()
 	project_config = ProjectConfig()
 
-	# 确定端口
+	# Determine port
 	if args.port:
 		port = args.port
 	elif args.mode == "mcp":
@@ -51,12 +51,12 @@ def main():
 
 	host = args.host or settings.server_host
 
-	# 创建应用
+	# Create app
 	app = create_app(settings=settings, project_config=project_config, mode=args.mode)
 
-	# 打印启动信息
+	# Print startup info
 	print("=" * 60)
-	print("GC-DOC-MCP Service v1.0.0")
+	print("MCS-DOC-MCP Service v1.0.0")
 	print("=" * 60)
 	print(f"Mode: {args.mode}")
 	print(f"Projects: {project_config.project_names}")
@@ -69,7 +69,7 @@ def main():
 		print(f"MCP Endpoint: http://{host}:{port}/mcp/{{project}}")
 	print("=" * 60)
 
-	# 启动服务
+	# Start server
 	uvicorn.run(app, host=host, port=port)
 
 

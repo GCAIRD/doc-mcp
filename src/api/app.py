@@ -1,4 +1,4 @@
-"""FastAPI 应用工厂"""
+"""FastAPI application factory"""
 
 import logging
 from contextlib import asynccontextmanager
@@ -19,7 +19,7 @@ from .routes import health_router, mcp_router, search_router
 
 logger = logging.getLogger(__name__)
 
-# 全局变量
+# Global variables
 _searchers: Dict[str, VoyageSearcher] = {}
 _settings: Settings | None = None
 _project_config: ProjectConfig | None = None
@@ -48,7 +48,7 @@ def get_access_logger() -> AccessLogger | None:
 
 
 def get_http_client() -> httpx.AsyncClient:
-	"""获取共享的 HTTP 客户端"""
+	"""Get shared HTTP client"""
 	if _http_client is None:
 		raise RuntimeError("HTTP client not initialized")
 	return _http_client
@@ -60,19 +60,19 @@ def create_app(
 	mode: str = "rag",
 ) -> FastAPI:
 	"""
-	创建 FastAPI 应用
+	Create FastAPI application
 
 	Args:
-		settings: 环境变量配置
-		project_config: 项目配置
-		mode: 运行模式
-			- "rag": RAG 服务（搜索API）
-			- "mcp": MCP 服务（MCP协议）
-			- "all": 同时提供两者
+		settings: Environment variable config
+		project_config: Project config
+		mode: Run mode
+			- "rag": RAG service (search API)
+			- "mcp": MCP service (MCP protocol)
+			- "all": Both services
 	"""
 	global _searchers, _settings, _project_config, _access_logger, _http_client
 
-	# 初始化配置
+	# Initialize config
 	if settings is None:
 		settings = Settings()
 	if project_config is None:
@@ -81,38 +81,38 @@ def create_app(
 	_settings = settings
 	_project_config = project_config
 
-	# 设置日志
+	# Setup logging
 	setup_logging(
 		log_level=settings.log_level,
 		log_format=settings.log_format,
 		log_dir=settings.log_dir if settings.log_format == "json" else None,
 	)
 
-	# 初始化访问日志
+	# Initialize access logger
 	_access_logger = AccessLogger(settings.log_dir, backup_count=180)
 
 	@asynccontextmanager
 	async def lifespan(app: FastAPI):
-		"""应用生命周期管理"""
+		"""Application lifecycle management"""
 		global _http_client
-		# 启动时创建共享 HTTP 客户端
+		# Create shared HTTP client on startup
 		_http_client = httpx.AsyncClient(timeout=30.0)
 		logger.info("HTTP client initialized")
 		yield
-		# 关闭时清理
+		# Cleanup on shutdown
 		await _http_client.aclose()
 		_http_client = None
 		logger.info("HTTP client closed")
 
-	# 创建应用
+	# Create application
 	app = FastAPI(
-		title="GC-DOC-MCP Service",
-		description="GrapeCity Documentation MCP Service",
+		title="MCS-DOC-MCP Service",
+		description="Mescius Documentation MCP Service",
 		version="1.0.0",
 		lifespan=lifespan,
 	)
 
-	# CORS: allow_origins=["*"] 时不能设置 allow_credentials=True
+	# CORS: allow_origins=["*"] cannot set allow_credentials=True
 	app.add_middleware(
 		CORSMiddleware,
 		allow_origins=["*"],
@@ -121,12 +121,12 @@ def create_app(
 		allow_headers=["*"],
 	)
 
-	# 访问日志中间件
+	# Access log middleware
 	app.add_middleware(AccessLogMiddleware, access_logger=_access_logger)
 
-	# 初始化 Searchers（RAG 和 ALL 模式需要）
+	# Initialize Searchers (RAG and ALL modes)
 	if mode in ["rag", "all"]:
-		logger.info("初始化 Searchers...")
+		logger.info("Initializing Searchers...")
 		for name in project_config.project_names:
 			collection = project_config.get_collection_name(name)
 			try:
@@ -139,7 +139,7 @@ def create_app(
 			except Exception as e:
 				logger.warning(f"  ✗ {name}: {e}")
 
-	# 注册路由
+	# Register routes
 	app.include_router(health_router, tags=["health"])
 
 	if mode in ["rag", "all"]:
@@ -148,22 +148,22 @@ def create_app(
 	if mode in ["mcp", "all"]:
 		app.include_router(mcp_router, tags=["mcp"])
 
-	# 静态文件服务（tutorial 页面）
+	# Static file service (tutorial page)
 	static_dir = Path(__file__).parent.parent.parent / "tutorial" / "dist"
 	if static_dir.exists():
-		# 挂载静态资源（js, css, assets）
+		# Mount static assets (js, css, assets)
 		app.mount("/assets", StaticFiles(directory=static_dir / "assets"), name="assets")
 
 		@app.get("/")
 		async def serve_index():
-			"""返回 tutorial 首页"""
+			"""Return tutorial homepage"""
 			return FileResponse(static_dir / "index.html")
 	else:
 		@app.get("/")
 		async def root():
-			"""服务信息"""
+			"""Service info"""
 			return {
-				"name": "GC-DOC-MCP-Server",
+				"name": "MCS-DOC-MCP-Server",
 				"version": "1.0.0",
 				"mode": mode,
 				"projects": project_config.project_names,

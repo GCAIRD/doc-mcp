@@ -5,13 +5,13 @@ from .chunker_javadoc import JavaDocChunker
 
 
 def get_chunker(chunker_type: str, **kwargs) -> BaseChunker:
-	"""工厂函数"""
+	"""Factory function"""
 	chunkers = {
 		'markdown': MarkdownChunker,
 		'javadoc': JavaDocChunker,
 	}
 	if chunker_type not in chunkers:
-		raise ValueError(f"未知 chunker 类型: {chunker_type}. 可用: {list(chunkers.keys())}")
+		raise ValueError(f"Unknown chunker type: {chunker_type}. Available: {list(chunkers.keys())}")
 	return chunkers[chunker_type](**kwargs)
 
 

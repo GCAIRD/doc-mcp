@@ -1,125 +1,118 @@
-# GC-DOC-MCP Projects Configuration
+# MCS-DOC-MCP Projects Configuration
 # Non-sensitive project definitions
 
 projects:
   spreadjs:
     collection: spreadjs_rag
-    raw_data: ./raw_data/cn/spreadjs
-    description: SpreadJS 前端表格控件中文文档
+    raw_data: ./raw_data/en/spreadjs
+    description: SpreadJS JavaScript spreadsheet component documentation
     chunker: markdown
     resources:
       cdn_scripts:
-        name: SpreadJS CDN 脚本引用
-        description: SpreadJS 18.2.5 版本所有模块的 CDN 引用链接。适用于纯 HTML 页面或快速原型开发。
+        name: SpreadJS CDN Scripts
+        description: SpreadJS 19.0.0 CDN reference links for all modules. For pure HTML pages or rapid prototyping.
         mimeType: text/html
         content: |
-          <!-- SpreadJS 18.2.5 CDN -->
-          <!-- 样式（必需） -->
-          <link href="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets/styles/gc.spread.sheets.excel2013white.css" rel="stylesheet" type="text/css" />
-          <link href="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-designer/styles/gc.spread.sheets.designer.light.min.css" rel="stylesheet" type="text/css" />
+          <!-- SpreadJS 19.0.0 CDN -->
+          <!-- Styles (required) -->
+          <link href="https://cdn.mescius.com/spreadjs/hosted/css/gc.spread.sheets.excel2013white.19.0.0.css" rel="stylesheet" type="text/css" />
+          <link href="https://cdn.mescius.com/spreadjs/hosted/css/gc.spread.sheets.designer.19.0.0.min.css" rel="stylesheet" type="text/css" />
 
-          <!-- 核心库（必需） -->
-          <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets/dist/gc.spread.sheets.all.min.js"></script>
+          <!-- Core library (required) -->
+          <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/gc.spread.sheets.all.19.0.0.min.js"></script>
 
-          <!-- 可选模块 - 按需引入 -->
-          <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-shapes/dist/gc.spread.sheets.shapes.min.js"></script>
-          <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-charts/dist/gc.spread.sheets.charts.min.js"></script>
-          <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-datacharts-addon/dist/gc.spread.sheets.datacharts.min.js"></script>
-          <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-slicers/dist/gc.spread.sheets.slicers.min.js"></script>
-          <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-print/dist/gc.spread.sheets.print.min.js"></script>
-          <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-barcode/dist/gc.spread.sheets.barcode.min.js"></script>
-          <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-pdf/dist/gc.spread.sheets.pdf.min.js"></script>
-          <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-pivot-addon/dist/gc.spread.pivot.pivottables.min.js"></script>
-          <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-tablesheet/dist/gc.spread.sheets.tablesheet.min.js"></script>
-          <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-ganttsheet/dist/gc.spread.sheets.ganttsheet.min.js"></script>
-          <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-reportsheet-addon/dist/gc.spread.report.reportsheet.min.js"></script>
-          <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-formula-panel/dist/gc.spread.sheets.formulapanel.min.js"></script>
-          <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-ai-addon/dist/gc.spread.sheets.ai.min.js"></script>
-          <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-io/dist/gc.spread.sheets.io.min.js"></script>
+          <!-- Optional modules - include as needed -->
+          <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/plugins/gc.spread.sheets.shapes.19.0.0.min.js"></script>
+          <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/plugins/gc.spread.sheets.charts.19.0.0.min.js"></script>
+          <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/plugins/gc.spread.sheets.datacharts.19.0.0.min.js"></script>
+          <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/plugins/gc.spread.sheets.slicers.19.0.0.min.js"></script>
+          <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/plugins/gc.spread.sheets.print.19.0.0.min.js"></script>
+          <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/plugins/gc.spread.sheets.barcode.19.0.0.min.js"></script>
+          <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/plugins/gc.spread.sheets.pdf.19.0.0.min.js"></script>
+          <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/plugins/gc.spread.pivot.pivottables.19.0.0.min.js"></script>
+          <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/plugins/gc.spread.sheets.tablesheet.19.0.0.min.js"></script>
+          <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/plugins/gc.spread.sheets.ganttsheet.19.0.0.min.js"></script>
+          <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/plugins/gc.spread.report.reportsheet.19.0.0.min.js"></script>
+          <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/plugins/gc.spread.sheets.formulapanel.19.0.0.min.js"></script>
+          <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/plugins/gc.spread.sheets.ai.19.0.0.min.js"></script>
+          <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/plugins/gc.spread.sheets.io.19.0.0.min.js"></script>
 
-          <!-- 中文资源 -->
-          <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-resources-zh/dist/gc.spread.sheets.resources.zh.min.js"></script>
+          <!-- Designer (optional) -->
+          <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/gc.spread.sheets.designer.resource.en.19.0.0.min.js"></script>
+          <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/gc.spread.sheets.designer.all.19.0.0.min.js"></script>
 
-          <!-- 设计器（可选） -->
-          <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-designer-resources-cn/dist/gc.spread.sheets.designer.resource.cn.min.js"></script>
-          <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-designer/dist/gc.spread.sheets.designer.all.min.js"></script>
-
-          <!-- 三方框架支持(可选) -->
-          <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-react/dist/gc.spread.sheets.react.min.js"></script>
-          <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-vue/dist/gc.spread.sheets.vue.min.js"></script>
-          <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-designer-vue/dist/gc.spread.sheets.designer.vue.min.js"></script>
-          <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-designer-react/dist/gc.spread.sheets.designer.react.min.js"></script>
+          <!-- Framework support (optional) -->
+          <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/interop/gc.spread.sheets.react.19.0.0.min.js"></script>
+          <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/interop/gc.spread.sheets.vue.19.0.0.min.js"></script>
+          <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/interop/gc.spread.sheets.angular.19.0.0.min.js"></script>
 
       npm_packages:
-        name: SpreadJS npm 包引用
-        description: SpreadJS 18.2.5 版本 npm 包列表。适用于 React/Vue/Angular 等框架项目。
+        name: SpreadJS npm Packages
+        description: SpreadJS 19.0.0 npm package list. For React/Vue/Angular projects.
         mimeType: text/plain
         content: |
-          # SpreadJS npm 包 (版本 18.2.5)
-          # 作用域: @grapecity-software
+          # SpreadJS npm Packages (v19.0.0)
+          # Scope: @mescius
 
-          ## 核心包（必需）
-          @grapecity-software/spread-sheets          # 核心库
+          ## Core Package (required)
+          @mescius/spread-sheets          # Core library
 
-          ## 可选功能模块
-          @grapecity-software/spread-sheets-shapes           # 形状
-          @grapecity-software/spread-sheets-charts           # 图表
-          @grapecity-software/spread-sheets-datacharts-addon # 数据图表插件
-          @grapecity-software/spread-sheets-slicers          # 切片器
-          @grapecity-software/spread-sheets-sparklines       # 迷你图
-          @grapecity-software/spread-sheets-print            # 打印
-          @grapecity-software/spread-sheets-barcode          # 条形码
-          @grapecity-software/spread-sheets-pdf              # PDF 导出
-          @grapecity-software/spread-sheets-pivot-addon      # 数据透视表
-          @grapecity-software/spread-sheets-tablesheet       # 数据管理表格
-          @grapecity-software/spread-sheets-ganttsheet       # 甘特图
-          @grapecity-software/spread-sheets-reportsheet-addon # 报表
-          @grapecity-software/spread-sheets-formula-panel    # 公式面板
-          @grapecity-software/spread-sheets-ai-addon         # AI 插件
-          @grapecity-software/spread-sheets-io               # Excel 导入导出
+          ## Optional Feature Modules
+          @mescius/spread-sheets-shapes           # Shapes
+          @mescius/spread-sheets-charts           # Charts
+          @mescius/spread-sheets-datacharts-addon # Data charts addon
+          @mescius/spread-sheets-slicers          # Slicers
+          @mescius/spread-sheets-sparklines       # Sparklines
+          @mescius/spread-sheets-print            # Print
+          @mescius/spread-sheets-barcode          # Barcode
+          @mescius/spread-sheets-pdf              # PDF export
+          @mescius/spread-sheets-pivot-addon      # Pivot tables
+          @mescius/spread-sheets-tablesheet       # Data manager
+          @mescius/spread-sheets-ganttsheet       # Gantt chart
+          @mescius/spread-sheets-reportsheet-addon # Report sheet
+          @mescius/spread-sheets-formula-panel    # Formula panel
+          @mescius/spread-sheets-ai-addon         # AI addon
+          @mescius/spread-sheets-io               # Excel import/export
 
-          ## 中文资源
-          @grapecity-software/spread-sheets-resources-zh     # 中文语言包
+          ## Designer (optional)
+          @mescius/spread-sheets-designer              # Designer core
+          @mescius/spread-sheets-designer-resources-en # Designer EN resources
 
-          ## 设计器（可选）
-          @grapecity-software/spread-sheets-designer              # 设计器核心
-          @grapecity-software/spread-sheets-designer-resources-cn # 设计器中文资源
+          ## Collaboration (optional)
+          @mescius/js-collaboration              # Collaboration core
+          @mescius/js-collaboration-client       # Collaboration client
+          @mescius/js-collaboration-ot           # Operational Transform (OT)
+          @mescius/js-collaboration-ot-client    # OT client
+          @mescius/js-collaboration-presence     # Presence
+          @mescius/js-collaboration-presence-client # Presence client
+          @mescius/js-collaboration-ot-sqlite    # OT SQLite storage
 
-          ## 协同功能（可选）
-          @grapecity-software/js-collaboration              # 协同核心库
-          @grapecity-software/js-collaboration-client       # 协同客户端
-          @grapecity-software/js-collaboration-ot           # 操作转换 (OT)
-          @grapecity-software/js-collaboration-ot-client    # OT 客户端
-          @grapecity-software/js-collaboration-presence     # 在线状态
-          @grapecity-software/js-collaboration-presence-client # 在线状态客户端
-          @grapecity-software/js-collaboration-ot-sqlite    # OT SQLite 存储
+          ## React Wrappers
+          @mescius/spread-sheets-react            # React component
+          @mescius/spread-sheets-designer-react   # React designer component
 
-          ## React 封装
-          @grapecity-software/spread-sheets-react            # React 组件
-          @grapecity-software/spread-sheets-designer-react   # React 设计器组件
+          ## Vue Wrappers
+          @mescius/spread-sheets-vue              # Vue component
+          @mescius/spread-sheets-designer-vue     # Vue designer component
 
-          ## Vue 封装
-          @grapecity-software/spread-sheets-vue              # Vue 组件
-          @grapecity-software/spread-sheets-designer-vue     # Vue 设计器组件
-
-          ## Angular 封装
-          @grapecity-software/spread-sheets-angular          # Angular 组件
-          @grapecity-software/spread-sheets-designer-angular # Angular 设计器组件
+          ## Angular Wrappers
+          @mescius/spread-sheets-angular          # Angular component
+          @mescius/spread-sheets-designer-angular # Angular designer component
 
           ---
-          安装示例 (React):
-          npm install @grapecity-software/spread-sheets @grapecity-software/spread-sheets-react
+          Install example (React):
+          npm install @mescius/spread-sheets @mescius/spread-sheets-react
 
-          安装示例 (Vue):
-          npm install @grapecity-software/spread-sheets @grapecity-software/spread-sheets-vue
+          Install example (Vue):
+          npm install @mescius/spread-sheets @mescius/spread-sheets-vue
 
-          安装示例 (Angular):
-          npm install @grapecity-software/spread-sheets @grapecity-software/spread-sheets-angular
+          Install example (Angular):
+          npm install @mescius/spread-sheets @mescius/spread-sheets-angular
 
   gcexcel:
     collection: gcexcel_rag
-    raw_data: ./raw_data/cn/gcexcel
-    description: GcExcel 后端 Excel API 文档
+    raw_data: ./raw_data/en/gcexcel
+    description: GcExcel backend Excel API documentation
     chunker: javadoc
 
 search:

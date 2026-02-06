@@ -1,4 +1,4 @@
-"""结构化日志系统"""
+"""Structured logging system"""
 
 import json
 import logging
@@ -9,13 +9,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
 
-# 请求上下文变量
+# Request context variables
 request_id_ctx: ContextVar[str] = ContextVar("request_id", default="")
 client_ip_ctx: ContextVar[str] = ContextVar("client_ip", default="")
 
 
 class JSONFormatter(logging.Formatter):
-	"""JSON 格式化器"""
+	"""JSON formatter"""
 
 	def format(self, record: logging.LogRecord) -> str:
 		log_data = {
@@ -25,17 +25,17 @@ class JSONFormatter(logging.Formatter):
 			"message": record.getMessage(),
 		}
 
-		# 添加请求上下文
+		# Add request context
 		if request_id := request_id_ctx.get():
 			log_data["request_id"] = request_id
 		if client_ip := client_ip_ctx.get():
 			log_data["client_ip"] = client_ip
 
-		# 添加额外字段
+		# Add extra fields
 		if hasattr(record, "extra_data"):
 			log_data.update(record.extra_data)
 
-		# 异常信息
+		# Exception info
 		if record.exc_info:
 			log_data["exception"] = self.formatException(record.exc_info)
 
@@ -43,7 +43,7 @@ class JSONFormatter(logging.Formatter):
 
 
 class TextFormatter(logging.Formatter):
-	"""文本格式化器（开发环境）"""
+	"""Text formatter (for dev environment)"""
 
 	def __init__(self):
 		super().__init__(
@@ -54,28 +54,28 @@ class TextFormatter(logging.Formatter):
 
 class AccessLogger:
 	"""
-	访问日志记录器
+	Access log recorder
 
-	专门记录 HTTP 请求的访问日志，格式化为 JSON，按天轮转。
+	Records HTTP request access logs in JSON format with daily rotation.
 	"""
 
 	def __init__(self, log_dir: Path, backup_count: int = 180):
 		"""
-		初始化访问日志记录器
+		Initialize access logger
 
 		Args:
-			log_dir: 日志目录
-			backup_count: 保留的日志文件数量（天数），默认180天
+			log_dir: Log directory
+			backup_count: Number of log files to keep (days), default 180
 		"""
 		self.logger = logging.getLogger("access")
 		self.logger.setLevel(logging.INFO)
 		self.logger.propagate = False
 
-		# 确保目录存在
+		# Ensure directory exists
 		log_dir.mkdir(parents=True, exist_ok=True)
 		log_file = log_dir / "access.log"
 
-		# 按天轮转的文件处理器
+		# Daily rotating file handler
 		handler = logging.handlers.TimedRotatingFileHandler(
 			log_file,
 			when="midnight",
@@ -86,7 +86,7 @@ class AccessLogger:
 		handler.setFormatter(JSONFormatter())
 		handler.suffix = "%Y-%m-%d"
 
-		# 清除已有处理器（避免重复添加）
+		# Clear existing handlers (avoid duplicates)
 		self.logger.handlers.clear()
 		self.logger.addHandler(handler)
 
@@ -106,21 +106,21 @@ class AccessLogger:
 		**extra: Any
 	) -> None:
 		"""
-		记录一条访问日志
+		Log an access entry
 
 		Args:
-			request_id: 请求ID
-			client_ip: 客户端IP
-			method: HTTP方法
-			path: 请求路径
-			project: 项目名称
-			tool: MCP工具名称
-			query: 搜索查询
-			duration_ms: 请求耗时（毫秒）
-			status_code: HTTP状态码
-			result_count: 返回结果数量
-			error: 错误信息
-			**extra: 额外字段
+			request_id: Request ID
+			client_ip: Client IP
+			method: HTTP method
+			path: Request path
+			project: Project name
+			tool: MCP tool name
+			query: Search query
+			duration_ms: Request duration (ms)
+			status_code: HTTP status code
+			result_count: Number of results
+			error: Error message
+			**extra: Additional fields
 		"""
 		record = self.logger.makeRecord(
 			self.logger.name,
@@ -157,18 +157,18 @@ class AccessLogger:
 		error: Optional[str] = None
 	) -> None:
 		"""
-		记录 MCP 调用日志
+		Log MCP call
 
 		Args:
-			request_id: 请求ID
-			client_ip: 客户端IP
-			project: 项目名称
-			tool: 工具名称
-			arguments: 调用参数
-			duration_ms: 耗时
-			status_code: 状态码
-			result_count: 结果数量
-			error: 错误信息
+			request_id: Request ID
+			client_ip: Client IP
+			project: Project name
+			tool: Tool name
+			arguments: Call arguments
+			duration_ms: Duration
+			status_code: Status code
+			result_count: Result count
+			error: Error message
 		"""
 		self.log(
 			request_id=request_id,
@@ -193,20 +193,20 @@ def setup_logging(
 	log_dir: Optional[Path] = None
 ) -> None:
 	"""
-	配置全局日志
+	Configure global logging
 
 	Args:
-		log_level: 日志级别
-		log_format: 日志格式（json 或 text）
-		log_dir: 日志目录（可选，用于文件日志）
+		log_level: Log level
+		log_format: Log format (json or text)
+		log_dir: Log directory (optional, for file logging)
 	"""
 	root = logging.getLogger()
 	root.setLevel(getattr(logging, log_level.upper()))
 
-	# 清除已有处理器
+	# Clear existing handlers
 	root.handlers.clear()
 
-	# 控制台处理器
+	# Console handler
 	console_handler = logging.StreamHandler(sys.stdout)
 	if log_format == "json":
 		console_handler.setFormatter(JSONFormatter())
@@ -214,7 +214,7 @@ def setup_logging(
 		console_handler.setFormatter(TextFormatter())
 	root.addHandler(console_handler)
 
-	# 如果指定了日志目录，添加文件处理器
+	# Add file handler if log_dir specified
 	if log_dir:
 		log_dir.mkdir(parents=True, exist_ok=True)
 		file_handler = logging.handlers.TimedRotatingFileHandler(
@@ -230,5 +230,5 @@ def setup_logging(
 
 
 def get_logger(name: str) -> logging.Logger:
-	"""获取指定名称的logger"""
+	"""Get logger by name"""
 	return logging.getLogger(name)

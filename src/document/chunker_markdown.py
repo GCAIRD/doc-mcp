@@ -1,4 +1,4 @@
-"""Markdown 通用分块器"""
+"""Markdown universal chunker"""
 
 from typing import Iterator
 
@@ -8,22 +8,22 @@ from .loader import Document
 
 class MarkdownChunker(BaseChunker):
 	"""
-	Markdown文档分块器
+	Markdown document chunker
 
-	策略：
-	1. 按标题(#)切分主要段落
-	2. 段落过长时按字符数二次切分
-	3. 保护代码块完整性
+	Strategy:
+	1. Split by headers (#)
+	2. Secondary split by char count for long sections
+	3. Protect code block integrity
 	"""
 
 	def chunk_document(self, doc: Document) -> Iterator[Chunk]:
-		"""对文档进行分块"""
-		# 按标题切分
+		"""Chunk the document"""
+		# Split by headers
 		sections = self.split_by_headers(doc.content)
 
 		chunk_index = 0
 		for section in sections:
-			# 按大小切分，保护代码块
+			# Split by size, protect code blocks
 			text_chunks = self.split_protected(section)
 
 			for text in text_chunks:

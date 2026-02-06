@@ -1,4 +1,4 @@
-"""健康检查路由"""
+"""Health check route"""
 
 from fastapi import APIRouter
 
@@ -7,8 +7,8 @@ router = APIRouter()
 
 @router.get("/health")
 async def health():
-	"""健康检查"""
-	# 这里会在app.py中注入searchers
+	"""Health check"""
+	# Searchers injected in app.py
 	from ..app import get_searchers
 
 	searchers = get_searchers()

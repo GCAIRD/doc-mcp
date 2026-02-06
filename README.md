@@ -1,84 +1,84 @@
-# GC-DOC-MCP
+# MCS-DOC-MCP
 
-GrapeCity 产品文档 RAG + MCP 服务。
+Mescius product documentation RAG + MCP service.
 
-## 安装
+## Installation
 
 ```bash
-# 开发模式（源码可编辑，改动实时生效）
+# Dev mode (editable source, changes take effect immediately)
 pip install -e .
 
-# 生产模式（固定版本，复制到 site-packages）
+# Production mode (fixed version, copies to site-packages)
 pip install .
 
-# 复制并配置环境变量
+# Copy and configure environment variables
 cp .env.example .env
-# 编辑 .env，填入 VOYAGE_API_KEY
+# Edit .env, fill in VOYAGE_API_KEY
 ```
 
-## 构建索引
+## Build Index
 
-将文档放入 `raw_data/{project}/` 目录，然后运行：
+Place documents in `raw_data/{project}/` directory, then run:
 
 ```bash
-# 1. 启动qdrant
+# 1. Start qdrant
 docker compose up -d qdrant
-# 2. 构建索引
+# 2. Build index
 python scripts/embed.py spreadjs
 python scripts/embed.py gcexcel
-# 3. 启动全部服务
+# 3. Start all services
 docker compose up -d
 ```
 
-其他 embed 命令：
+Other embed commands:
 
 ```bash
-# 构建所有项目
+# Build all projects
 python scripts/embed.py
 
-# 重建索引（清空 collection）
+# Rebuild index (clear collection)
 python scripts/embed.py spreadjs --recreate
 
-# 从头开始，不从断点恢复
+# Start from scratch, don't resume from checkpoint
 python scripts/embed.py --restart
 ```
 
-支持断点续传，中断后重新运行会自动恢复。
+Supports checkpoint resume. Interrupted runs will auto-recover.
 
-## 服务管理
+## Service Management
 
 ```bash
-# 查看状态
+# Check status
 docker compose ps
 
-# 查看日志
+# View logs
 docker compose logs -f
 
-# 停止服务
+# Stop services
 docker compose down
 ```
 
-## API 端点
+## API Endpoints
 
-- `POST /search` - RAG 搜索
-- `GET /doc/{doc_id}?project=xxx` - 获取完整文档
-- `POST /mcp/{project}` - MCP 协议端点
-- `GET /health` - 健康检查
+- `POST /search` - RAG search
+- `GET /doc/{doc_id}?project=xxx` - Get full document
+- `POST /mcp/{project}` - MCP protocol endpoint
+- `GET /health` - Health check
 
-## 架构
+## Architecture
 
 ```
 ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
 │   Client    │────▶│ MCP Server  │────▶│ RAG Service │
-│  (Claude)   │     │   :8889     │     │   :8888     │
+│  (Claude)   │     │   :8901     │     │   :8900     │
 └─────────────┘     └─────────────┘     └──────┬──────┘
                                                │
                                         ┌──────▼──────┐
                                         │   Qdrant    │
-                                        │   :6333     │
+                                        │   :6334     │
                                         └─────────────┘
 ```
 
-- **MCP Server**: 对外暴露，处理 MCP 协议
-- **RAG Service**: 内部服务，执行向量搜索
-- **Qdrant**: 向量数据库，内部网络隔离
+- **MCP Server**: External-facing, handles MCP protocol
+- **RAG Service**: Internal service, performs vector search
+- **Qdrant**: Vector database, network isolated

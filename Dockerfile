@@ -1,4 +1,4 @@
-# Multi-stage build for GC-DOC-MCP
+# Multi-stage build for MCS-DOC-MCP
 
 # Stage 1: Builder
 FROM ghcr.io/astral-sh/uv:python3.11-bookworm-slim AS builder
@@ -40,9 +40,9 @@ USER appuser
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-	CMD curl -f http://localhost:8888/health || exit 1
+	CMD curl -f http://localhost:8900/health || exit 1
 
-EXPOSE 8888 8889
+EXPOSE 8900 8901
 
 # Default command (RAG service)
 CMD ["python", "scripts/serve.py"]

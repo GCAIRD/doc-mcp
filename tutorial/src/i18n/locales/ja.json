@@ -1,6 +1,6 @@
 {
-	"title": "GC-DOC-MCP",
-	"subtitle": "GrapeCity 製品ドキュメント RAG + MCP サービス",
+	"title": "MCS-DOC-MCP",
+	"subtitle": "Mescius 製品ドキュメント RAG + MCP サービス",
 	"description": "以下の手順に従って、AI クライアントで MCP サービスを設定してください",
 	"categories": {
 		"ide": "IDE",
@@ -12,9 +12,9 @@
 		"cursor": "Cursor",
 		"windsurf": "Windsurf",
 		"cline": "Cline",
-		"trae": "TRAE",
+		"claudedesktop": "Claude Desktop",
+		"codex": "OpenAI Codex CLI",
 		"jetbrains": "JetBrains IDE",
-		"cherrystudio": "Cherry Studio",
 		"lobechat": "LobeChat",
 		"other": "汎用設定"
 	},
@@ -33,7 +33,7 @@
 			"<strong>\"MCP: Add Server\"</strong> と入力して選択",
 			"サーバータイプとして <strong>\"HTTP (sse)\"</strong> を選択",
 			"サーバー URL を入力",
-			"サーバー名を入力：<strong>GC-DOC-MCP</strong>"
+			"サーバー名を入力：<strong>MCS-DOC-MCP</strong>"
 		],
 		"usageTitle": "GitHub Copilot で MCP ツールを使用",
 		"usageSteps": [
@@ -76,16 +76,27 @@
 		"addTitle": "MCP サーバー設定を追加",
 		"addDesc": "以下の設定を Cline の MCP 設定に追加してください。"
 	},
-	"trae": {
-		"title": "TRAE で MCP を設定",
+	"claudedesktop": {
+		"title": "Claude Desktop で MCP を設定",
 		"steps": [
-			"TRAE（ByteDance AI IDE）を開く",
-			"<strong>設定 → AI アシスタント → MCP サーバー</strong> に移動",
+			"Claude Desktop アプリを開く",
+			"<strong>設定 → 開発者 → MCP サーバー</strong> に移動",
 			"<strong>\"サーバーを追加\"</strong> をクリック"
 		],
-		"note": "TRAE は ByteDance の AI IDE で、Doubao LLM を搭載し、MCP プロトコルをサポートしています。",
+		"note": "Claude Desktop は MCP プロトコルをネイティブサポートし、シームレスな AI 統合を実現します。",
 		"addTitle": "MCP サーバー設定を追加",
-		"addDesc": "以下の設定を TRAE の MCP 設定に追加してください。"
+		"addDesc": "以下の設定を Claude Desktop の MCP 設定に追加してください。"
+	},
+	"codex": {
+		"title": "OpenAI Codex CLI で MCP を設定",
+		"steps": [
+			"Codex CLI をインストール：<code>npm install -g @openai/codex</code>",
+			"MCP 設定ファイル <code>~/.codex/mcp.json</code> を作成または編集",
+			"以下のサーバー設定を追加"
+		],
+		"note": "OpenAI Codex CLI は MCP プロトコルをサポートし、コード生成機能を強化します。",
+		"addTitle": "MCP サーバー設定を追加",
+		"addDesc": "以下の設定を Codex の MCP 設定に追加してください。"
 	},
 	"jetbrains": {
 		"title": "JetBrains IDE で MCP を設定",
@@ -97,24 +108,6 @@
 		"note": "AI Assistant プラグインがインストールされ、MCP サポートが有効になっている必要があります。一部の古い IDE バージョンでは MCP がサポートされていない場合があります。",
 		"addTitle": "MCP サーバー設定を追加",
 		"addDesc": "MCP Servers 設定に以下のサーバー情報を追加してください。"
-	},
-	"cherrystudio": {
-		"title": "Cherry Studio で MCP を設定",
-		"steps": [
-			"Cherry Studio アプリを開く",
-			"<strong>設定</strong>アイコンをクリック（位置はナビゲーションバーの設定により異なります：サイドバーナビの場合は左下、トップナビの場合は右上）",
-			"左メニューから <strong>MCP サーバー</strong> を選択",
-			"<strong>\"サーバーを追加\"</strong> ボタンをクリック"
-		],
-		"note": "Cherry Studio 1.1.10 以降で MCP をサポート。初回使用時に必要な依存関係（UV、Bun）が自動インストールされます。",
-		"addTitle": "MCP サーバー設定を追加",
-		"addDesc": "<strong>Streamable HTTP</strong> タイプを選択し、以下の設定を入力してください。",
-		"configSteps": [
-			"サーバー名：<strong>GC-DOC-MCP-spreadjs</strong> または <strong>GC-DOC-MCP-gcexcel</strong>",
-			"タイプ：<strong>streamableHttp</strong>",
-			"URL：対応するサービス URL を入力（下記の設定を参照）",
-			"保存して、チャット画面で MCP サービスを有効にする"
-		]
 	},
 	"lobechat": {
 		"title": "LobeChat で MCP を設定",

@@ -1,4 +1,4 @@
-"""MCP 路由 - 统一端点，URL路径区分项目"""
+"""MCP routes - unified endpoint, URL path distinguishes project"""
 
 import json
 import logging
@@ -14,9 +14,9 @@ router = APIRouter()
 
 
 def get_tools(project: str | None = None, project_config=None) -> dict:
-	"""根据项目动态生成工具定义"""
+	"""Dynamically generate tool definitions based on project"""
 	if project:
-		# 固定项目模式：不需要 project 参数
+		# Single project mode: no project param needed
 		if project_config:
 			proj_desc = project_config.get_description(project) or project
 			has_resources = bool(project_config.get_resources(project))
@@ -24,10 +24,10 @@ def get_tools(project: str | None = None, project_config=None) -> dict:
 			proj_desc = project
 			has_resources = False
 
-		# 基础 description
-		search_desc = f"搜索 {proj_desc} 中文文档。返回相关代码示例、API 文档和功能说明。\n\n【重要】每次调用 API 或实现功能前，必须先搜索确认：1) 方法签名和参数 2) 返回值类型 3) 使用示例。不要依赖记忆中的 API 知识，文档版本可能已更新。"
+		# Base description
+		search_desc = f"Search {proj_desc} documentation. Returns relevant code examples, API docs and feature descriptions.\n\n[IMPORTANT] Before calling any API or implementing features, always search to confirm: 1) Method signatures and parameters 2) Return types 3) Usage examples. Do not rely on memorized API knowledge as documentation may have been updated."
 		if has_resources:
-			search_desc += "\n\n【强制】如需生成包含 script 引用或 import 的代码，必须先调用 get_code_guidelines 获取正确的引用方式。"
+			search_desc += "\n\n[REQUIRED] Before generating code with script references or imports, you MUST call get_code_guidelines to obtain correct reference paths."
 
 		tools = {
 			"search": {
@@ -37,11 +37,11 @@ def get_tools(project: str | None = None, project_config=None) -> dict:
 					"properties": {
 						"query": {
 							"type": "string",
-							"description": "搜索查询（使用中文效果最佳）",
+							"description": "Search query",
 						},
 						"limit": {
 							"type": "integer",
-							"description": "返回结果数量",
+							"description": "Number of results to return",
 							"default": 5,
 						},
 					},
@@ -49,13 +49,13 @@ def get_tools(project: str | None = None, project_config=None) -> dict:
 				},
 			},
 			"fetch": {
-				"description": f"根据 doc_id 获取 {proj_desc} 完整文档内容。搜索结果只是摘要，实现代码前务必 fetch 获取完整上下文。",
+				"description": f"Fetch full document content by doc_id for {proj_desc}. Search results are summaries only - always fetch full context before implementing code.",
 				"inputSchema": {
 					"type": "object",
 					"properties": {
 						"doc_id": {
 							"type": "string",
-							"description": "搜索结果中的文档 ID",
+							"description": "Document ID from search results",
 						}
 					},
 					"required": ["doc_id"],
@@ -63,17 +63,17 @@ def get_tools(project: str | None = None, project_config=None) -> dict:
 			},
 		}
 
-		# 只有配置了 resources 的项目才暴露 get_code_guidelines
+		# Only expose get_code_guidelines for projects with resources configured
 		if has_resources:
 			tools["get_code_guidelines"] = {
-				"description": f"获取 {proj_desc} 代码生成规范，包括 CDN 链接、包引用方式等。【强制】在生成任何包含 script 引用或 import 语句的代码之前，必须先调用此工具。不调用将导致使用错误的引用链接。",
+				"description": f"Get code generation guidelines for {proj_desc}, including CDN links and package references. [REQUIRED] You MUST call this tool before generating any code with script tags or import statements. Failure to do so will result in incorrect reference links.",
 				"inputSchema": {
 					"type": "object",
 					"properties": {
 						"guideline_type": {
 							"type": "string",
 							"enum": ["cdn_scripts", "npm_packages", "all"],
-							"description": "规范类型：cdn_scripts=CDN脚本引用, npm_packages=NPM包引用, all=全部",
+							"description": "Guideline type: cdn_scripts=CDN script references, npm_packages=NPM package references, all=everything",
 							"default": "all",
 						}
 					},
@@ -83,20 +83,20 @@ def get_tools(project: str | None = None, project_config=None) -> dict:
 
 		return tools
 	else:
-		# 多项目模式
+		# Multi-project mode
 		project_names = project_config.project_names if project_config else ["spreadjs", "gcexcel"]
 
-		# 找出有 resources 配置的项目
+		# Find projects with resources configured
 		projects_with_resources = []
 		if project_config:
 			for pn in project_names:
 				if project_config.get_resources(pn):
 					projects_with_resources.append(pn)
 
-		# 基础 description
-		search_desc = "搜索 GrapeCity Docs 产品文档。返回相关代码示例、API 文档和功能说明。\n\n【重要】每次调用 API 或实现功能前，必须先搜索确认：1) 方法签名和参数 2) 返回值类型 3) 使用示例。不要依赖记忆中的 API 知识，文档版本可能已更新。"
+		# Base description
+		search_desc = "Search Mescius product documentation. Returns relevant code examples, API docs and feature descriptions.\n\n[IMPORTANT] Before calling any API or implementing features, always search to confirm: 1) Method signatures and parameters 2) Return types 3) Usage examples. Do not rely on memorized API knowledge as documentation may have been updated."
 		if projects_with_resources:
-			search_desc += f"\n\n【强制】如需为 {'/'.join(projects_with_resources)} 生成包含 script 引用或 import 的代码，必须先调用 get_code_guidelines 获取正确的引用方式。"
+			search_desc += f"\n\n[REQUIRED] Before generating code with script references or imports for {'/'.join(projects_with_resources)}, you MUST call get_code_guidelines to obtain correct reference paths."
 
 		tools = {
 			"search": {
@@ -106,16 +106,16 @@ def get_tools(project: str | None = None, project_config=None) -> dict:
 					"properties": {
 						"query": {
 							"type": "string",
-							"description": "搜索查询（使用中文效果最佳）",
+							"description": "Search query",
 						},
 						"project": {
 							"type": "string",
-							"description": f"项目：{' 或 '.join(project_names)}",
+							"description": f"Project: {' or '.join(project_names)}",
 							"enum": project_names,
 						},
 						"limit": {
 							"type": "integer",
-							"description": "返回结果数量",
+							"description": "Number of results to return",
 							"default": 5,
 						},
 					},
@@ -123,14 +123,14 @@ def get_tools(project: str | None = None, project_config=None) -> dict:
 				},
 			},
 			"fetch": {
-				"description": "根据 doc_id 获取完整文档内容。搜索结果只是摘要，实现代码前务必 fetch 获取完整上下文。",
+				"description": "Fetch full document content by doc_id. Search results are summaries only - always fetch full context before implementing code.",
 				"inputSchema": {
 					"type": "object",
 					"properties": {
-						"doc_id": {"type": "string", "description": "文档 ID"},
+						"doc_id": {"type": "string", "description": "Document ID"},
 						"project": {
 							"type": "string",
-							"description": f"项目：{' 或 '.join(project_names)}",
+							"description": f"Project: {' or '.join(project_names)}",
 							"enum": project_names,
 						},
 					},
@@ -139,22 +139,22 @@ def get_tools(project: str | None = None, project_config=None) -> dict:
 			},
 		}
 
-		# 只有存在配置了 resources 的项目才暴露 get_code_guidelines
+		# Only expose get_code_guidelines if any project has resources configured
 		if projects_with_resources:
 			tools["get_code_guidelines"] = {
-				"description": f"获取指定项目的代码生成规范，包括 CDN 链接、包引用方式等。【强制】在生成任何包含 script 引用或 import 语句的代码之前，必须先调用此工具。不调用将导致使用错误的引用链接。仅 {'/'.join(projects_with_resources)} 支持此工具。",
+				"description": f"Get code generation guidelines including CDN links and package references. [REQUIRED] You MUST call this tool before generating any code with script tags or import statements. Failure to do so will result in incorrect reference links. Only {'/'.join(projects_with_resources)} support this tool.",
 				"inputSchema": {
 					"type": "object",
 					"properties": {
 						"project": {
 							"type": "string",
-							"description": f"项目：{' 或 '.join(projects_with_resources)}",
+							"description": f"Project: {' or '.join(projects_with_resources)}",
 							"enum": projects_with_resources,
 						},
 						"guideline_type": {
 							"type": "string",
 							"enum": ["cdn_scripts", "npm_packages", "all"],
-							"description": "规范类型：cdn_scripts=CDN脚本引用, npm_packages=NPM包引用, all=全部",
+							"description": "Guideline type: cdn_scripts=CDN script references, npm_packages=NPM package references, all=everything",
 							"default": "all",
 						}
 					},
@@ -178,7 +178,7 @@ def create_error(message_id: str | int | None, code: int, message: str) -> dict:
 
 
 async def handle_search(args: dict, project: str, rag_service_url: str) -> dict:
-	"""执行 RAG 搜索"""
+	"""Execute RAG search"""
 	from ..app import get_http_client
 	client = get_http_client()
 	resp = await client.post(
@@ -192,13 +192,13 @@ async def handle_search(args: dict, project: str, rag_service_url: str) -> dict:
 	)
 	resp.raise_for_status()
 	result = resp.json()
-	# 引导 agent 自主判断是否需要进一步查询
-	result["_guidance"] = "判断是否需要进一步查询：若你接下来要写的代码会调用返回结果中提到的 API，且你不 100% 确定其参数顺序、类型或返回值，则应 fetch 获取完整文档或针对该 API 名再次搜索。"
+	# Guide agent to determine if further queries are needed
+	result["_guidance"] = "Determine if further queries are needed: If your next code will call APIs mentioned in results and you're not 100% certain of parameter order, types, or return values, you should fetch full docs or search again for that specific API."
 	return result
 
 
 async def handle_fetch(args: dict, project: str, rag_service_url: str) -> dict:
-	"""获取完整文档"""
+	"""Fetch full document"""
 	from ..app import get_http_client
 	client = get_http_client()
 	resp = await client.get(
@@ -207,17 +207,17 @@ async def handle_fetch(args: dict, project: str, rag_service_url: str) -> dict:
 	)
 	resp.raise_for_status()
 	result = resp.json()
-	result["_guidance"] = "已获取完整文档。若文档中出现你不熟悉的类名或方法名，在调用前应单独搜索确认其用法。"
+	result["_guidance"] = "Full document retrieved. If unfamiliar class or method names appear, search for their usage before calling them."
 	return result
 
 
 async def handle_get_code_guidelines(args: dict, project: str, project_config) -> dict:
-	"""获取代码生成规范"""
+	"""Get code generation guidelines"""
 	guideline_type = args.get("guideline_type", "all")
 	resources = project_config.get_resources(project) if project_config else {}
 
 	if not resources:
-		return {"guidelines": {}, "_note": f"项目 {project} 暂无代码规范配置"}
+		return {"guidelines": {}, "_note": f"Project {project} has no code guidelines configured"}
 
 	if guideline_type == "all":
 		result = {}
@@ -240,13 +240,13 @@ async def handle_get_code_guidelines(args: dict, project: str, project_config) -
 			}
 		}
 	else:
-		return {"guidelines": {}, "_note": f"未找到类型 {guideline_type} 的规范，可用类型：{list(resources.keys())}"}
+		return {"guidelines": {}, "_note": f"Type {guideline_type} not found. Available: {list(resources.keys())}"}
 
 
 async def route_message(
 	message: dict, project: str | None, rag_service_url: str
 ) -> dict | None:
-	"""路由 MCP 消息"""
+	"""Route MCP message"""
 	method = message.get("method")
 	message_id = message.get("id")
 	params = message.get("params", {})
@@ -257,7 +257,7 @@ async def route_message(
 			{
 				"protocolVersion": "2025-03-26",
 				"capabilities": {"tools": {}},
-				"serverInfo": {"name": "GC-DOC-MCP-Server", "version": "1.0.0"},
+				"serverInfo": {"name": "MCS-DOC-MCP-Server", "version": "1.0.0"},
 			},
 		)
 
@@ -275,12 +275,12 @@ async def route_message(
 		tool_name = params.get("name")
 		arguments = params.get("arguments", {})
 
-		# 如果URL指定了project，使用URL中的project
+		# If URL specifies project, use URL's project
 		actual_project = project or arguments.get("project")
 		if not actual_project:
 			return create_error(message_id, -32002, "project is required")
 
-		# get_code_guidelines 特殊处理（不需要 RAG 服务）
+		# get_code_guidelines special handling (doesn't need RAG service)
 		if tool_name == "get_code_guidelines":
 			try:
 				from ..app import get_project_config
@@ -326,18 +326,18 @@ async def mcp_get():
 
 @router.post("/mcp")
 async def mcp_post(request: Request):
-	"""MCP POST - 通用端点（需要在参数中指定project）"""
+	"""MCP POST - generic endpoint (requires project in params)"""
 	return await _handle_mcp_request(request, project=None)
 
 
 @router.post("/mcp/{project}")
 async def mcp_project(request: Request, project: str):
-	"""MCP POST - 项目专用端点"""
+	"""MCP POST - project-specific endpoint"""
 	return await _handle_mcp_request(request, project=project)
 
 
 async def _handle_mcp_request(request: Request, project: str | None):
-	"""处理 MCP 请求"""
+	"""Handle MCP request"""
 	from ..app import get_access_logger, get_settings
 
 	settings = get_settings()
@@ -351,11 +351,11 @@ async def _handle_mcp_request(request: Request, project: str | None):
 
 		session_id = request.headers.get("Mcp-Session-Id")
 
-		# 记录请求信息
+		# Log request info
 		request_id = getattr(request.state, "request_id", str(uuid.uuid4())[:8])
 		client_ip = request.client.host if request.client else "unknown"
 
-		# 提取工具信息
+		# Extract tool info
 		tool_name = None
 		arguments = {}
 		if message.get("method") == "tools/call":
@@ -363,13 +363,13 @@ async def _handle_mcp_request(request: Request, project: str | None):
 			tool_name = params.get("name")
 			arguments = params.get("arguments", {})
 
-		# 使用内部服务地址（RAG service）
+		# Use internal service address (RAG service)
 		rag_service_url = settings.rag_service_url
 		response_data = await route_message(message, project, rag_service_url)
 
 		duration_ms = (time.perf_counter() - start_time) * 1000
 
-		# 记录访问日志
+		# Log access
 		if access_logger and tool_name:
 			result_count = 0
 			if response_data and "result" in response_data:
@@ -398,7 +398,7 @@ async def _handle_mcp_request(request: Request, project: str | None):
 
 		response = JSONResponse(content=response_data)
 
-		# 初始化时返回新 session id
+		# Return new session id on initialize
 		if message.get("method") == "initialize" and not session_id:
 			response.headers["Mcp-Session-Id"] = str(uuid.uuid4())
 
@@ -414,7 +414,7 @@ async def _handle_mcp_request(request: Request, project: str | None):
 @router.get("/tools/list")
 @router.post("/tools/list")
 async def list_tools():
-	"""列出所有工具"""
+	"""List all tools"""
 	from ..app import get_project_config
 	tools_list = [{"name": name, **defn} for name, defn in get_tools(None, get_project_config()).items()]
 	return JSONResponse(content={"jsonrpc": "2.0", "result": {"tools": tools_list}})
@@ -423,14 +423,14 @@ async def list_tools():
 @router.get("/initialize")
 @router.post("/initialize")
 async def initialize():
-	"""MCP 初始化"""
+	"""MCP initialization"""
 	return JSONResponse(
 		content={
 			"jsonrpc": "2.0",
 			"result": {
 				"protocolVersion": "2025-03-26",
 				"capabilities": {"tools": {}},
-				"serverInfo": {"name": "GC-DOC-MCP-Server", "version": "1.0.0"},
+				"serverInfo": {"name": "MCS-DOC-MCP-Server", "version": "1.0.0"},
 			},
 		}
 	)

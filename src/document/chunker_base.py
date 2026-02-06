@@ -1,4 +1,4 @@
-"""文档分块器基类"""
+"""Document chunker base class"""
 
 import re
 import logging
@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class Chunk:
-	"""文档块"""
+	"""Document chunk"""
 
 	id: str
 	doc_id: str
@@ -24,12 +24,12 @@ class Chunk:
 
 class BaseChunker(ABC):
 	"""
-	分块器基类
+	Chunker base class
 
-	提供共享的切分逻辑：
-	- 按标题切分
-	- 保护代码块切分
-	- 查找最佳断点
+	Provides shared splitting logic:
+	- Split by headers
+	- Protected code block splitting
+	- Find best break points
 	"""
 
 	def __init__(
@@ -44,22 +44,22 @@ class BaseChunker(ABC):
 
 	@abstractmethod
 	def chunk_document(self, doc: Document) -> Iterator[Chunk]:
-		"""分块单个文档（子类实现）"""
+		"""Chunk a single document (subclass implements)"""
 		pass
 
 	def chunk_documents(self, docs: List[Document]) -> List[Chunk]:
-		"""批量分块"""
+		"""Batch chunk documents"""
 		chunks = []
 		for doc in docs:
 			for chunk in self.chunk_document(doc):
 				chunks.append(chunk)
-		logger.info(f"分块完成: {len(docs)} 文档 -> {len(chunks)} 块")
+		logger.info(f"Chunking complete: {len(docs)} docs -> {len(chunks)} chunks")
 		return chunks
 
-	# ===== 共享工具方法 =====
+	# ===== Shared utility methods =====
 
 	def split_by_headers(self, content: str, level: str = r"#{1,6}") -> List[str]:
-		"""按Markdown标题切分"""
+		"""Split by Markdown headers"""
 		pattern = rf"^({level}\s+.+)$"
 		parts = re.split(pattern, content, flags=re.MULTILINE)
 
@@ -80,19 +80,19 @@ class BaseChunker(ABC):
 
 	def split_protected(self, text: str) -> List[str]:
 		"""
-		保护代码块的切分
+		Split while protecting code blocks
 
-		1. 识别代码块位置
-		2. 只在代码块外部切分
-		3. 超长代码块保持完整（允许超过 chunk_size）
+		1. Identify code block positions
+		2. Only split outside code blocks
+		3. Keep long code blocks intact (allow exceeding chunk_size)
 		"""
 		if len(text) <= self.chunk_size:
 			return [text]
 
-		# 找出所有代码块的位置
+		# Find all code block positions
 		code_blocks = list(re.finditer(r"```[\s\S]*?```", text))
 
-		# 将文本分割成：普通文本段 和 代码块
+		# Split text into: regular segments and code blocks
 		segments: List[tuple] = []
 		pos = 0
 		for block in code_blocks:
@@ -113,7 +113,7 @@ class BaseChunker(ABC):
 			segment_text = text[start:end]
 
 			if is_code:
-				# 代码块：保持完整
+					# Code block: keep intact
 				if current_chunk:
 					if len(current_chunk) + len(segment_text) <= self.chunk_size * 1.5:
 						current_chunk += segment_text
@@ -124,7 +124,7 @@ class BaseChunker(ABC):
 				else:
 					current_chunk = segment_text
 			else:
-				# 普通文本：可以切分
+				# Regular text: can split
 				if len(current_chunk) + len(segment_text) <= self.chunk_size:
 					current_chunk += segment_text
 				else:
@@ -148,7 +148,7 @@ class BaseChunker(ABC):
 		return chunks if chunks else [text]
 
 	def _find_break_point(self, text: str, max_pos: int) -> int:
-		"""找到最佳断点"""
+		"""Find best break point"""
 		for sep in ["\n\n", "\n", "。", "."]:
 			pos = text.rfind(sep, 0, max_pos)
 			if pos > max_pos // 2:
@@ -156,7 +156,7 @@ class BaseChunker(ABC):
 		return max_pos
 
 	def _simple_split(self, text: str) -> List[str]:
-		"""简单按大小切分（无代码块时使用）"""
+		"""Simple size-based split (when no code blocks)"""
 		chunks = []
 		start = 0
 		while start < len(text):

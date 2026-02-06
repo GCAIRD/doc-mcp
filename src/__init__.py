@@ -1,1 +1,1 @@
-# GC-DOC-MCP: GrapeCity Documentation MCP Service
+# MCS-DOC-MCP: Mescius Documentation MCP Service

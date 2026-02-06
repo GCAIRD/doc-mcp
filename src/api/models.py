@@ -1,4 +1,4 @@
-"""Pydantic 模型定义"""
+"""Pydantic model definitions"""
 
 from typing import Dict, List, Optional
 
@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 
 class SearchRequest(BaseModel):
-	"""搜索请求"""
+	"""Search request"""
 
 	query: str
 	project: str
@@ -16,7 +16,7 @@ class SearchRequest(BaseModel):
 
 
 class SearchResultItem(BaseModel):
-	"""搜索结果项"""
+	"""Search result item"""
 
 	rank: int
 	doc_id: str
@@ -28,7 +28,7 @@ class SearchResultItem(BaseModel):
 
 
 class SearchResponse(BaseModel):
-	"""搜索响应"""
+	"""Search response"""
 
 	query: str
 	project: str
@@ -39,7 +39,7 @@ class SearchResponse(BaseModel):
 
 
 class DocumentResponse(BaseModel):
-	"""文档响应"""
+	"""Document response"""
 
 	doc_id: str
 	project: str
@@ -50,7 +50,7 @@ class DocumentResponse(BaseModel):
 
 
 class ProjectInfo(BaseModel):
-	"""项目信息"""
+	"""Project info"""
 
 	name: str
 	collection: str
@@ -59,7 +59,7 @@ class ProjectInfo(BaseModel):
 
 
 class HealthResponse(BaseModel):
-	"""健康检查响应"""
+	"""Health check response"""
 
 	status: str
 	projects: List[str]

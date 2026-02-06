@@ -1,4 +1,4 @@
-"""JavaDoc API 文档分块器"""
+"""JavaDoc API document chunker"""
 
 import re
 from typing import Iterator
@@ -9,16 +9,16 @@ from .loader import Document
 
 class JavaDocChunker(BaseChunker):
 	"""
-	JavaDoc API 文档分块器
+	JavaDoc API document chunker
 
-	针对 GcExcel 三类文档的特点设计：
-	- APIs: JavaDoc 风格，按方法切分
-	- Demos: 短小示例，整体保留
-	- Docs: 多层标题，保护代码块
+	Designed for GcExcel three document types:
+	- APIs: JavaDoc style, split by methods
+	- Demos: Short examples, keep whole
+	- Docs: Multi-level headers, protect code blocks
 	"""
 
 	def chunk_document(self, doc: Document) -> Iterator[Chunk]:
-		"""根据文档类型选择分块策略"""
+		"""Select chunking strategy based on document type"""
 		category = doc.metadata.get("category", "doc")
 
 		if category == "api":
@@ -30,15 +30,15 @@ class JavaDocChunker(BaseChunker):
 
 	def _chunk_api(self, doc: Document) -> Iterator[Chunk]:
 		"""
-		API 文档分块策略：
-		1. 提取类/接口头部信息作为上下文
-		2. 按 ### methodName 切分方法详情
-		3. 每个方法 chunk 包含类名上下文
+		API document chunking strategy:
+		1. Extract class/interface header as context
+		2. Split by ### methodName
+		3. Each method chunk includes class context
 		"""
 		content = doc.content
 		lines = content.split("\n")
 
-		# 提取头部：类名、包名、描述
+		# Extract header: class name, package, description
 		header_end = 0
 		for i, line in enumerate(lines):
 			if "## Method Summary" in line or "## Field Summary" in line:
@@ -50,7 +50,7 @@ class JavaDocChunker(BaseChunker):
 
 		header = "\n".join(lines[:header_end]).strip()
 
-		# 查找 Method Details 部分
+		# Find Method Details section
 		details_start = None
 		for i, line in enumerate(lines):
 			if "## Method Details" in line or "## Method Detail" in line:
@@ -61,7 +61,7 @@ class JavaDocChunker(BaseChunker):
 			yield from self._chunk_by_size(doc)
 			return
 
-		# 切分方法：按 `### methodName` 或 `+ ### methodName`
+		# Split methods by `### methodName` or `+ ### methodName`
 		methods = []
 		current_method = []
 		method_pattern = re.compile(r"^\s*\+?\s*###\s+\w+")
@@ -77,12 +77,12 @@ class JavaDocChunker(BaseChunker):
 		if current_method:
 			methods.append("\n".join(current_method).strip())
 
-		# 如果方法太少，整个文档按大小切分
+		# If too few methods, chunk by size
 		if len(methods) <= 2:
 			yield from self._chunk_by_size(doc)
 			return
 
-		# 按方法分组输出
+		# Group methods and output
 		chunk_index = 0
 		group = []
 		group_size = 0
@@ -131,7 +131,7 @@ class JavaDocChunker(BaseChunker):
 			)
 
 	def _chunk_demo(self, doc: Document) -> Iterator[Chunk]:
-		"""Demo 文档：短文档整体保留"""
+		"""Demo document: keep short docs whole"""
 		if len(doc.content) <= self.chunk_size:
 			yield Chunk(
 				id=f"{doc.id}_chunk0",
@@ -145,7 +145,7 @@ class JavaDocChunker(BaseChunker):
 		yield from self._chunk_by_size(doc)
 
 	def _chunk_docs(self, doc: Document) -> Iterator[Chunk]:
-		"""Docs 文档：按 ## 或 ### 标题切分"""
+		"""Docs document: split by ## or ### headers"""
 		sections = self.split_by_headers(doc.content, level=r"#{2,3}")
 
 		chunk_index = 0
@@ -168,7 +168,7 @@ class JavaDocChunker(BaseChunker):
 				chunk_index += 1
 
 	def _chunk_by_size(self, doc: Document) -> Iterator[Chunk]:
-		"""按大小切分（fallback）"""
+		"""Chunk by size (fallback)"""
 		chunks_text = self.split_protected(doc.content)
 
 		for i, text in enumerate(chunks_text):

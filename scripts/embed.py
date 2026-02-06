@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 """
-索引构建脚本
+Index building script
 
-用法:
+Usage:
 	python scripts/embed.py spreadjs
 	python scripts/embed.py gcexcel --recreate
-	python scripts/embed.py  # 构建所有项目
+	python scripts/embed.py  # Build all projects
 """
 
 import argparse
@@ -13,7 +13,7 @@ import logging
 import sys
 from pathlib import Path
 
-# 添加src到路径
+# Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.core.config import ProjectConfig, Settings
@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 def build_project(project: str, settings: Settings, project_config: ProjectConfig, args):
-	"""构建单个项目的索引"""
+	"""Build index for a single project"""
 	try:
 		proj = project_config.get_project(project)
 	except ValueError as e:
@@ -37,35 +37,35 @@ def build_project(project: str, settings: Settings, project_config: ProjectConfi
 	chunker_type = project_config.get_chunker_type(project)
 
 	logger.info("=" * 60)
-	logger.info(f"项目: {project}")
+	logger.info(f"Project: {project}")
 	logger.info(f"Collection: {collection_name}")
-	logger.info(f"数据目录: {raw_data_path}")
-	logger.info(f"模式: {'从头开始' if args.restart else '断点续传'}")
+	logger.info(f"Data dir: {raw_data_path}")
+	logger.info(f"Mode: {'from scratch' if args.restart else 'resume from checkpoint'}")
 	logger.info("=" * 60)
 
-	# 加载文档
-	logger.info("加载文档...")
+	# Load documents
+	logger.info("Loading documents...")
 	loader = DocumentLoader(raw_data_path)
 	documents = loader.load_all(subdirs=["apis", "docs", "demos"])
 
 	if not documents:
-		logger.warning(f"项目 {project} 没有找到文档，跳过")
+		logger.warning(f"Project {project} has no documents, skipping")
 		return False
 
-	logger.info(f"加载了 {len(documents)} 个文档")
+	logger.info(f"Loaded {len(documents)} documents")
 
-	# 分块
-	logger.info("分块文档...")
+	# Chunk documents
+	logger.info("Chunking documents...")
 	chunker = get_chunker(
 		chunker_type,
 		chunk_size=settings.chunk_size,
 		chunk_overlap=settings.chunk_overlap,
 	)
 	chunks = chunker.chunk_documents(documents)
-	logger.info(f"生成了 {len(chunks)} 个块")
+	logger.info(f"Generated {len(chunks)} chunks")
 
-	# 构建索引
-	logger.info("构建索引...")
+	# Build index
+	logger.info("Building index...")
 	indexer = VoyageIndexer(settings=settings, collection_name=collection_name)
 	stats = indexer.build_index(
 		chunks=chunks,
@@ -74,25 +74,25 @@ def build_project(project: str, settings: Settings, project_config: ProjectConfi
 	)
 
 	logger.info("=" * 60)
-	logger.info(f"项目 {project} 索引构建完成")
-	logger.info(f"  总块数: {stats['total_chunks']}")
+	logger.info(f"Project {project} indexing complete")
+	logger.info(f"  Total chunks: {stats['total_chunks']}")
 	logger.info(f"  Dense: {stats['dense_time']:.1f}s | Sparse: {stats['sparse_time']:.1f}s")
 	logger.info("=" * 60)
 	return True
 
 
 def main():
-	parser = argparse.ArgumentParser(description="构建 RAG 索引")
-	parser.add_argument("project", nargs="?", default=None, help="项目名称，不指定则构建所有")
-	parser.add_argument("--recreate", action="store_true", help="重建 collection（清空数据）")
-	parser.add_argument("--restart", action="store_true", help="从头开始，不从断点恢复")
+	parser = argparse.ArgumentParser(description="Build RAG index")
+	parser.add_argument("project", nargs="?", default=None, help="Project name, omit to build all")
+	parser.add_argument("--recreate", action="store_true", help="Recreate collection (clear data)")
+	parser.add_argument("--restart", action="store_true", help="Start from scratch, don't resume")
 	args = parser.parse_args()
 
 	settings = Settings()
 	project_config = ProjectConfig()
 	setup_logging(log_level=settings.log_level, log_format="text")
 
-	# 确定要构建的项目
+	# Determine projects to build
 	if args.project:
 		projects = [args.project]
 	else:

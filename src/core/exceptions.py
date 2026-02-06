@@ -1,26 +1,26 @@
-"""自定义异常"""
+"""Custom exceptions"""
 
 
-class GCDocMCPError(Exception):
-	"""基础异常类"""
+class MCSDocMCPError(Exception):
+	"""Base exception class"""
 	pass
 
 
-class ConfigError(GCDocMCPError):
-	"""配置错误"""
+class ConfigError(MCSDocMCPError):
+	"""Configuration error"""
 	pass
 
 
-class ProjectNotFoundError(GCDocMCPError):
-	"""项目不存在"""
+class ProjectNotFoundError(MCSDocMCPError):
+	"""Project not found"""
 	pass
 
 
-class SearchError(GCDocMCPError):
-	"""搜索错误"""
+class SearchError(MCSDocMCPError):
+	"""Search error"""
 	pass
 
 
-class IndexError(GCDocMCPError):
-	"""索引错误"""
+class IndexError(MCSDocMCPError):
+	"""Index error"""
 	pass

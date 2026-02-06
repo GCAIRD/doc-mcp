@@ -1,4 +1,4 @@
-"""搜索 API 路由"""
+"""Search API routes"""
 
 import asyncio
 import logging
@@ -17,7 +17,7 @@ router = APIRouter()
 
 
 def get_searcher(project: str):
-	"""获取项目对应的searcher"""
+	"""Get searcher for project"""
 	from ..app import get_searchers
 
 	searchers = get_searchers()
@@ -25,22 +25,22 @@ def get_searcher(project: str):
 		available = list(searchers.keys())
 		raise HTTPException(
 			status_code=400,
-			detail=f"项目 '{project}' 不存在。可用项目: {available}",
+			detail=f"Project '{project}' not found. Available: {available}",
 		)
 	return searchers[project]
 
 
 @router.post("/search", response_model=SearchResponse)
 async def search(request: Request, body: SearchRequest):
-	"""执行RAG搜索"""
+	"""Execute RAG search"""
 	searcher = get_searcher(body.project)
 
-	# 记录到request.state供日志使用
+	# Store in request.state for logging
 	request.state.project = body.project
 	request.state.query = body.query
 
 	try:
-		# 在线程池中执行同步搜索，避免阻塞事件循环
+		# Run sync search in thread pool to avoid blocking event loop
 		result = await asyncio.to_thread(
 			searcher.search,
 			query=body.query,
@@ -73,13 +73,13 @@ async def search(request: Request, body: SearchRequest):
 	except HTTPException:
 		raise
 	except Exception as e:
-		logger.error(f"搜索错误: {e}")
+		logger.error(f"Search error: {e}")
 		raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("/doc/{doc_id}", response_model=DocumentResponse)
 async def get_doc(doc_id: str, project: str):
-	"""获取文档的所有chunks"""
+	"""Get all chunks for a document"""
 	searcher = get_searcher(project)
 
 	try:
@@ -100,13 +100,13 @@ async def get_doc(doc_id: str, project: str):
 	except HTTPException:
 		raise
 	except Exception as e:
-		logger.error(f"获取文档错误: {e}")
+		logger.error(f"Get document error: {e}")
 		raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("/projects")
 async def list_projects():
-	"""列出所有可用项目"""
+	"""List all available projects"""
 	from ..app import get_project_config, get_searchers
 
 	searchers = get_searchers()

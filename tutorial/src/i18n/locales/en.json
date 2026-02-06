@@ -1,6 +1,6 @@
 {
-	"title": "GC-DOC-MCP",
-	"subtitle": "GrapeCity Product Documentation RAG + MCP Service",
+	"title": "MCS-DOC-MCP",
+	"subtitle": "Mescius Product Documentation RAG + MCP Service",
 	"description": "Follow the instructions below to configure the MCP service in your AI client",
 	"categories": {
 		"ide": "IDE",
@@ -12,9 +12,9 @@
 		"cursor": "Cursor",
 		"windsurf": "Windsurf",
 		"cline": "Cline",
-		"trae": "TRAE",
+		"claudedesktop": "Claude Desktop",
+		"codex": "OpenAI Codex CLI",
 		"jetbrains": "JetBrains IDE",
-		"cherrystudio": "Cherry Studio",
 		"lobechat": "LobeChat",
 		"other": "Universal Config"
 	},
@@ -33,7 +33,7 @@
 			"Type <strong>\"MCP: Add Server\"</strong> and select the command",
 			"Choose <strong>\"HTTP (sse)\"</strong> as the server type",
 			"Enter the server URL",
-			"Provide a name for the server: <strong>GC-DOC-MCP</strong>"
+			"Provide a name for the server: <strong>MCS-DOC-MCP</strong>"
 		],
 		"usageTitle": "Using MCP Tools with GitHub Copilot",
 		"usageSteps": [
@@ -76,16 +76,27 @@
 		"addTitle": "Add MCP Server Configuration",
 		"addDesc": "Add the following configuration to Cline's MCP settings."
 	},
-	"trae": {
-		"title": "Configure MCP in TRAE",
+	"claudedesktop": {
+		"title": "Configure MCP in Claude Desktop",
 		"steps": [
-			"Open TRAE (ByteDance AI IDE)",
-			"Go to <strong>Settings → AI Assistant → MCP Servers</strong>",
+			"Open Claude Desktop application",
+			"Go to <strong>Settings → Developer → MCP Servers</strong>",
 			"Click <strong>\"Add Server\"</strong>"
 		],
-		"note": "TRAE is ByteDance's AI IDE powered by Doubao LLM, with MCP protocol support.",
+		"note": "Claude Desktop natively supports MCP protocol for seamless AI integration.",
 		"addTitle": "Add MCP Server Configuration",
-		"addDesc": "Add the following configuration to TRAE's MCP settings."
+		"addDesc": "Add the following configuration to Claude Desktop's MCP settings."
+	},
+	"codex": {
+		"title": "Configure MCP in OpenAI Codex CLI",
+		"steps": [
+			"Install Codex CLI: <code>npm install -g @openai/codex</code>",
+			"Create or edit the MCP config file at <code>~/.codex/mcp.json</code>",
+			"Add the server configuration below"
+		],
+		"note": "OpenAI Codex CLI supports MCP protocol for enhanced code generation capabilities.",
+		"addTitle": "Add MCP Server Configuration",
+		"addDesc": "Add the following configuration to your Codex MCP settings."
 	},
 	"jetbrains": {
 		"title": "Configure MCP in JetBrains IDE",
@@ -97,24 +108,6 @@
 		"note": "Requires AI Assistant plugin installed with MCP support enabled. Some older IDE versions may not support MCP.",
 		"addTitle": "Add MCP Server Configuration",
 		"addDesc": "Add the following server information in MCP Servers configuration."
-	},
-	"cherrystudio": {
-		"title": "Configure MCP in Cherry Studio",
-		"steps": [
-			"Open Cherry Studio application",
-			"Click the <strong>Settings</strong> icon (location depends on navigation bar setting: bottom-left for sidebar nav, top-right for top nav)",
-			"Select <strong>MCP Servers</strong> from the left menu",
-			"Click <strong>\"Add Server\"</strong> button"
-		],
-		"note": "Cherry Studio 1.1.10+ supports MCP. Dependencies (UV, Bun) will be auto-installed on first use.",
-		"addTitle": "Add MCP Server Configuration",
-		"addDesc": "Select <strong>Streamable HTTP</strong> type and fill in the configuration below.",
-		"configSteps": [
-			"Server name: <strong>GC-DOC-MCP-spreadjs</strong> or <strong>GC-DOC-MCP-gcexcel</strong>",
-			"Type: <strong>streamableHttp</strong>",
-			"URL: Enter the corresponding service URL (see config below)",
-			"Save and enable the MCP service in the chat interface"
-		]
 	},
 	"lobechat": {
 		"title": "Configure MCP in LobeChat",

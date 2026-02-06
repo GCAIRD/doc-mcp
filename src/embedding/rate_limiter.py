@@ -1,4 +1,4 @@
-"""速率限制器 - 用于控制API调用频率"""
+"""Rate limiter - controls API call frequency"""
 
 import time
 import logging
@@ -10,25 +10,25 @@ logger = logging.getLogger(__name__)
 
 class RateLimiter:
 	"""
-	令牌桶速率限制器
+	Token bucket rate limiter
 
-	用于控制API调用频率，避免超过RPM/TPM限制
+	Controls API call frequency to avoid exceeding RPM/TPM limits
 	"""
 
 	def __init__(self, rpm: int, tpm: Optional[int] = None):
 		"""
 		Args:
-			rpm: 每分钟请求数限制 (Requests Per Minute)
-			tpm: 每分钟token数限制 (Tokens Per Minute)，可选
+			rpm: Requests per minute limit
+			tpm: Tokens per minute limit (optional)
 		"""
 		self.rpm = rpm
 		self.tpm = tpm
 		self.request_times: deque = deque()
 		self.token_consumptions: deque = deque()
-		self.window = 60  # 60秒窗口
+		self.window = 60  # 60 second window
 
 	def _clean_old_records(self) -> None:
-		"""清理60秒窗口外的旧记录"""
+		"""Clean records outside 60s window"""
 		now = time.time()
 		cutoff = now - self.window
 
@@ -39,28 +39,28 @@ class RateLimiter:
 			self.token_consumptions.popleft()
 
 	def _get_current_rpm(self) -> int:
-		"""获取当前窗口内的请求数"""
+		"""Get current request count in window"""
 		self._clean_old_records()
 		return len(self.request_times)
 
 	def _get_current_tpm(self) -> int:
-		"""获取当前窗口内的token消耗"""
+		"""Get current token consumption in window"""
 		self._clean_old_records()
 		return sum(tokens for _, tokens in self.token_consumptions)
 
 	def _calculate_wait_time(self, estimated_tokens: int = 0) -> float:
-		"""计算需要等待的时间"""
+		"""Calculate required wait time"""
 		self._clean_old_records()
 		wait_time = 0.0
 
-		# 检查RPM限制
+		# Check RPM limit
 		current_rpm = self._get_current_rpm()
 		if current_rpm >= self.rpm:
 			oldest_request = self.request_times[0]
 			wait_for_rpm = oldest_request + self.window - time.time() + 0.1
 			wait_time = max(wait_time, wait_for_rpm)
 
-		# 检查TPM限制
+		# Check TPM limit
 		if self.tpm and estimated_tokens > 0:
 			current_tpm = self._get_current_tpm()
 			if current_tpm + estimated_tokens > self.tpm:
@@ -72,13 +72,13 @@ class RateLimiter:
 		return wait_time
 
 	def acquire(self, estimated_tokens: int = 0) -> None:
-		"""获取令牌（阻塞）"""
+		"""Acquire token (blocking)"""
 		wait_time = self._calculate_wait_time(estimated_tokens)
 
 		if wait_time > 0:
 			logger.info(
-				f"触发速率限制，等待 {wait_time:.1f}s "
-				f"(当前RPM: {self._get_current_rpm()}/{self.rpm})"
+				f"Rate limit triggered, waiting {wait_time:.1f}s "
+				f"(current RPM: {self._get_current_rpm()}/{self.rpm})"
 			)
 			time.sleep(wait_time)
 
@@ -89,11 +89,11 @@ class RateLimiter:
 			self.token_consumptions.append((now, estimated_tokens))
 
 	def can_proceed(self, estimated_tokens: int = 0) -> bool:
-		"""检查是否可以立即执行请求（非阻塞）"""
+		"""Check if request can proceed immediately (non-blocking)"""
 		return self._calculate_wait_time(estimated_tokens) == 0
 
 	def get_stats(self) -> dict:
-		"""获取当前速率统计"""
+		"""Get current rate statistics"""
 		self._clean_old_records()
 		return {
 			"current_rpm": self._get_current_rpm(),

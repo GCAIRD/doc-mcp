@@ -1,4 +1,4 @@
-"""索引构建器 - 带速率限制和断点续传"""
+"""Index builder - with rate limiting and checkpoint resume"""
 
 import hashlib
 import json
@@ -31,19 +31,19 @@ logger = logging.getLogger(__name__)
 
 class VoyageIndexer:
 	"""
-	Voyage RAG索引构建器
+	Voyage RAG Index Builder
 
-	功能:
-	- RPM/TPM速率限制
-	- 断点续传
-	- 进度保存和恢复
+	Features:
+	- RPM/TPM rate limiting
+	- Checkpoint resume
+	- Progress save and restore
 
-	向量配置:
-	- dense: voyage-code-3, 1024维
+	Vector config:
+	- dense: voyage-code-3, 1024 dims
 	- sparse: Qdrant/bm25
 	"""
 
-	DENSE_DIM = 1024  # voyage-code-3 维度
+	DENSE_DIM = 1024  # voyage-code-3 dimension
 
 	def __init__(
 		self,
@@ -55,45 +55,45 @@ class VoyageIndexer:
 		self.collection_name = collection_name
 		self.batch_size = settings.batch_size
 
-		# 初始化Voyage客户端
+		# Init Voyage client
 		self.voyage_client = voyageai.Client(api_key=settings.voyage_api_key)
 
-		# 初始化速率限制器
+		# Init rate limiter
 		self.rate_limiter = RateLimiter(
 			rpm=settings.voyage_rpm_limit,
 			tpm=settings.voyage_tpm_limit,
 		)
 		logger.info(
-			f"速率限制: {settings.voyage_rpm_limit} RPM, {settings.voyage_tpm_limit} TPM"
+			f"Rate limit: {settings.voyage_rpm_limit} RPM, {settings.voyage_tpm_limit} TPM"
 		)
 
-		# 初始化BM25稀疏编码器
-		logger.info("初始化BM25 sparse encoder...")
+		# Init BM25 sparse encoder
+		logger.info("Initializing BM25 sparse encoder...")
 		self.sparse_encoder = SparseTextEmbedding(model_name="Qdrant/bm25")
 
-		# 初始化Qdrant客户端
-		logger.info(f"连接到 Qdrant 服务: {settings.qdrant_url}")
+		# Init Qdrant client
+		logger.info(f"Connecting to Qdrant: {settings.qdrant_url}")
 		self.qdrant = QdrantClient(url=settings.qdrant_url)
 
-		# Checkpoint目录
+		# Checkpoint directory
 		if checkpoint_dir is None:
 			checkpoint_dir = Path("./storage/checkpoints")
 		self.checkpoint_dir = Path(checkpoint_dir)
 		self.checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
 	def _get_checkpoint_path(self, job_id: str) -> Path:
-		"""获取checkpoint文件路径"""
+		"""Get checkpoint file path"""
 		return self.checkpoint_dir / f"{job_id}.checkpoint.json"
 
 	def _save_checkpoint(self, job_id: str, checkpoint_data: Dict) -> None:
-		"""保存checkpoint"""
+		"""Save checkpoint"""
 		checkpoint_path = self._get_checkpoint_path(job_id)
 		with open(checkpoint_path, "w", encoding="utf-8") as f:
 			json.dump(checkpoint_data, f, ensure_ascii=False, indent=2)
-		logger.info(f"Checkpoint已保存: {checkpoint_path}")
+		logger.info(f"Checkpoint saved: {checkpoint_path}")
 
 	def _load_checkpoint(self, job_id: str) -> Optional[Dict]:
-		"""加载checkpoint"""
+		"""Load checkpoint"""
 		checkpoint_path = self._get_checkpoint_path(job_id)
 		if not checkpoint_path.exists():
 			return None
@@ -101,30 +101,30 @@ class VoyageIndexer:
 		try:
 			with open(checkpoint_path, "r", encoding="utf-8") as f:
 				checkpoint = json.load(f)
-			logger.info(f"加载checkpoint: {checkpoint_path}")
+			logger.info(f"Loaded checkpoint: {checkpoint_path}")
 			return checkpoint
 		except Exception as e:
-			logger.warning(f"加载checkpoint失败: {e}")
+			logger.warning(f"Failed to load checkpoint: {e}")
 			return None
 
 	def _delete_checkpoint(self, job_id: str) -> None:
-		"""删除checkpoint"""
+		"""Delete checkpoint"""
 		checkpoint_path = self._get_checkpoint_path(job_id)
 		if checkpoint_path.exists():
 			os.remove(checkpoint_path)
-			logger.info(f"Checkpoint已删除: {checkpoint_path}")
+			logger.info(f"Checkpoint deleted: {checkpoint_path}")
 
 	def _create_collection(self, recreate: bool = False) -> None:
-		"""创建或重建collection（优化参数）"""
+		"""Create or recreate collection (optimized params)"""
 		if self.qdrant.collection_exists(self.collection_name):
 			if recreate:
-				logger.info(f"删除现有collection: {self.collection_name}")
+				logger.info(f"Deleting existing collection: {self.collection_name}")
 				self.qdrant.delete_collection(self.collection_name)
 			else:
-				logger.info(f"Collection已存在: {self.collection_name}")
+				logger.info(f"Collection exists: {self.collection_name}")
 				return
 
-		logger.info(f"创建collection: {self.collection_name}")
+		logger.info(f"Creating collection: {self.collection_name}")
 		self.qdrant.create_collection(
 			collection_name=self.collection_name,
 			vectors_config={
@@ -148,18 +148,18 @@ class VoyageIndexer:
 
 	def _estimate_tokens(self, text: str) -> int:
 		"""
-		估算文本的token数
+		Estimate token count for text
 
-		不同语言的 token 密度不同：
-		- 英文/代码：约 4 字符/token
-		- 中文/日文：约 1.5-2 字符/token
+		Token density varies by language:
+		- English/code: ~4 chars/token
+		- CJK: ~1.5-2 chars/token
 
-		这里用 len//2 作为保守估计，适用于混合内容
+		Using len//2 as conservative estimate for mixed content
 		"""
 		return len(text) // 2
 
 	def _format_time(self, seconds: float) -> str:
-		"""格式化时间为 mm:ss 或 hh:mm:ss"""
+		"""Format time as mm:ss or hh:mm:ss"""
 		if seconds < 3600:
 			return f"{int(seconds // 60):02d}:{int(seconds % 60):02d}"
 		hours = int(seconds // 3600)
@@ -170,13 +170,13 @@ class VoyageIndexer:
 	def _create_token_safe_batches(
 		self, texts: List[str], max_tokens: int = 50000, max_batch_size: int = 1000
 	) -> List[List[str]]:
-		"""创建不超过 token 和文档数量限制的批次
+		"""Create batches within token and document count limits
 
-		Voyage API 限制：
-		- 单批最多 120000 tokens
-		- 单批最多 1000 个文档
+		Voyage API limits:
+		- Max 120000 tokens per batch
+		- Max 1000 documents per batch
 
-		注：估算用 len//2（中文友好），max_tokens=50000 留 60% 余量
+		Note: Using len//2 estimate, max_tokens=50000 leaves 60% headroom
 		"""
 		batches = []
 		current_batch = []
@@ -206,7 +206,7 @@ class VoyageIndexer:
 		texts: List[str],
 		on_batch_complete: Optional[Callable[[int, List], None]] = None,
 	) -> List[List[float]]:
-		"""生成dense embedding（带速率限制）"""
+		"""Generate dense embeddings (with rate limiting)"""
 		embeddings = []
 		batches = self._create_token_safe_batches(texts)
 		total_batches = len(batches)
@@ -216,7 +216,7 @@ class VoyageIndexer:
 			estimated_tokens = sum(self._estimate_tokens(t) for t in batch)
 			self.rate_limiter.acquire(estimated_tokens)
 
-			# 计算进度信息
+			# Calculate progress info
 			progress = batch_num / total_batches * 100
 			elapsed = time.time() - start_time
 			if batch_num > 1:
@@ -242,17 +242,17 @@ class VoyageIndexer:
 					on_batch_complete(batch_num, embeddings)
 
 			except Exception as e:
-				logger.error(f"Batch {batch_num} embedding失败: {e}")
+				logger.error(f"Batch {batch_num} embedding failed: {e}")
 				raise
 
 		return embeddings
 
 	def _embed_sparse(self, texts: List[str]) -> List:
-		"""生成sparse embedding (BM25)"""
+		"""Generate sparse embeddings (BM25)"""
 		return list(self.sparse_encoder.embed(texts))
 
 	def _generate_stable_job_id(self, chunks: List[Chunk]) -> str:
-		"""根据chunks内容生成稳定的job_id"""
+		"""Generate stable job_id from chunks content"""
 		sample_ids = [c.id for c in chunks[:10]]
 		content = f"{len(chunks)}_{self.collection_name}_{'_'.join(sample_ids)}"
 		hash_value = hashlib.md5(content.encode()).hexdigest()[:12]
@@ -266,13 +266,13 @@ class VoyageIndexer:
 		job_id: Optional[str] = None,
 		progress_callback: Optional[Callable] = None,
 	) -> Dict:
-		"""构建索引（支持断点续传）"""
+		"""Build index (with checkpoint resume support)"""
 		if job_id is None:
 			job_id = self._generate_stable_job_id(chunks)
 
 		logger.info(f"Job ID: {job_id}")
 
-		# 尝试加载checkpoint
+		# Try to load checkpoint
 		checkpoint = None
 		if resume_from_checkpoint:
 			checkpoint = self._load_checkpoint(job_id)
@@ -287,29 +287,29 @@ class VoyageIndexer:
 			"resumed": checkpoint is not None,
 		}
 
-		logger.info(f"开始构建索引，共 {len(chunks)} 个块")
+		logger.info(f"Starting index build, {len(chunks)} chunks total")
 
 		texts = [chunk.content for chunk in chunks]
 		total_chars = sum(len(t) for t in texts)
 		stats["total_tokens"] = total_chars // 4
 
-		# 从checkpoint恢复
+		# Resume from checkpoint
 		dense_embeddings = []
 		sparse_embeddings = []
 
 		if checkpoint:
-			logger.info("从checkpoint恢复...")
+			logger.info("Resuming from checkpoint...")
 			dense_embeddings = checkpoint.get("dense_embeddings", [])
 			sparse_embeddings = checkpoint.get("sparse_embeddings", [])
 			stats["dense_time"] = checkpoint.get("dense_time", 0)
 			stats["sparse_time"] = checkpoint.get("sparse_time", 0)
 
-			logger.info(f"已有 {len(dense_embeddings)} 个dense embeddings")
+			logger.info(f"Have {len(dense_embeddings)} dense embeddings")
 
 			if len(dense_embeddings) >= len(texts):
-				logger.info("Embedding已全部完成，直接进入索引写入阶段")
+				logger.info("Embeddings complete, proceeding to index write")
 			else:
-				logger.info(f"继续处理剩余 {len(texts) - len(dense_embeddings)} 个文档")
+				logger.info(f"Continuing with remaining {len(texts) - len(dense_embeddings)} documents")
 
 			self._create_collection(recreate=False)
 		else:
@@ -318,7 +318,7 @@ class VoyageIndexer:
 		# Dense Embedding
 		if len(dense_embeddings) < len(texts):
 			remaining_texts = texts[len(dense_embeddings):]
-			logger.info(f"生成Dense Embedding (voyage-code-3)... 共 {len(remaining_texts)} 个文档")
+			logger.info(f"Generating Dense Embeddings (voyage-code-3)... {len(remaining_texts)} documents")
 			start_time = time.time()
 
 			def on_batch_complete(batch_num: int, new_embeddings: List):
@@ -343,12 +343,12 @@ class VoyageIndexer:
 				dense_time = time.time() - start_time
 				stats["dense_time"] += dense_time
 				logger.info(
-					f"Dense Embedding完成, 本次耗时 {dense_time:.1f}s, "
-					f"累计 {stats['dense_time']:.1f}s"
+					f"Dense Embedding complete, this run {dense_time:.1f}s, "
+					f"cumulative {stats['dense_time']:.1f}s"
 				)
 
 			except KeyboardInterrupt:
-				logger.warning("用户中断，保存checkpoint...")
+				logger.warning("User interrupted, saving checkpoint...")
 				self._save_checkpoint(
 					job_id,
 					{
@@ -360,11 +360,11 @@ class VoyageIndexer:
 						"timestamp": datetime.now().isoformat(),
 					},
 				)
-				logger.info(f"Checkpoint已保存，已完成 {len(dense_embeddings)}/{len(texts)} embeddings")
+				logger.info(f"Checkpoint saved, completed {len(dense_embeddings)}/{len(texts)} embeddings")
 				raise
 
 			except Exception as e:
-				logger.error(f"Dense Embedding出错: {e}")
+				logger.error(f"Dense Embedding error: {e}")
 				self._save_checkpoint(
 					job_id,
 					{
@@ -380,14 +380,14 @@ class VoyageIndexer:
 
 		# Sparse Embedding
 		if len(sparse_embeddings) == 0:
-			logger.info("生成Sparse Embedding (BM25)...")
+			logger.info("Generating Sparse Embeddings (BM25)...")
 			start_time = time.time()
 			sparse_embeddings = self._embed_sparse(texts)
 			stats["sparse_time"] = time.time() - start_time
-			logger.info(f"Sparse Embedding完成, 耗时 {stats['sparse_time']:.1f}s")
+			logger.info(f"Sparse Embedding complete, took {stats['sparse_time']:.1f}s")
 
-		# 插入Qdrant
-		logger.info("插入数据到Qdrant...")
+		# Insert to Qdrant
+		logger.info("Inserting data to Qdrant...")
 		start_time = time.time()
 		points = []
 
@@ -419,12 +419,12 @@ class VoyageIndexer:
 
 			if progress_callback and (i + 1) % 100 == 0:
 				progress_callback(
-					i + 1, len(chunks), f"处理: {chunk.metadata.get('file_name', '')}"
+					i + 1, len(chunks), f"Processing: {chunk.metadata.get('file_name', '')}"
 				)
 
-		# 批量插入
+		# Batch insert
 		batch_size = 1000
-		logger.info(f"插入 {len(points)} 个点，batch_size={batch_size}")
+		logger.info(f"Inserting {len(points)} points, batch_size={batch_size}")
 		for i in range(0, len(points), batch_size):
 			batch = points[i : i + batch_size]
 			self.qdrant.upsert(
@@ -432,18 +432,18 @@ class VoyageIndexer:
 				points=batch,
 				wait=True,
 			)
-			logger.info(f"  已插入 {min(i + batch_size, len(points))}/{len(points)} 点")
+			logger.info(f"  Inserted {min(i + batch_size, len(points))}/{len(points)} points")
 
 		stats["index_time"] = time.time() - start_time
-		logger.info(f"索引构建完成, 耗时 {stats['index_time']:.1f}s")
+		logger.info(f"Index build complete, took {stats['index_time']:.1f}s")
 
-		# 删除checkpoint
+		# Delete checkpoint
 		self._delete_checkpoint(job_id)
 
 		return stats
 
 	def get_collection_info(self) -> Optional[Dict]:
-		"""获取collection信息"""
+		"""Get collection info"""
 		if not self.qdrant.collection_exists(self.collection_name):
 			return None
 

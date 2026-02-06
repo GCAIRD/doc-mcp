@@ -1,4 +1,4 @@
-"""配置管理 - 环境变量优先，YAML作为项目定义"""
+"""Configuration - env vars take precedence, YAML for project definitions"""
 
 from pathlib import Path
 
@@ -8,7 +8,7 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-	"""环境变量配置"""
+	"""Environment variable settings"""
 
 	# Voyage API
 	voyage_api_key: str = Field("", validation_alias="VOYAGE_API_KEY")
@@ -22,8 +22,8 @@ class Settings(BaseSettings):
 
 	# Server
 	server_host: str = Field("0.0.0.0", validation_alias="SERVER_HOST")
-	server_port: int = Field(8888, validation_alias="SERVER_PORT")
-	mcp_port: int = Field(8889, validation_alias="MCP_PORT")
+	server_port: int = Field(8900, validation_alias="SERVER_PORT")
+	mcp_port: int = Field(8901, validation_alias="MCP_PORT")
 
 	# Logging
 	log_level: str = Field("INFO", validation_alias="LOG_LEVEL")
@@ -35,11 +35,11 @@ class Settings(BaseSettings):
 	chunk_overlap: int = Field(200, validation_alias="CHUNK_OVERLAP")
 	batch_size: int = Field(128, validation_alias="BATCH_SIZE")
 
-	# Document Language (zh/en/ja) - 文档主语言，query 语言与此不匹配时只用 Dense
-	doc_language: str = Field("zh", validation_alias="DOC_LANGUAGE")
+	# Document Language (zh/en/ja) - Primary document language. Dense-only when query lang differs.
+	doc_language: str = Field("en", validation_alias="DOC_LANGUAGE")
 
 	# Internal
-	rag_service_url: str = Field("http://localhost:8888", validation_alias="RAG_SERVICE_URL")
+	rag_service_url: str = Field("http://localhost:8900", validation_alias="RAG_SERVICE_URL")
 
 	model_config = {
 		"env_file": ".env",
@@ -49,7 +49,7 @@ class Settings(BaseSettings):
 
 
 class ProjectConfig:
-	"""项目配置（从 YAML 加载）"""
+	"""Project configuration (loaded from YAML)"""
 
 	def __init__(self, yaml_path: Path | None = None):
 		if yaml_path is None:
@@ -58,13 +58,13 @@ class ProjectConfig:
 		self._config_dir = yaml_path.parent.parent
 
 		if not yaml_path.exists():
-			raise FileNotFoundError(f"项目配置文件不存在: {yaml_path}")
+			raise FileNotFoundError(f"Project config not found: {yaml_path}")
 
 		with open(yaml_path, "r", encoding="utf-8") as f:
 			self._data = yaml.safe_load(f)
 
 	def _resolve_path(self, path: str) -> Path:
-		"""将相对路径解析为绝对路径"""
+		"""Resolve relative path to absolute"""
 		p = Path(path)
 		if p.is_absolute():
 			return p
@@ -80,7 +80,7 @@ class ProjectConfig:
 
 	def get_project(self, name: str) -> dict:
 		if name not in self.projects:
-			raise ValueError(f"项目 '{name}' 不存在。可用: {self.project_names}")
+			raise ValueError(f"Project '{name}' not found. Available: {self.project_names}")
 		return self.projects[name]
 
 	def get_collection_name(self, project: str) -> str:
@@ -97,10 +97,10 @@ class ProjectConfig:
 		return self.get_project(project).get("description", "")
 
 	def get_resources(self, project: str) -> dict:
-		"""获取项目的 resources 配置"""
+		"""Get project resources config"""
 		return self.get_project(project).get("resources", {})
 
-	# Search配置
+	# Search config
 	@property
 	def prefetch_limit(self) -> int:
 		return self._data.get("search", {}).get("prefetch_limit", 20)
@@ -115,10 +115,10 @@ class ProjectConfig:
 
 
 def get_settings() -> Settings:
-	"""获取 Settings 实例（每次调用新建）"""
+	"""Get Settings instance (creates new each call)"""
 	return Settings()
 
 
 def get_project_config(yaml_path: Path | None = None) -> ProjectConfig:
-	"""获取 ProjectConfig 实例（每次调用新建）"""
+	"""Get ProjectConfig instance (creates new each call)"""
 	return ProjectConfig(yaml_path)

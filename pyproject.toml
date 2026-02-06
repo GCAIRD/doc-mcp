@@ -1,12 +1,12 @@
 [project]
-name = "gc-doc-mcp"
+name = "mcs-doc-mcp"
 version = "1.0.0"
-description = "GrapeCity Documentation MCP Service - RAG-based document search for SpreadJS and GcExcel"
+description = "Mescius Documentation MCP Service - RAG-based document search for SpreadJS and GcExcel"
 readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "MIT"}
 authors = [
-	{name = "GrapeCity"}
+	{name = "Mescius"}
 ]
 keywords = ["mcp", "rag", "vector-search", "documentation", "spreadjs", "gcexcel"]
 
