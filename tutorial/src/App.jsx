@@ -185,6 +185,38 @@ function CodeBlock({ code, lang = 'json', label }) {
 	);
 }
 
+const getCodexToml = (product = 'spreadjs') => {
+	const url = MCP_URLS[product] || MCP_URLS.spreadjs;
+	const serverName = `MCS-DOC-MCP-${product}`;
+	return `[mcp_servers.${serverName}]\nurl = "${url}"`;
+};
+
+function TomlBlock({ code, label }) {
+	const { t } = useTranslation();
+	const [copied, setCopied] = useState(false);
+
+	const handleCopy = async () => {
+		await copyToClipboard(code);
+		setCopied(true);
+		setTimeout(() => setCopied(false), 2000);
+	};
+
+	return (
+		<div className="code-block">
+			<div className="code-header">
+				<span className="code-lang">{label || 'toml'}</span>
+				<button className={`copy-btn ${copied ? 'copied' : ''}`} onClick={handleCopy}>
+					{copied ? <Check size={14} /> : <Copy size={14} />}
+					{copied ? t('copied') : t('copy')}
+				</button>
+			</div>
+			<div className="code-content">
+				<pre>{code}</pre>
+			</div>
+		</div>
+	);
+}
+
 function UrlBlock({ url, label }) {
 	const { t } = useTranslation();
 	const [copied, setCopied] = useState(false);
@@ -243,6 +275,34 @@ function CopilotContent() {
 				))}
 			</ol>
 			<div className="note" dangerouslySetInnerHTML={{ __html: t('copilot.manageTip') }} />
+		</div>
+	);
+}
+
+function CodexContent() {
+	const { t } = useTranslation();
+	const tomlConfig = getCodexToml('spreadjs');
+
+	return (
+		<div className="content-panel">
+			<h2>{t('codex.title')}</h2>
+
+			<h3 className="section-title">{t('codex.installTitle')}</h3>
+			<p className="section-desc" dangerouslySetInnerHTML={{ __html: t('codex.installDesc') }} />
+			<ul className="steps">
+				{t('codex.installMethods', { returnObjects: true }).map((method, i) => (
+					<li key={i} dangerouslySetInnerHTML={{ __html: method }} />
+				))}
+			</ul>
+
+			<h3 className="section-title" style={{ marginTop: '2rem' }}>{t('codex.authTitle')}</h3>
+			<p className="section-desc" dangerouslySetInnerHTML={{ __html: t('codex.authDesc') }} />
+
+			<h3 className="section-title" style={{ marginTop: '2rem' }}>{t('codex.addTitle')}</h3>
+			<p className="section-desc" dangerouslySetInnerHTML={{ __html: t('codex.addDesc') }} />
+			<TomlBlock code={tomlConfig} label="~/.codex/config.toml (SpreadJS)" />
+
+			<div className="note" dangerouslySetInnerHTML={{ __html: t('codex.note') }} />
 		</div>
 	);
 }
@@ -319,6 +379,10 @@ function ClientContent({ client }) {
 
 	if (client === 'copilot') {
 		return <CopilotContent />;
+	}
+
+	if (client === 'codex') {
+		return <CodexContent />;
 	}
 
 	if (client === 'other') {

@@ -89,14 +89,23 @@
 	},
 	"codex": {
 		"title": "在 OpenAI Codex CLI 中配置 MCP",
-		"steps": [
-			"安装 Codex CLI：<code>npm install -g @openai/codex</code>",
-			"创建或编辑 MCP 配置文件 <code>~/.codex/mcp.json</code>",
-			"添加以下服务器配置"
+		"installTitle": "安装 Codex CLI",
+		"installDesc": "Codex CLI 需要 <strong>Node.js 18+</strong>，通过 npm 或 Homebrew 安装：",
+		"installMethods": [
+			"<strong>npm（推荐）：</strong><code>npm install -g @openai/codex</code>",
+			"<strong>Homebrew（macOS）：</strong><code>brew install --cask codex</code>",
+			"或从 <a href=\"https://github.com/openai/codex/releases\" target=\"_blank\">GitHub Releases</a> 下载二进制文件"
 		],
-		"note": "OpenAI Codex CLI 支持 MCP 协议，可增强代码生成能力。",
+		"authTitle": "认证方式",
+		"authDesc": "运行 <code>codex</code> 后选择 <strong>\"Sign in with ChatGPT\"</strong>（需 Plus / Pro / Team / Edu / Enterprise 订阅），或设置 OpenAI API Key。",
+		"steps": [
+			"安装 Codex CLI（见上方）",
+			"创建或编辑配置文件 <code>~/.codex/config.toml</code>",
+			"以 <strong>TOML</strong> 格式添加下方 MCP 服务器配置"
+		],
+		"note": "Codex CLI 使用 <code>config.toml</code>（TOML 格式），<strong>不是</strong> JSON。详见<a href=\"https://github.com/openai/codex\" target=\"_blank\">官方仓库</a>。",
 		"addTitle": "添加 MCP 服务器配置",
-		"addDesc": "将以下配置添加到 Codex 的 MCP 设置中。"
+		"addDesc": "将以下内容添加到 <code>~/.codex/config.toml</code>："
 	},
 	"jetbrains": {
 		"title": "在 JetBrains IDE 中配置 MCP",

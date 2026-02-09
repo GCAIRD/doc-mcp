@@ -89,14 +89,23 @@
 	},
 	"codex": {
 		"title": "OpenAI Codex CLI で MCP を設定",
-		"steps": [
-			"Codex CLI をインストール：<code>npm install -g @openai/codex</code>",
-			"MCP 設定ファイル <code>~/.codex/mcp.json</code> を作成または編集",
-			"以下のサーバー設定を追加"
+		"installTitle": "Codex CLI のインストール",
+		"installDesc": "Codex CLI には <strong>Node.js 18+</strong> が必要です。npm または Homebrew でインストール：",
+		"installMethods": [
+			"<strong>npm（推奨）：</strong><code>npm install -g @openai/codex</code>",
+			"<strong>Homebrew（macOS）：</strong><code>brew install --cask codex</code>",
+			"または <a href=\"https://github.com/openai/codex/releases\" target=\"_blank\">GitHub Releases</a> からバイナリをダウンロード"
 		],
-		"note": "OpenAI Codex CLI は MCP プロトコルをサポートし、コード生成機能を強化します。",
+		"authTitle": "認証方法",
+		"authDesc": "<code>codex</code> を実行し、<strong>「Sign in with ChatGPT」</strong>を選択（Plus / Pro / Team / Edu / Enterprise サブスクリプションが必要）。または OpenAI API キーを設定。",
+		"steps": [
+			"Codex CLI をインストール（上記参照）",
+			"設定ファイル <code>~/.codex/config.toml</code> を作成または編集",
+			"以下の MCP サーバー設定を <strong>TOML</strong> 形式で追加"
+		],
+		"note": "Codex CLI は <code>config.toml</code>（TOML 形式）を使用します。JSON では<strong>ありません</strong>。詳細は<a href=\"https://github.com/openai/codex\" target=\"_blank\">公式リポジトリ</a>を参照。",
 		"addTitle": "MCP サーバー設定を追加",
-		"addDesc": "以下の設定を Codex の MCP 設定に追加してください。"
+		"addDesc": "以下の内容を <code>~/.codex/config.toml</code> に追加："
 	},
 	"jetbrains": {
 		"title": "JetBrains IDE で MCP を設定",
