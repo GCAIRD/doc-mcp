@@ -20,8 +20,8 @@ const copyToClipboard = async (text) => {
 	}
 };
 
-// MCP server URL config
-const MCP_BASE_URL = 'http://20.2.219.14:8901/mcp';
+// MCP server URL config — auto-detect from current page origin
+const MCP_BASE_URL = `${window.location.origin}/mcp`;
 const MCP_URLS = {
 	spreadjs: `${MCP_BASE_URL}/spreadjs`
 	// gcexcel: `${MCP_BASE_URL}/gcexcel` // Temporarily unavailable
