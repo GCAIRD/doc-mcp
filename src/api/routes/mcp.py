@@ -317,6 +317,17 @@ async def route_message(
 		]
 		return create_response(message_id, {"tools": tools_list})
 
+	# Defensive compatibility: return empty results for undeclared capabilities
+	# Some clients (e.g. Codex Mac App) probe all standard methods regardless of capabilities
+	elif method == "resources/list":
+		return create_response(message_id, {"resources": []})
+
+	elif method == "resources/templates/list":
+		return create_response(message_id, {"resourceTemplates": []})
+
+	elif method == "prompts/list":
+		return create_response(message_id, {"prompts": []})
+
 	elif method == "tools/call":
 		tool_name = params.get("name")
 		arguments = params.get("arguments", {})
@@ -385,6 +396,14 @@ async def _handle_mcp_request(request: Request, project: str | None):
 	access_logger = get_access_logger()
 	start_time = time.perf_counter()
 
+	# Validate Content-Type
+	content_type = request.headers.get("content-type", "")
+	if "application/json" not in content_type:
+		return JSONResponse(
+			content=create_error(None, -32600, "Unsupported Media Type: Content-Type must be application/json"),
+			status_code=415,
+		)
+
 	try:
 		body = await request.json()
 	except json.JSONDecodeError:
@@ -432,18 +451,20 @@ async def _handle_mcp_request(request: Request, project: str | None):
 
 		# All notifications/responses -> 202 Accepted, no body
 		if not has_request:
-			return Response(status_code=202)
+			return Response(status_code=202, headers={"Mcp-Session-Id": session_id} if session_id else {})
 
 		# Build response
 		if not responses:
-			return Response(status_code=202)
+			return Response(status_code=202, headers={"Mcp-Session-Id": session_id} if session_id else {})
 
 		result = responses if is_batch else responses[0]
 		response = JSONResponse(content=result)
 
-		# Return session id on initialize
+		# Assign new session id on initialize, echo existing on all others
 		if not is_batch and messages[0].get("method") == "initialize" and not session_id:
-			response.headers["Mcp-Session-Id"] = str(uuid.uuid4())
+			session_id = str(uuid.uuid4())
+		if session_id:
+			response.headers["Mcp-Session-Id"] = session_id
 
 		return response
 
