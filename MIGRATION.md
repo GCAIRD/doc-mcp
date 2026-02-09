@@ -54,14 +54,14 @@ python scripts/embed.py spreadjs
 docker compose up --build
 
 # 验证
-curl http://localhost:8900/health
-curl http://localhost:8900/projects
-curl -X POST http://localhost:8900/search \
+curl http://localhost:8888/health
+curl http://localhost:8888/projects
+curl -X POST http://localhost:8888/search \
   -H "Content-Type: application/json" \
   -d '{"query":"how to use spreadsheet","project":"spreadjs","limit":3}'
 ```
 
-MCP 端点在同一端口：`http://localhost:8900/mcp/spreadjs`
+MCP 端点在同一端口：`http://localhost:8888/mcp/spreadjs`
 
 ---
 

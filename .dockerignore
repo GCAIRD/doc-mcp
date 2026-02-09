@@ -1,0 +1,35 @@
+# Secrets
+.env
+.env.*
+
+# Git
+.git
+.gitignore
+
+# Runtime data
+storage/
+raw_data/
+
+# Python
+__pycache__
+*.py[cod]
+*.egg-info
+.venv/
+venv/
+
+# IDE & Agent
+.idea/
+.vscode/
+.claude
+.mcp.json
+.playwright-mcp
+
+# Docs & CI
+*.md
+LICENSE
+.github/
+
+# Tutorial source (dist already copied in Dockerfile)
+tutorial/src/
+tutorial/node_modules/
+tutorial/.gitignore

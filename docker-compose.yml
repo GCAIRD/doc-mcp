@@ -9,7 +9,7 @@ services:
       VOYAGE_API_KEY: ${VOYAGE_API_KEY}
       QDRANT_URL: ${QDRANT_URL}
       QDRANT_API_KEY: ${QDRANT_API_KEY}
-      SERVER_PORT: ${SERVER_PORT:-8900}
+      SERVER_PORT: 8900
       DOC_LANGUAGE: ${DOC_LANGUAGE:-en}
     ports:
       - "${SERVER_PORT:-8900}:8900"

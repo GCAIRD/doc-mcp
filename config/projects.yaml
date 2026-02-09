@@ -3,7 +3,7 @@
 
 projects:
   spreadjs:
-    collection: spreadjs_rag
+    collection: spreadjs_en
     raw_data: ./raw_data/en/spreadjs
     description: SpreadJS JavaScript spreadsheet component documentation
     chunker: markdown
