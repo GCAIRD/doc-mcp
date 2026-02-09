@@ -8,6 +8,7 @@ import uuid
 import httpx
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
+from starlette.responses import Response
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -177,6 +178,13 @@ def create_error(message_id: str | int | None, code: int, message: str) -> dict:
 	}
 
 
+def create_tool_result(data, *, is_error: bool = False) -> dict:
+	"""Build tools/call result - JSON-serialize dicts, use str directly otherwise"""
+	text = json.dumps(data, ensure_ascii=False) if isinstance(data, dict) else str(data)
+	result = {"content": [{"type": "text", "text": text}], "isError": is_error}
+	return result
+
+
 async def handle_search(args: dict, project: str, rag_service_url: str) -> dict:
 	"""Execute RAG search"""
 	from ..app import get_http_client
@@ -264,6 +272,13 @@ async def route_message(
 	elif method == "notifications/initialized":
 		return None
 
+	elif method and method.startswith("notifications/"):
+		# Silently handle all notifications (cancelled, etc.)
+		return None
+
+	elif method == "ping":
+		return create_response(message_id, {})
+
 	elif method == "tools/list":
 		from ..app import get_project_config
 		tools_list = [
@@ -285,12 +300,9 @@ async def route_message(
 			try:
 				from ..app import get_project_config
 				result = await handle_get_code_guidelines(arguments, actual_project, get_project_config())
-				return create_response(
-					message_id,
-					{"content": [{"type": "text", "text": json.dumps(result, ensure_ascii=False)}]},
-				)
+				return create_response(message_id, create_tool_result(result))
 			except Exception as e:
-				return create_error(message_id, -32004, f"Tool error: {str(e)}")
+				return create_response(message_id, create_tool_result(str(e), is_error=True))
 
 		handlers = {
 			"search": handle_search,
@@ -298,30 +310,26 @@ async def route_message(
 		}
 
 		if tool_name not in handlers:
-			return create_error(message_id, -32002, f"Unknown tool: {tool_name}")
+			return create_error(message_id, -32602, f"Unknown tool: {tool_name}")
 
 		try:
 			result = await handlers[tool_name](arguments, actual_project, rag_service_url)
-			return create_response(
-				message_id,
-				{"content": [{"type": "text", "text": json.dumps(result, ensure_ascii=False)}]},
-			)
+			return create_response(message_id, create_tool_result(result))
 		except httpx.HTTPStatusError as e:
-			return create_error(
-				message_id, -32004, f"RAG Service error: {e.response.status_code}"
+			return create_response(
+				message_id, create_tool_result(f"RAG Service error: {e.response.status_code}", is_error=True)
 			)
 		except Exception as e:
-			return create_error(message_id, -32004, f"Tool error: {str(e)}")
+			return create_response(message_id, create_tool_result(str(e), is_error=True))
 
 	return create_error(message_id, -32601, f"Unknown method: {method}")
 
 
 @router.get("/mcp")
+@router.get("/mcp/{project}")
 async def mcp_get():
-	"""MCP GET - SSE stream placeholder"""
-	return JSONResponse(
-		content={"info": "SSE stream not implemented, use POST for requests"}
-	)
+	"""MCP GET - return 405 per spec (no SSE stream)"""
+	return Response(status_code=405)
 
 
 @router.post("/mcp")
@@ -336,6 +344,13 @@ async def mcp_project(request: Request, project: str):
 	return await _handle_mcp_request(request, project=project)
 
 
+@router.delete("/mcp")
+@router.delete("/mcp/{project}")
+async def mcp_delete():
+	"""MCP DELETE - client session termination (stateless, return 405)"""
+	return Response(status_code=405)
+
+
 async def _handle_mcp_request(request: Request, project: str | None):
 	"""Handle MCP request"""
 	from ..app import get_access_logger, get_settings
@@ -345,70 +360,108 @@ async def _handle_mcp_request(request: Request, project: str | None):
 	start_time = time.perf_counter()
 
 	try:
-		message = await request.json()
-		if message.get("jsonrpc") != "2.0" or "method" not in message:
-			return JSONResponse(content=create_error(None, -32600, "Invalid Request"))
+		body = await request.json()
+	except json.JSONDecodeError:
+		return JSONResponse(content=create_error(None, -32700, "Parse error"), status_code=400)
 
+	# Batch or single message
+	is_batch = isinstance(body, list)
+	messages = body if is_batch else [body]
+
+	if not messages:
+		return JSONResponse(content=create_error(None, -32600, "Invalid Request"), status_code=400)
+
+	try:
 		session_id = request.headers.get("Mcp-Session-Id")
-
-		# Log request info
 		request_id = getattr(request.state, "request_id", str(uuid.uuid4())[:8])
 		client_ip = request.client.host if request.client else "unknown"
-
-		# Extract tool info
-		tool_name = None
-		arguments = {}
-		if message.get("method") == "tools/call":
-			params = message.get("params", {})
-			tool_name = params.get("name")
-			arguments = params.get("arguments", {})
-
-		# Use internal service address (RAG service)
 		rag_service_url = settings.rag_service_url
-		response_data = await route_message(message, project, rag_service_url)
 
-		duration_ms = (time.perf_counter() - start_time) * 1000
+		# Distinguish request (has id + method) from notification/response
+		has_request = any(_is_jsonrpc_request(m) for m in messages)
 
-		# Log access
-		if access_logger and tool_name:
-			result_count = 0
-			if response_data and "result" in response_data:
-				content = response_data["result"].get("content", [])
-				if content and len(content) > 0:
-					try:
-						text = content[0].get("text", "{}")
-						parsed = json.loads(text)
-						result_count = len(parsed.get("results", []))
-					except (json.JSONDecodeError, KeyError, TypeError):
-						pass
+		responses = []
+		for message in messages:
+			# Basic validation
+			if not isinstance(message, dict) or message.get("jsonrpc") != "2.0":
+				if _is_jsonrpc_request(message):
+					responses.append(create_error(message.get("id"), -32600, "Invalid Request"))
+				continue
 
-			access_logger.log_mcp_call(
-				request_id=request_id,
-				client_ip=client_ip,
-				project=project or arguments.get("project", "unknown"),
-				tool=tool_name,
-				arguments=arguments,
-				duration_ms=duration_ms,
-				status_code=200,
-				result_count=result_count,
-			)
+			# JSON-RPC response from client -> ignore
+			if "result" in message or "error" in message:
+				continue
 
-		if response_data is None:
-			return JSONResponse(content={"status": "ok"})
+			# notification or request
+			if "method" not in message:
+				continue
 
-		response = JSONResponse(content=response_data)
+			response_data = await route_message(message, project, rag_service_url)
 
-		# Return new session id on initialize
-		if message.get("method") == "initialize" and not session_id:
+			# Log access
+			if access_logger and message.get("method") == "tools/call":
+				_log_tool_call(access_logger, request_id, client_ip, project, message, response_data, start_time)
+
+			if response_data is not None:
+				responses.append(response_data)
+
+		# All notifications/responses -> 202 Accepted, no body
+		if not has_request:
+			return Response(status_code=202)
+
+		# Build response
+		if not responses:
+			return Response(status_code=202)
+
+		result = responses if is_batch else responses[0]
+		response = JSONResponse(content=result)
+
+		# Return session id on initialize
+		if not is_batch and messages[0].get("method") == "initialize" and not session_id:
 			response.headers["Mcp-Session-Id"] = str(uuid.uuid4())
 
 		return response
 
-	except json.JSONDecodeError:
-		return JSONResponse(content=create_error(None, -32700, "Parse error"))
 	except Exception as e:
 		logger.error(f"MCP Error: {e}")
 		return JSONResponse(content=create_error(None, -32603, str(e)))
+
+
+def _is_jsonrpc_request(message: dict) -> bool:
+	"""Check if message is a JSON-RPC request (has id and method)"""
+	return isinstance(message, dict) and "id" in message and "method" in message
+
+
+def _log_tool_call(
+	access_logger, request_id, client_ip, project, message, response_data, start_time
+):
+	"""Log tool call access"""
+	params = message.get("params", {})
+	tool_name = params.get("name")
+	arguments = params.get("arguments", {})
+	duration_ms = (time.perf_counter() - start_time) * 1000
+
+	result_count = 0
+	if response_data and "result" in response_data:
+		content = response_data["result"].get("content", [])
+		if content and len(content) > 0:
+			try:
+				text = content[0].get("text", "{}")
+				parsed = json.loads(text)
+				result_count = len(parsed.get("results", []))
+			except (json.JSONDecodeError, KeyError, TypeError):
+				pass
+
+	access_logger.log_mcp_call(
+		request_id=request_id,
+		client_ip=client_ip,
+		project=project or arguments.get("project", "unknown"),
+		tool=tool_name,
+		arguments=arguments,
+		duration_ms=duration_ms,
+		status_code=200,
+		result_count=result_count,
+	)
 
 
 @router.get("/tools/list")
