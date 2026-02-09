@@ -90,7 +90,10 @@ class VoyageSearcher:
 
 		# Init Qdrant client
 		logger.info(f"Connecting to Qdrant: {settings.qdrant_url}")
-		self.qdrant = QdrantClient(url=settings.qdrant_url)
+		qdrant_kwargs = {"url": settings.qdrant_url}
+		if settings.qdrant_api_key:
+			qdrant_kwargs["api_key"] = settings.qdrant_api_key
+		self.qdrant = QdrantClient(**qdrant_kwargs)
 
 		logger.info(f"Primary doc language: {self.doc_language}")
 

@@ -1,11 +1,11 @@
 """MCP routes - unified endpoint, URL path distinguishes project"""
 
+import asyncio
 import json
 import logging
 import time
 import uuid
 
-import httpx
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 from starlette.responses import Response
@@ -185,36 +185,67 @@ def create_tool_result(data, *, is_error: bool = False) -> dict:
 	return result
 
 
-async def handle_search(args: dict, project: str, rag_service_url: str) -> dict:
-	"""Execute RAG search"""
-	from ..app import get_http_client
-	client = get_http_client()
-	resp = await client.post(
-		f"{rag_service_url}/search",
-		json={
-			"query": args["query"],
-			"project": project,
-			"limit": args.get("limit", 5),
-			"use_rerank": True,
-		},
+async def handle_search(args: dict, project: str) -> dict:
+	"""Execute RAG search via searcher directly"""
+	from ..app import get_searchers
+
+	searchers = get_searchers()
+	if project not in searchers:
+		raise ValueError(f"Project '{project}' not available. Available: {list(searchers.keys())}")
+
+	searcher = searchers[project]
+	result = await asyncio.to_thread(
+		searcher.search,
+		query=args["query"],
+		limit=args.get("limit", 5),
+		use_rerank=True,
 	)
-	resp.raise_for_status()
-	result = resp.json()
-	# Guide agent to determine if further queries are needed
-	result["_guidance"] = "Determine if further queries are needed: If your next code will call APIs mentioned in results and you're not 100% certain of parameter order, types, or return values, you should fetch full docs or search again for that specific API."
-	return result
+
+	# Convert SearchResult dataclasses to dicts
+	results = [
+		{
+			"rank": r.rank,
+			"doc_id": r.doc_id,
+			"chunk_id": r.chunk_id,
+			"score": r.score,
+			"content": r.content,
+			"content_preview": r.content_preview,
+			"metadata": r.metadata,
+		}
+		for r in result["results"]
+	]
+
+	response = {
+		"results": results,
+		"search_time_ms": result["search_time_ms"],
+	}
+	response["_guidance"] = "Determine if further queries are needed: If your next code will call APIs mentioned in results and you're not 100% certain of parameter order, types, or return values, you should fetch full docs or search again for that specific API."
+	return response
 
 
-async def handle_fetch(args: dict, project: str, rag_service_url: str) -> dict:
-	"""Fetch full document"""
-	from ..app import get_http_client
-	client = get_http_client()
-	resp = await client.get(
-		f"{rag_service_url}/doc/{args['doc_id']}",
-		params={"project": project},
-	)
-	resp.raise_for_status()
-	result = resp.json()
+async def handle_fetch(args: dict, project: str) -> dict:
+	"""Fetch full document via searcher directly"""
+	from ..app import get_searchers
+
+	searchers = get_searchers()
+	if project not in searchers:
+		raise ValueError(f"Project '{project}' not available. Available: {list(searchers.keys())}")
+
+	searcher = searchers[project]
+	doc_id = args["doc_id"]
+	chunks = await asyncio.to_thread(searcher.get_doc_chunks, doc_id)
+
+	if not chunks:
+		return {"error": f"Document {doc_id} not found"}
+
+	full_content = "\n\n".join([c["content"] for c in chunks])
+	result = {
+		"doc_id": doc_id,
+		"project": project,
+		"chunk_count": len(chunks),
+		"full_content": full_content,
+		"metadata": chunks[0]["metadata"] if chunks else {},
+	}
 	result["_guidance"] = "Full document retrieved. If unfamiliar class or method names appear, search for their usage before calling them."
 	return result
 
@@ -252,7 +283,7 @@ async def handle_get_code_guidelines(args: dict, project: str, project_config) -
 
 
 async def route_message(
-	message: dict, project: str | None, rag_service_url: str
+	message: dict, project: str | None,
 ) -> dict | None:
 	"""Route MCP message"""
 	method = message.get("method")
@@ -313,12 +344,8 @@ async def route_message(
 			return create_error(message_id, -32602, f"Unknown tool: {tool_name}")
 
 		try:
-			result = await handlers[tool_name](arguments, actual_project, rag_service_url)
+			result = await handlers[tool_name](arguments, actual_project)
 			return create_response(message_id, create_tool_result(result))
-		except httpx.HTTPStatusError as e:
-			return create_response(
-				message_id, create_tool_result(f"RAG Service error: {e.response.status_code}", is_error=True)
-			)
 		except Exception as e:
 			return create_response(message_id, create_tool_result(str(e), is_error=True))
 
@@ -353,9 +380,8 @@ async def mcp_delete():
 
 async def _handle_mcp_request(request: Request, project: str | None):
 	"""Handle MCP request"""
-	from ..app import get_access_logger, get_settings
+	from ..app import get_access_logger
 
-	settings = get_settings()
 	access_logger = get_access_logger()
 	start_time = time.perf_counter()
 
@@ -375,7 +401,6 @@ async def _handle_mcp_request(request: Request, project: str | None):
 		session_id = request.headers.get("Mcp-Session-Id")
 		request_id = getattr(request.state, "request_id", str(uuid.uuid4())[:8])
 		client_ip = request.client.host if request.client else "unknown"
-		rag_service_url = settings.rag_service_url
 
 		# Distinguish request (has id + method) from notification/response
 		has_request = any(_is_jsonrpc_request(m) for m in messages)
@@ -396,7 +421,7 @@ async def _handle_mcp_request(request: Request, project: str | None):
 			if "method" not in message:
 				continue
 
-			response_data = await route_message(message, project, rag_service_url)
+			response_data = await route_message(message, project)
 
 			# Log access
 			if access_logger and message.get("method") == "tools/call":

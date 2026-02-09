@@ -5,7 +5,6 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Dict
 
-import httpx
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
@@ -24,7 +23,6 @@ _searchers: Dict[str, VoyageSearcher] = {}
 _settings: Settings | None = None
 _project_config: ProjectConfig | None = None
 _access_logger: AccessLogger | None = None
-_http_client: httpx.AsyncClient | None = None
 
 
 def get_searchers() -> Dict[str, VoyageSearcher]:
@@ -47,13 +45,6 @@ def get_access_logger() -> AccessLogger | None:
 	return _access_logger
 
 
-def get_http_client() -> httpx.AsyncClient:
-	"""Get shared HTTP client"""
-	if _http_client is None:
-		raise RuntimeError("HTTP client not initialized")
-	return _http_client
-
-
 def create_app(
 	settings: Settings | None = None,
 	project_config: ProjectConfig | None = None,
@@ -70,7 +61,7 @@ def create_app(
 			- "mcp": MCP service (MCP protocol)
 			- "all": Both services
 	"""
-	global _searchers, _settings, _project_config, _access_logger, _http_client
+	global _searchers, _settings, _project_config, _access_logger
 
 	# Initialize config
 	if settings is None:
@@ -94,15 +85,9 @@ def create_app(
 	@asynccontextmanager
 	async def lifespan(app: FastAPI):
 		"""Application lifecycle management"""
-		global _http_client
-		# Create shared HTTP client on startup
-		_http_client = httpx.AsyncClient(timeout=30.0)
-		logger.info("HTTP client initialized")
+		logger.info("Application started")
 		yield
-		# Cleanup on shutdown
-		await _http_client.aclose()
-		_http_client = None
-		logger.info("HTTP client closed")
+		logger.info("Application stopped")
 
 	# Create application
 	app = FastAPI(

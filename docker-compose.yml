@@ -1,75 +1,23 @@
 version: "3.8"
 
 services:
-  # Qdrant vector database
-  qdrant:
-    image: qdrant/qdrant:v1.15.0
-    container_name: mcs-doc-qdrant-en
-    restart: unless-stopped
-    ports:
-      - "6334:6333"
-    volumes:
-      - ./storage/qdrant:/qdrant/storage
-    networks:
-      - internal
-    deploy:
-      resources:
-        limits:
-          memory: 2G
-
-  # RAG search service (internal)
-  rag-service:
+  mcp-server:
     build: .
-    container_name: mcs-doc-rag-en
+    container_name: mcs-doc-mcp-en
     restart: unless-stopped
-    depends_on:
-      - qdrant
     environment:
       VOYAGE_API_KEY: ${VOYAGE_API_KEY}
-      QDRANT_URL: http://qdrant:6333
-      SERVER_PORT: 8900
-      DOC_LANGUAGE: en
+      QDRANT_URL: ${QDRANT_URL}
+      QDRANT_API_KEY: ${QDRANT_API_KEY}
+      SERVER_PORT: ${SERVER_PORT:-8900}
+      DOC_LANGUAGE: ${DOC_LANGUAGE:-en}
+    ports:
+      - "${SERVER_PORT:-8900}:8900"
     volumes:
       - ./storage/logs:/app/storage/logs
-      - ./storage/checkpoints:/app/storage/checkpoints
-      - ./raw_data:/app/raw_data:ro
-    networks:
-      - internal
+      - ./config:/app/config:ro
     healthcheck:
       test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8900/health').raise_for_status()"]
       interval: 15s
       timeout: 5s
       retries: 3
-
-  # MCP service (external)
-  mcp-server:
-    build: .
-    container_name: mcs-doc-mcp-en
-    restart: unless-stopped
-    depends_on:
-      rag-service:
-        condition: service_healthy
-    command: ["python", "scripts/serve.py", "--mode", "mcp"]
-    environment:
-      RAG_SERVICE_URL: http://rag-service:8900
-      MCP_PORT: 8901
-    ports:
-      - "${MCP_PORT:-8901}:8901"
-    volumes:
-      - ./storage/logs:/app/storage/logs
-      - ./tutorial/dist:/app/tutorial/dist:ro
-      - ./config:/app/config:ro
-    networks:
-      - internal
-      - external
-    healthcheck:
-      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8901/health').raise_for_status()"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
-
-networks:
-  internal:
-    driver: bridge
-  external:
-    driver: bridge

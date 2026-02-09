@@ -19,6 +19,7 @@ class Settings(BaseSettings):
 
 	# Qdrant
 	qdrant_url: str = Field("http://localhost:6333", validation_alias="QDRANT_URL")
+	qdrant_api_key: str = Field("", validation_alias="QDRANT_API_KEY")
 
 	# Server
 	server_host: str = Field("0.0.0.0", validation_alias="SERVER_HOST")
@@ -37,9 +38,6 @@ class Settings(BaseSettings):
 
 	# Document Language (zh/en/ja) - Primary document language. Dense-only when query lang differs.
 	doc_language: str = Field("en", validation_alias="DOC_LANGUAGE")
-
-	# Internal
-	rag_service_url: str = Field("http://localhost:8900", validation_alias="RAG_SERVICE_URL")
 
 	model_config = {
 		"env_file": ".env",

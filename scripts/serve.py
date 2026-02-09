@@ -30,8 +30,8 @@ def main():
 	parser.add_argument(
 		"--mode",
 		choices=["rag", "mcp", "all"],
-		default="rag",
-		help="Run mode: rag(search), mcp(MCP service), all(both)",
+		default="all",
+		help="Run mode: rag(search), mcp(MCP service), all(both, default)",
 	)
 	parser.add_argument("--port", type=int, default=None, help="Service port")
 	parser.add_argument("--host", default=None, help="Service host")
