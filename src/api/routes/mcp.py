@@ -298,7 +298,7 @@ async def route_message(
 			{
 				"protocolVersion": "2025-03-26",
 				"capabilities": {"tools": {}},
-				"serverInfo": {"name": "MCS-DOC-MCP-Server", "version": "1.0.0"},
+				"serverInfo": {"name": "GC-DOC-MCP-Server", "version": "1.0.0"},
 				"instructions": build_instructions(project, get_project_config()),
 			},
 		)
