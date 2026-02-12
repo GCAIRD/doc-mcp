@@ -1,5 +1,5 @@
 {
-	"title": "MCS-DOC-MCP",
+	"title": "SpreadJS-knowledge-base",
 	"subtitle": "MESCIUS 製品ドキュメント RAG + MCP サービス",
 	"description": "以下の手順に従って、AI クライアントで MCP サービスを設定してください",
 	"categories": {
@@ -33,7 +33,7 @@
 			"<strong>\"MCP: Add Server\"</strong> と入力して選択",
 			"サーバータイプとして <strong>\"HTTP (sse)\"</strong> を選択",
 			"サーバー URL を入力",
-			"サーバー名を入力：<strong>MCS-DOC-MCP</strong>"
+			"サーバー名を入力（例：<strong>spreadjs-knowledge-base</strong>）"
 		],
 		"usageTitle": "GitHub Copilot で MCP ツールを使用",
 		"usageSteps": [

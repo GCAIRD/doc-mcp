@@ -1,5 +1,5 @@
 {
-	"title": "MCS-DOC-MCP",
+	"title": "SpreadJS-knowledge-base",
 	"subtitle": "MESCIUS Product Documentation RAG + MCP Service",
 	"description": "Follow the instructions below to configure the MCP service in your AI client",
 	"categories": {
@@ -33,7 +33,7 @@
 			"Type <strong>\"MCP: Add Server\"</strong> and select the command",
 			"Choose <strong>\"HTTP (sse)\"</strong> as the server type",
 			"Enter the server URL",
-			"Provide a name for the server: <strong>MCS-DOC-MCP</strong>"
+			"Provide a name for the server (e.g. <strong>spreadjs-knowledge-base</strong>)"
 		],
 		"usageTitle": "Using MCP Tools with GitHub Copilot",
 		"usageSteps": [

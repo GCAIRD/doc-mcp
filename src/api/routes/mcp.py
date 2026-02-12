@@ -38,7 +38,7 @@ def get_tools(project: str | None = None, project_config=None) -> dict:
 					"properties": {
 						"query": {
 							"type": "string",
-							"description": "Search query",
+							"description": "Use natural language to describe what you need, not keyword lists. Natural language queries perform significantly better. Prefer using the user's original question as-is; only rephrase if initial results are poor.",
 						},
 						"limit": {
 							"type": "integer",
@@ -107,7 +107,7 @@ def get_tools(project: str | None = None, project_config=None) -> dict:
 					"properties": {
 						"query": {
 							"type": "string",
-							"description": "Search query",
+							"description": "Use natural language to describe what you need, not keyword lists. Natural language queries perform significantly better. Prefer using the user's original question as-is; only rephrase if initial results are poor.",
 						},
 						"project": {
 							"type": "string",
@@ -291,12 +291,15 @@ async def route_message(
 	params = message.get("params", {})
 
 	if method == "initialize":
+		from ..app import get_project_config
+		from ..instructions import build_instructions
 		return create_response(
 			message_id,
 			{
 				"protocolVersion": "2025-03-26",
 				"capabilities": {"tools": {}},
 				"serverInfo": {"name": "MCS-DOC-MCP-Server", "version": "1.0.0"},
+				"instructions": build_instructions(project, get_project_config()),
 			},
 		)
 
@@ -507,29 +510,4 @@ def _log_tool_call(
 		duration_ms=duration_ms,
 		status_code=200,
 		result_count=result_count,
-	)
-
-
-@router.get("/tools/list")
-@router.post("/tools/list")
-async def list_tools():
-	"""List all tools"""
-	from ..app import get_project_config
-	tools_list = [{"name": name, **defn} for name, defn in get_tools(None, get_project_config()).items()]
-	return JSONResponse(content={"jsonrpc": "2.0", "result": {"tools": tools_list}})
-
-
-@router.get("/initialize")
-@router.post("/initialize")
-async def initialize():
-	"""MCP initialization"""
-	return JSONResponse(
-		content={
-			"jsonrpc": "2.0",
-			"result": {
-				"protocolVersion": "2025-03-26",
-				"capabilities": {"tools": {}},
-				"serverInfo": {"name": "MCS-DOC-MCP-Server", "version": "1.0.0"},
-			},
-		}
 	)

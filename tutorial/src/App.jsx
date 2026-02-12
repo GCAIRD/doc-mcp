@@ -45,7 +45,7 @@ const clientCategories = [
 
 const getConfig = (client, product = 'spreadjs') => {
 	const url = MCP_URLS[product] || MCP_URLS.spreadjs;
-	const serverName = `MCS-DOC-MCP-${product}`;
+	const serverName = `${product}-knowledge-base`;
 
 	// VSCode (copilot) uses servers field
 	if (client === 'copilot') {
@@ -187,7 +187,7 @@ function CodeBlock({ code, lang = 'json', label }) {
 
 const getCodexToml = (product = 'spreadjs') => {
 	const url = MCP_URLS[product] || MCP_URLS.spreadjs;
-	const serverName = `MCS-DOC-MCP-${product}`;
+	const serverName = `${product}-knowledge-base`;
 	return `[mcp_servers.${serverName}]\nurl = "${url}"`;
 };
 
