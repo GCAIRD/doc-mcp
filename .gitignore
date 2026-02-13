@@ -63,3 +63,4 @@ htmlcov/
 .claude
 .mcp.json
 .playwright-mcp
+node_modules/
