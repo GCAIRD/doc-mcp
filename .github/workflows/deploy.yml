@@ -2,24 +2,30 @@ name: Deploy
 
 on:
   push:
-    branches: [main]
+    branches: [main, feature/en-version]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - branch: main
+            remote_dir: GC-DOC-MCP
+          - branch: feature/en-version
+            remote_dir: MCS-DOC-MCP-en
+    if: github.ref_name == matrix.branch
     steps:
-      - name: build tutorial and restart server
+      - name: Deploy to server
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd GC-DOC-MCP-beta
+            cd ${{ matrix.remote_dir }}
             git pull
-            cd tutorial
-            npm run build
-            cd ..
+            cd tutorial && npm run build && cd ..
             docker compose down
             docker compose build
             docker compose up -d

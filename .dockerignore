@@ -10,12 +10,9 @@
 storage/
 raw_data/
 
-# Python
-__pycache__
-*.py[cod]
-*.egg-info
-.venv/
-venv/
+# Node.js
+node_modules/
+dist/
 
 # IDE & Agent
 .idea/

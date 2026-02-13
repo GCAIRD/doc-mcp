@@ -1,0 +1,30 @@
+# SpreadJS English Documentation Configuration
+lang: en
+company: MESCIUS
+company_short: MCS
+doc_language: en
+
+collection: spreadjs_en
+raw_data: spreadjs/en
+
+npm_scope: '@mescius'
+cdn_domain: cdn.mescius.com
+
+description: SpreadJS JavaScript spreadsheet component documentation
+
+resources:
+  cdn_scripts:
+    name: SpreadJS CDN Scripts
+    description: SpreadJS CDN reference links for pure HTML pages or rapid prototyping
+    mimeType: text/html
+    content: |
+      <!-- SpreadJS CDN Links -->
+      <!-- Version dynamically generated to avoid hardcoding -->
+
+  npm_packages:
+    name: SpreadJS npm Packages
+    description: SpreadJS npm package list for React/Vue/Angular projects
+    mimeType: text/plain
+    content: |
+      # SpreadJS npm Packages
+      # Scope: @mescius

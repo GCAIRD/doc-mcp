@@ -1,57 +1,58 @@
-# Multi-stage build for MCS-DOC-MCP (single container, Qdrant Cloud)
+# Multi-stage build for GC-DOC-MCP v2 (TypeScript)
 
 # Stage 1: Builder
-FROM ghcr.io/astral-sh/uv:python3.11-bookworm-slim AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy dependency files
-COPY requirements.txt pyproject.toml ./
+# Build arguments for product and language
+ARG PRODUCT=spreadjs
+ARG DOC_LANG=cn
 
-# Install dependencies with uv (faster than pip)
-ENV UV_HTTP_TIMEOUT=300
-RUN uv pip install --system --no-cache -r requirements.txt
+# Copy package files
+COPY package.json package-lock.json tsconfig.json ./
 
-# Pre-download BM25 model to avoid runtime download
-RUN python -c "from fastembed import SparseTextEmbedding; SparseTextEmbedding(model_name='Qdrant/bm25')"
+# Install ALL dependencies (devDependencies needed for tsc)
+RUN npm ci
+
+# Copy source files
+COPY src/ ./src/
+COPY products/ ./products/
+
+# Build TypeScript
+RUN npm run build
 
 # Stage 2: Runtime
-FROM python:3.11-slim
+FROM node:20-alpine
 
+# Use built-in non-root user before installing dependencies (avoid chown overhead)
+RUN mkdir -p /app && chown node:node /app
 WORKDIR /app
+USER node
 
-# Install curl for healthcheck
-RUN apt-get update && apt-get install -y --no-install-recommends curl && \
-	rm -rf /var/lib/apt/lists/*
+# Build arguments (persisted for runtime)
+ARG PRODUCT=spreadjs
+ARG DOC_LANG=cn
+ENV PRODUCT=${PRODUCT} DOC_LANG=${DOC_LANG} NODE_ENV=production
 
-# Copy installed packages from builder
-COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
-COPY --from=builder /usr/local/bin /usr/local/bin
+# Copy package files and install production-only dependencies (as node user)
+COPY --chown=node:node package.json package-lock.json ./
+RUN npm ci --omit=dev
 
-# Copy pre-downloaded BM25 model cache
-COPY --from=builder /tmp/fastembed_cache /tmp/fastembed_cache
+# Copy compiled output
+COPY --chown=node:node --from=builder /app/dist ./dist
 
-# Copy application code
-COPY src/ ./src/
-COPY scripts/ ./scripts/
-COPY config/ ./config/
-COPY tutorial/dist/ ./tutorial/dist/
+# Copy products configuration
+COPY --chown=node:node products/ ./products/
 
-# Create non-root user
-RUN useradd -m -u 1000 appuser && \
-	mkdir -p /app/storage/logs && \
-	chown -R appuser:appuser /app /tmp/fastembed_cache
-
-USER appuser
-
-# Azure App Service uses WEBSITES_PORT; default to 8900
+# Port from environment, default 8900
 ENV PORT=8900
 
-# Health check
+# Health check using wget (installed in base image)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
-	CMD curl -f http://localhost:${PORT}/health || exit 1
+	CMD wget -q -O /dev/null http://localhost:${PORT}/health || exit 1
 
 EXPOSE ${PORT}
 
-# Unified service: RAG + MCP in one process
-CMD ["sh", "-c", "python scripts/serve.py --mode all --port ${PORT}"]
+# Start server
+CMD ["node", "dist/index.js"]

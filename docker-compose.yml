@@ -1,23 +1,26 @@
-version: "3.8"
-
 services:
   mcp-server:
-    build: .
-    container_name: mcs-doc-mcp-en
+    build:
+      context: .
+      args:
+        PRODUCT: ${PRODUCT:-spreadjs}
+        DOC_LANG: ${DOC_LANG:-cn}
+    container_name: gc-doc-mcp-${PRODUCT:-spreadjs}-${DOC_LANG:-cn}
     restart: unless-stopped
     environment:
+      PRODUCT: ${PRODUCT:-spreadjs}
+      DOC_LANG: ${DOC_LANG:-cn}
+      PORT: ${PORT:-8900}
       VOYAGE_API_KEY: ${VOYAGE_API_KEY}
       QDRANT_URL: ${QDRANT_URL}
       QDRANT_API_KEY: ${QDRANT_API_KEY}
-      SERVER_PORT: 8900
-      DOC_LANGUAGE: ${DOC_LANGUAGE:-en}
     ports:
-      - "${SERVER_PORT:-8900}:8900"
+      - "${PORT:-8900}:${PORT:-8900}"
     volumes:
-      - ./storage/logs:/app/storage/logs
-      - ./config:/app/config:ro
+      - ./products:/app/products:ro
     healthcheck:
-      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8900/health').raise_for_status()"]
-      interval: 15s
-      timeout: 5s
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:${PORT:-8900}/health"]
+      interval: 30s
+      timeout: 10s
       retries: 3
+      start_period: 15s

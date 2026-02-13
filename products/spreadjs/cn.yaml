@@ -1,0 +1,30 @@
+# SpreadJS Chinese Documentation Configuration
+lang: zh
+company: GrapeCity
+company_short: GC
+doc_language: zh
+
+collection: spreadjs_zh
+raw_data: spreadjs/cn
+
+npm_scope: '@grapecity-software'
+cdn_domain: cdn.grapecity.com.cn
+
+description: SpreadJS 纯前端表格控件，中文文档
+
+resources:
+  cdn_scripts:
+    name: SpreadJS CDN 脚本引用
+    description: SpreadJS CDN 引用链接，用于纯 HTML 页面或快速原型
+    mimeType: text/html
+    content: |
+      <!-- SpreadJS CDN 引用 -->
+      <!-- 版本号动态生成，避免硬编码 -->
+
+  npm_packages:
+    name: SpreadJS npm 包列表
+    description: SpreadJS npm 包列表，用于 React/Vue/Angular 项目
+    mimeType: text/plain
+    content: |
+      # SpreadJS npm Packages
+      # Scope: @grapecity-software
