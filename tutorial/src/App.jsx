@@ -438,7 +438,7 @@ function App() {
 		<div className="app">
 			<header className="header">
 				<div className="logo">
-					<div className="logo-icon">MCS</div>
+					<div className="logo-icon">GC</div>
 					<span className="logo-text">{t('title')}</span>
 				</div>
 				<div className="header-actions">

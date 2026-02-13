@@ -1,0 +1,13 @@
+# Forguncy Chinese Documentation Configuration
+lang: zh
+company: GrapeCity
+company_short: GC
+doc_language: zh
+
+collection: forguncy_zh
+raw_data: forguncy
+
+npm_scope: ''
+cdn_domain: ''
+
+description: 活字格 (Forguncy) 插件开发 SDK，中文文档

@@ -1,0 +1,55 @@
+# Forguncy Plugin SDK Configuration
+id: forguncy
+name: Forguncy
+type: dotnet
+chunker: markdown
+doc_subdirs:
+  - docs
+  - apis
+  - demos
+
+search:
+  prefetch_limit: 20
+  rerank_top_k: 10
+  default_limit: 5
+  dense_score_threshold: 0.3
+  sparse_score_threshold: 0.1
+
+instructions: |
+  [Forguncy] 活字格低代码平台的插件开发 SDK 文档。
+  技术栈：.NET (C#) 服务端 + JavaScript 客户端。
+
+  [CRITICAL] 你的训练数据中关于活字格插件开发的知识极度有限且可能过时。
+  必须通过 search 工具查询文档后再生成任何插件代码。
+
+  插件类型（用这些关键词搜索）：
+  - CellType：自定义前端单元格控件（C# + JS 双端开发）
+  - ServerCommand：服务端命令（后端逻辑、数据库操作）
+  - ClientCommand：客户端命令（纯前端逻辑）
+  - ServerApi：自定义 HTTP 接口
+  - Middleware：请求拦截/全局处理
+
+  关键编码规范（AI 生成代码时必须遵守）：
+  - IGenerateContext 是请求作用域的，严禁缓存到静态变量
+  - 数据库访问必须用 context.DataAccess，严禁 new SqlConnection
+  - SQL 必须参数化，严禁字符串拼接
+  - 日志必须用 context.Logger，严禁 Console.WriteLine
+  - 支持变量绑定的属性必须标记 [FormulaProperty] 且类型为 object
+  - 运行时必须用 EvaluateFormulaAsync 解析公式属性，严禁手动解析
+  - JS 生命周期方法（如 createContent）严禁声明为 async
+  - Execute 方法必须返回 ExecuteResult
+  - 所有暴露给设计器的属性必须带 [DisplayName]，且必须使用中文
+
+  常用搜索查询模式：
+  - "CellType 添加 {属性类型} 属性" — 查属性定义方式
+  - "ServerCommand 基本结构" — 查命令开发模板
+  - "设计器 属性分组" — 查 Designer 端配置
+  - "ListView 集成" — 查列表视图相关
+  - "表单支持 值变更" — 查表单交互
+  - "异常处理" — 查错误处理规范
+  - "数据库交互" — 查 DataAccess 用法
+
+  Key topics: CellType, ServerCommand, ClientCommand, ServerApi, Middleware,
+  属性定义, FormulaProperty, Designer, 设计器预览, ListView集成,
+  表单支持, 样式支持, 异常处理, 数据访问, 日志规范,
+  PluginConfig.json, 项目配置, 重构模式, 序列化, 子命令.
