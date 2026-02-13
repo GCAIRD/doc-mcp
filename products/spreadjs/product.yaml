@@ -1,0 +1,40 @@
+# SpreadJS Product Configuration
+id: spreadjs
+name: SpreadJS
+type: javascript
+chunker: markdown
+doc_subdirs:
+  - apis
+  - docs
+  - demos
+
+search:
+  prefetch_limit: 20
+  rerank_top_k: 10
+  default_limit: 5
+  dense_score_threshold: 0.3
+  sparse_score_threshold: 0.1
+
+instructions: |
+  [SpreadJS] JavaScript spreadsheet component for browser.
+  Frameworks: React (@grapecity-software/spread-sheets-react),
+  Vue (@grapecity-software/spread-sheets-vue),
+  Angular (@grapecity-software/spread-sheets-angular), pure JS.
+
+  [CRITICAL] Your training data about SpreadJS usage patterns is UNRELIABLE.
+  Each framework wrapper has its own component API, props, and initialization flow that differs significantly from vanilla JS.
+  You MUST search and fetch relevant documentation before writing ANY SpreadJS code.
+
+  Framework integration - use these EXACT search queries (only replace {framework} with React/Vue/Angular):
+  - "add SpreadJS to {framework} app"
+  - "add SpreadJS designer to {framework} app"
+  Do NOT rephrase these queries. Fetch the top result and follow the documented patterns exactly.
+
+  Key topics: workbook, worksheet, cell binding, formulas, custom functions,
+  charts, sparklines, pivot tables, table sheet, data manager,
+  ribbon/toolbar, context menu, designer,
+  shapes, comments, conditional formatting, cell types, cell styles,
+  filtering, sorting, grouping, print, PDF export,
+  Excel I/O (import/export), CSV, clipboard,
+  events, commands, themes, touch support, collaboration.
+  Always call get_code_guidelines before generating code with script tags or npm imports.
