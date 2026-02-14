@@ -879,7 +879,9 @@
 				result: '结果',
 				rawResponse: '原始响应',
 				spreadjs: 'SpreadJS',
-				gcexcel: 'GCExcel'
+				gcexcel: 'GCExcel',
+				forguncy: 'Forguncy',
+				wyn: 'Wyn'
 			},
 			en: {
 				subtitle: 'Semantic search for precise document retrieval',
@@ -912,7 +914,9 @@
 				result: 'Result',
 				rawResponse: 'Raw Response',
 				spreadjs: 'SpreadJS',
-				gcexcel: 'GCExcel'
+				gcexcel: 'GCExcel',
+				forguncy: 'Forguncy',
+				wyn: 'Wyn'
 			},
 			ja: {
 				subtitle: 'セマンティック検索でドキュメントを正確に取得',
@@ -945,7 +949,9 @@
 				result: '結果',
 				rawResponse: '生レスポンス',
 				spreadjs: 'SpreadJS',
-				gcexcel: 'GCExcel'
+				gcexcel: 'GCExcel',
+				forguncy: 'Forguncy',
+				wyn: 'Wyn'
 			}
 		};
 
@@ -963,7 +969,12 @@
 		// Products config
 		const PRODUCTS = IS_EN_BRANCH
 			? [{ id: 'spreadjs', label: 'spreadjs' }]
-			: [{ id: 'spreadjs', label: 'spreadjs' }, { id: 'gcexcel', label: 'gcexcel' }];
+			: [
+				{ id: 'spreadjs', label: 'spreadjs' },
+				{ id: 'gcexcel', label: 'gcexcel' },
+				{ id: 'forguncy', label: 'forguncy' },
+				{ id: 'wyn', label: 'wyn' },
+			];
 
 		// ========== i18n Functions ==========
 		function t(key) {

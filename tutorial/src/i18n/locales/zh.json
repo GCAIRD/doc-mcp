@@ -1,6 +1,6 @@
 {
-	"title": "SpreadJS-knowledge-base",
-	"subtitle": "MESCIUS 产品文档 RAG + MCP 服务",
+	"title": "spreadjs-mcp",
+	"subtitle": "GrapeCity 产品文档 RAG + MCP 服务",
 	"description": "按照以下说明在您的 AI 客户端中配置 MCP 服务",
 	"categories": {
 		"ide": "IDE",
@@ -12,9 +12,9 @@
 		"cursor": "Cursor",
 		"windsurf": "Windsurf",
 		"cline": "Cline",
-		"claudedesktop": "Claude Desktop",
-		"codex": "OpenAI Codex CLI",
+		"trae": "TRAE",
 		"jetbrains": "JetBrains IDE",
+		"cherrystudio": "Cherry Studio",
 		"lobechat": "LobeChat",
 		"other": "通用配置"
 	},
@@ -33,7 +33,7 @@
 			"输入 <strong>\"MCP: Add Server\"</strong> 并选择",
 			"选择 <strong>\"HTTP (sse)\"</strong> 作为服务器类型",
 			"输入服务器 URL",
-			"为服务器命名（例如 <strong>spreadjs-knowledge-base</strong>）"
+			"为服务器命名（例如 <strong>spreadjs-mcp</strong>）"
 		],
 		"usageTitle": "使用 MCP 工具",
 		"usageSteps": [
@@ -76,36 +76,16 @@
 		"addTitle": "添加 MCP 服务器配置",
 		"addDesc": "将以下配置添加到 Cline 的 MCP 设置中。"
 	},
-	"claudedesktop": {
-		"title": "在 Claude Desktop 中配置 MCP",
+	"trae": {
+		"title": "在 TRAE 中配置 MCP",
 		"steps": [
-			"打开 Claude Desktop 应用",
-			"进入 <strong>设置 → 开发者 → MCP 服务器</strong>",
+			"打开 TRAE（字节跳动 AI IDE）",
+			"进入 <strong>设置 → AI 助手 → MCP 服务器</strong>",
 			"点击 <strong>\"添加服务器\"</strong>"
 		],
-		"note": "Claude Desktop 原生支持 MCP 协议，可无缝集成 AI 能力。",
+		"note": "TRAE 是字节跳动推出的 AI IDE，基于豆包大模型，支持 MCP 协议。",
 		"addTitle": "添加 MCP 服务器配置",
-		"addDesc": "将以下配置添加到 Claude Desktop 的 MCP 设置中。"
-	},
-	"codex": {
-		"title": "在 OpenAI Codex CLI 中配置 MCP",
-		"installTitle": "安装 Codex CLI",
-		"installDesc": "Codex CLI 需要 <strong>Node.js 18+</strong>，通过 npm 或 Homebrew 安装：",
-		"installMethods": [
-			"<strong>npm（推荐）：</strong><code>npm install -g @openai/codex</code>",
-			"<strong>Homebrew（macOS）：</strong><code>brew install --cask codex</code>",
-			"或从 <a href=\"https://github.com/openai/codex/releases\" target=\"_blank\">GitHub Releases</a> 下载二进制文件"
-		],
-		"authTitle": "认证方式",
-		"authDesc": "运行 <code>codex</code> 后选择 <strong>\"Sign in with ChatGPT\"</strong>（需 Plus / Pro / Team / Edu / Enterprise 订阅），或设置 OpenAI API Key。",
-		"steps": [
-			"安装 Codex CLI（见上方）",
-			"创建或编辑配置文件 <code>~/.codex/config.toml</code>",
-			"以 <strong>TOML</strong> 格式添加下方 MCP 服务器配置"
-		],
-		"note": "Codex CLI 使用 <code>config.toml</code>（TOML 格式），<strong>不是</strong> JSON。详见<a href=\"https://github.com/openai/codex\" target=\"_blank\">官方仓库</a>。",
-		"addTitle": "添加 MCP 服务器配置",
-		"addDesc": "将以下内容添加到 <code>~/.codex/config.toml</code>："
+		"addDesc": "将以下配置添加到 TRAE 的 MCP 设置中。"
 	},
 	"jetbrains": {
 		"title": "在 JetBrains IDE 中配置 MCP",
@@ -117,6 +97,24 @@
 		"note": "需要安装 AI Assistant 插件并确保已启用 MCP 支持。部分旧版本 IDE 可能不支持 MCP。",
 		"addTitle": "添加 MCP 服务器配置",
 		"addDesc": "在 MCP Servers 配置中添加以下服务器信息。"
+	},
+	"cherrystudio": {
+		"title": "在 Cherry Studio 中配置 MCP",
+		"steps": [
+			"打开 Cherry Studio 应用",
+			"点击 <strong>设置</strong> 图标（位置取决于导航栏设置：左侧导航时在左下角，顶部导航时在右上角）",
+			"在左侧菜单选择 <strong>MCP 服务器</strong>",
+			"点击 <strong>\"添加服务器\"</strong> 按钮"
+		],
+		"note": "Cherry Studio 1.1.10+ 版本支持 MCP。首次使用时会自动安装所需依赖（UV、Bun）。",
+		"addTitle": "添加 MCP 服务器配置",
+		"addDesc": "选择 <strong>Streamable HTTP</strong> 类型，填入以下配置信息。",
+		"configSteps": [
+			"服务器名称填写：<strong>GC-DOC-MCP-spreadjs</strong>",
+			"类型选择：<strong>streamableHttp</strong>",
+			"URL 填写对应的服务地址（见下方配置）",
+			"点击保存，然后在聊天界面启用该 MCP 服务"
+		]
 	},
 	"lobechat": {
 		"title": "在 LobeChat 中配置 MCP",
@@ -136,6 +134,10 @@
 		"spreadjsDesc": "用于 SpreadJS JavaScript 电子表格组件的文档查询：",
 		"gcexcelTitle": "GcExcel MCP 服务",
 		"gcexcelDesc": "用于 GcExcel 服务端 Excel 组件的文档查询：",
+		"forguncyTitle": "Forguncy MCP 服务",
+		"forguncyDesc": "用于活字格低代码平台插件开发 SDK 的文档查询：",
+		"wynTitle": "Wyn Enterprise MCP 服务",
+		"wynDesc": "用于 Wyn 嵌入式商业智能的文档查询：",
 		"configTitle": "常见配置文件位置",
 		"configLocations": [
 			"<code>.vscode/mcp.json</code> (VS Code 工作区)",
@@ -162,7 +164,9 @@
 	"products": {
 		"title": "支持的产品",
 		"spreadjs": "SpreadJS - JavaScript 电子表格组件",
-		"gcexcel": "GcExcel - 服务端 Excel 组件"
+		"gcexcel": "GcExcel - 服务端 Excel 组件",
+		"forguncy": "Forguncy - 低代码开发平台插件 SDK",
+		"wyn": "Wyn Enterprise - 嵌入式商业智能"
 	},
 	"tryNow": {
 		"title": "在线体验",

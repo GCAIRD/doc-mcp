@@ -2,7 +2,7 @@ name: Deploy
 
 on:
   push:
-    branches: [main, feature/en-version]
+    branches: [main, feature/en-version, add_forguncy_wyn]
 
 jobs:
   deploy:
@@ -14,6 +14,8 @@ jobs:
             remote_dir: GC-DOC-MCP
           - branch: feature/en-version
             remote_dir: MCS-DOC-MCP-en
+          - branch: add_forguncy_wyn
+            remote_dir: GC-DOC-MCP-v2
     if: github.ref_name == matrix.branch
     steps:
       - name: Deploy to server
@@ -25,7 +27,7 @@ jobs:
           script: |
             cd ${{ matrix.remote_dir }}
             git pull
-            cd tutorial && npm run build && cd ..
+            cd tutorial && npm ci && npm run build && cd ..
             docker compose down
             docker compose build
             docker compose up -d

@@ -1,7 +1,7 @@
 /**
  * HTTP Server for GC-DOC-MCP v2
  *
- * Express + MCP Streamable HTTP endpoint
+ * Express + MCP Streamable HTTP endpoint (multi-product)
  */
 
 import express from 'express';
@@ -13,7 +13,7 @@ import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 import type { ResolvedConfig } from './config/index.js';
 import type { ISearcher } from './rag/types.js';
-import { createMCPServer } from './mcp/server.js';
+import { MCPServer } from './mcp/server.js';
 import { createDefaultLogger } from './shared/logger.js';
 
 const logger = createDefaultLogger('HTTP');
@@ -21,16 +21,19 @@ const logger = createDefaultLogger('HTTP');
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const TUTORIAL_DIST = join(__dirname, '../tutorial/dist');
 
-function createHealthHandler(config: ResolvedConfig): RequestHandler {
-	return (_req: Request, res: Response): void => {
-		res.json({
-			status: 'ok',
-			product: config.product.id,
-			lang: config.variant.lang,
-			collection: config.variant.collection,
-			timestamp: new Date().toISOString(),
-		});
-	};
+/** Session 超时时间：30 分钟 */
+const SESSION_TTL_MS = 30 * 60 * 1000;
+/** Session 清理扫描间隔：5 分钟 */
+const SESSION_CLEANUP_INTERVAL_MS = 5 * 60 * 1000;
+
+export interface ProductEntry {
+	config: ResolvedConfig;
+	searcher: ISearcher;
+}
+
+interface SessionEntry {
+	transport: StreamableHTTPServerTransport;
+	lastActivity: number;
 }
 
 function serveTutorial(page: 'index' | 'playground'): RequestHandler {
@@ -45,27 +48,119 @@ function serveTutorial(page: 'index' | 'playground'): RequestHandler {
 	};
 }
 
+/** JSON-RPC 错误响应 */
+function jsonRpcError(res: Response, httpStatus: number, code: number, message: string): void {
+	res.status(httpStatus).json({
+		jsonrpc: '2.0',
+		error: { code, message },
+		id: null,
+	});
+}
+
+/**
+ * 为单个产品创建 MCP handler（独立 session 池 + TTL 清理）
+ */
+function createMcpHandler(config: ResolvedConfig, searcher: ISearcher, version: string) {
+	const sessions = new Map<string, SessionEntry>();
+
+	// 定期清理超时 session
+	const cleanupTimer = setInterval(() => {
+		const now = Date.now();
+		for (const [sid, entry] of sessions) {
+			if (now - entry.lastActivity > SESSION_TTL_MS) {
+				entry.transport.close?.();
+				sessions.delete(sid);
+				logger.info(`[${config.product.id}] Session expired: ${sid}`);
+			}
+		}
+	}, SESSION_CLEANUP_INTERVAL_MS);
+	cleanupTimer.unref();
+
+	return async (req: Request, res: Response): Promise<void> => {
+		try {
+			const sessionId = req.headers['mcp-session-id'] as string | undefined;
+
+			// 已有 session：更新活跃时间并转发
+			if (sessionId && sessions.has(sessionId)) {
+				const entry = sessions.get(sessionId)!;
+				entry.lastActivity = Date.now();
+				await entry.transport.handleRequest(req, res, req.body);
+				return;
+			}
+
+			// 有 session ID 但不存在：返回 404，客户端应重新 initialize
+			if (sessionId && !sessions.has(sessionId)) {
+				jsonRpcError(res, 404, -32001, 'Session not found. Client must re-initialize.');
+				return;
+			}
+
+			// 新 session：仅接受 initialize 请求
+			if (!sessionId && isInitializeRequest(req.body)) {
+				const transport = new StreamableHTTPServerTransport({
+					sessionIdGenerator: () => crypto.randomUUID(),
+					enableJsonResponse: true,
+					onsessioninitialized: (sid) => {
+						sessions.set(sid, { transport, lastActivity: Date.now() });
+						logger.info(`[${config.product.id}] MCP session created: ${sid}`);
+					},
+				});
+
+				transport.onerror = (err) => logger.error(`[${config.product.id}] MCP transport error`, err);
+				transport.onclose = () => {
+					const sid = transport.sessionId;
+					if (sid) {
+						sessions.delete(sid);
+						logger.info(`[${config.product.id}] MCP session closed: ${sid}`);
+					}
+				};
+
+				const mcpServer = new MCPServer(config, searcher, version);
+				await mcpServer.getServer().connect(transport);
+				await transport.handleRequest(req, res, req.body);
+				return;
+			}
+
+			// 无 session ID + 非 initialize 请求
+			jsonRpcError(res, 400, -32600, 'Bad Request: Missing session ID or not an initialize request.');
+		} catch (err) {
+			logger.error(`[${config.product.id}] MCP request error`, err);
+			if (!res.headersSent) {
+				jsonRpcError(res, 500, -32603, 'Internal server error');
+			}
+		}
+	};
+}
+
 let httpServer: HttpServer | null = null;
 
 /**
- * Start HTTP server with MCP
+ * Start HTTP server with MCP endpoints for all products
  */
 export async function startServer(
-	config: ResolvedConfig,
-	searcher: ISearcher,
+	products: ProductEntry[],
 	port: number,
 	host: string,
+	version: string,
 ): Promise<HttpServer> {
 	if (httpServer) {
 		throw new Error('Server already running');
 	}
 
-	// Per-session transport management (每个 MCP 客户端一个独立 session)
-	const sessions = new Map<string, StreamableHTTPServerTransport>();
-
-	// 创建 Express app
 	const app = express();
 	app.use(express.json());
+
+	// CORS
+	app.use((_req, res, next) => {
+		res.setHeader('Access-Control-Allow-Origin', '*');
+		res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
+		res.setHeader('Access-Control-Allow-Headers', 'Content-Type, mcp-session-id');
+		res.setHeader('Access-Control-Expose-Headers', 'mcp-session-id');
+		if (_req.method === 'OPTIONS') {
+			res.status(204).end();
+			return;
+		}
+		next();
+	});
 
 	app.use((req, _res, next) => {
 		logger.debug(`${req.method} ${req.path}`);
@@ -75,64 +170,32 @@ export async function startServer(
 	// Routes
 	app.get('/', serveTutorial('index'));
 	app.get('/playground', serveTutorial('playground'));
-	app.get('/health', createHealthHandler(config));
 
-	// MCP Streamable HTTP endpoint: /mcp/${product}
-	const mcpPath = `/mcp/${config.product.id}`;
+	// Health: 展示所有已注册产品
+	app.get('/health', (_req: Request, res: Response): void => {
+		res.json({
+			status: 'ok',
+			products: products.map((p) => ({
+				id: p.config.product.id,
+				lang: p.config.variant.lang,
+				collection: p.config.variant.collection,
+				endpoint: `/mcp/${p.config.product.id}`,
+			})),
+			timestamp: new Date().toISOString(),
+		});
+	});
 
-	const mcpHandler = async (req: Request, res: Response): Promise<void> => {
-		try {
-			const sessionId = req.headers['mcp-session-id'] as string | undefined;
+	// 为每个产品注册独立的 MCP 端点
+	for (const { config, searcher } of products) {
+		const mcpPath = `/mcp/${config.product.id}`;
+		const handler = createMcpHandler(config, searcher, version);
 
-			if (sessionId && sessions.has(sessionId)) {
-				// 已有 session，复用 transport
-				await sessions.get(sessionId)!.handleRequest(req, res, req.body);
-				return;
-			}
+		app.post(mcpPath, handler);
+		app.get(mcpPath, handler);
+		app.delete(mcpPath, handler);
 
-			if (!sessionId && isInitializeRequest(req.body)) {
-				// 新 session: 创建独立 transport + MCP server
-				const transport = new StreamableHTTPServerTransport({
-					sessionIdGenerator: () => crypto.randomUUID(),
-					enableJsonResponse: true,
-					onsessioninitialized: (sid) => {
-						sessions.set(sid, transport);
-						logger.info(`MCP session created: ${sid}`);
-					},
-				});
-
-				transport.onerror = (err) => logger.error('MCP transport error', err);
-				transport.onclose = () => {
-					const sid = transport.sessionId;
-					if (sid) {
-						sessions.delete(sid);
-						logger.info(`MCP session closed: ${sid}`);
-					}
-				};
-
-				const mcpServer = await createMCPServer(config, searcher);
-				await mcpServer.getServer().connect(transport);
-				await transport.handleRequest(req, res, req.body);
-				return;
-			}
-
-			// 无效请求
-			res.status(400).json({
-				jsonrpc: '2.0',
-				error: { code: -32000, message: 'Bad Request: No valid session ID provided' },
-				id: null,
-			});
-		} catch (err) {
-			logger.error('MCP request error', err);
-			if (!res.headersSent) {
-				res.status(500).json({ error: 'Internal server error' });
-			}
-		}
-	};
-
-	app.post(mcpPath, mcpHandler);
-	app.get(mcpPath, mcpHandler);
-	app.delete(mcpPath, mcpHandler);
+		logger.info(`MCP endpoint registered: ${mcpPath}`);
+	}
 
 	// Static assets
 	app.use(express.static(TUTORIAL_DIST, { index: false }));

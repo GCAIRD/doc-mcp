@@ -133,16 +133,21 @@ export function getProjectRoot(): string {
 }
 
 /**
- * Read version from package.json (single source of truth)
+ * Read version from package.json (single source of truth, cached)
  */
+let cachedVersion: string | null = null;
+
 export async function getVersion(): Promise<string> {
+	if (cachedVersion) return cachedVersion;
+
 	const pkgPath = join(PROJECT_ROOT, 'package.json');
 	const pkgContent = await readFile(pkgPath, 'utf-8');
 	const pkg = JSON.parse(pkgContent);
 	if (!pkg.version) {
 		throw new Error('Missing "version" field in package.json');
 	}
-	return pkg.version;
+	cachedVersion = pkg.version as string;
+	return cachedVersion;
 }
 
 /** 列出可用的产品目录 */

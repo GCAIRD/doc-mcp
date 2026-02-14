@@ -3,11 +3,12 @@
  */
 
 import { getEnv } from './config/env.js';
-import { getConfig } from './config/loader.js';
+import { loadConfig, getVersion } from './config/loader.js';
 import { createSearcher } from './rag/searcher.js';
 import { createVoyageEmbedder } from './rag/embedder.js';
 import { createVoyageRateLimiter } from './shared/rate-limiter.js';
 import { startServer, stopServer } from './server.js';
+import type { ProductEntry } from './server.js';
 import { createDefaultLogger } from './shared/logger.js';
 import { ConfigError } from './shared/errors.js';
 
@@ -16,12 +17,10 @@ const logger = createDefaultLogger('MAIN');
 async function main(): Promise<void> {
 	try {
 		const env = getEnv();
-		logger.info(`Starting ${env.PRODUCT} (${env.DOC_LANG})...`);
+		const productIds = env.PRODUCT.split(',').map((p) => p.trim()).filter(Boolean);
+		logger.info(`Starting products: [${productIds.join(', ')}] (${env.DOC_LANG})...`);
 
-		const config = await getConfig();
-		logger.info(`Configuration loaded: ${config.product.name} - ${config.variant.description}`);
-
-		// 创建 RAG searcher
+		// 共享 embedder 和 rate limiter
 		const rateLimiter = createVoyageRateLimiter(env.VOYAGE_RPM_LIMIT, env.VOYAGE_TPM_LIMIT);
 		const embedder = createVoyageEmbedder({
 			apiKey: env.VOYAGE_API_KEY,
@@ -29,21 +28,29 @@ async function main(): Promise<void> {
 			rateLimiter,
 		});
 
-		const searcher = createSearcher({
-			qdrantUrl: env.QDRANT_URL,
-			qdrantApiKey: env.QDRANT_API_KEY,
-			collection: config.variant.collection,
-			docLanguage: config.variant.doc_language,
-			embedder,
-			rerankModel: env.VOYAGE_RERANK_MODEL,
-			voyageApiKey: env.VOYAGE_API_KEY,
-			prefetchLimit: config.product.search.prefetch_limit,
-			rerankTopK: config.product.search.rerank_top_k,
-			denseScoreThreshold: config.product.search.dense_score_threshold,
-		});
+		// 为每个产品加载配置并创建 searcher
+		const products: ProductEntry[] = await Promise.all(
+			productIds.map(async (productId) => {
+				const config = await loadConfig(productId, env.DOC_LANG);
+				const searcher = createSearcher({
+					qdrantUrl: env.QDRANT_URL,
+					qdrantApiKey: env.QDRANT_API_KEY,
+					collection: config.variant.collection,
+					docLanguage: config.variant.doc_language,
+					embedder,
+					rerankModel: env.VOYAGE_RERANK_MODEL,
+					voyageApiKey: env.VOYAGE_API_KEY,
+					prefetchLimit: config.product.search.prefetch_limit,
+					rerankTopK: config.product.search.rerank_top_k,
+					denseScoreThreshold: config.product.search.dense_score_threshold,
+				});
+				logger.info(`Loaded: ${config.product.name} (${config.variant.collection})`);
+				return { config, searcher };
+			}),
+		);
 
-		// 启动 HTTP server（内含 MCP server）
-		await startServer(config, searcher, env.PORT, env.HOST);
+		const version = await getVersion();
+		await startServer(products, env.PORT, env.HOST, version);
 		logger.info(`Server ready at http://${env.HOST}:${env.PORT}`);
 
 		setupShutdownHandlers();
@@ -51,7 +58,7 @@ async function main(): Promise<void> {
 		if (err instanceof Error) {
 			logger.error(`Startup failed: ${err.message}`, err);
 			if (err instanceof ConfigError) {
-				logger.error('Configuration error - check PRODUCT, LANG, and YAML files');
+				logger.error('Configuration error - check PRODUCT, DOC_LANG, and YAML files');
 			}
 		}
 		process.exit(1);

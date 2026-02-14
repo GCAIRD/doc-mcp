@@ -3,23 +3,23 @@ services:
     build:
       context: .
       args:
-        PRODUCT: ${PRODUCT:-spreadjs}
+        PRODUCT: spreadjs
         DOC_LANG: ${DOC_LANG:-cn}
-    container_name: gc-doc-mcp-${PRODUCT:-spreadjs}-${DOC_LANG:-cn}
+    container_name: gc-doc-mcp-${DOC_LANG:-cn}
     restart: unless-stopped
     environment:
-      PRODUCT: ${PRODUCT:-spreadjs}
+      PRODUCT: ${PRODUCT:-spreadjs,gcexcel,forguncy,wyn}
       DOC_LANG: ${DOC_LANG:-cn}
-      PORT: ${PORT:-8900}
+      PORT: ${PORT:-8902}
       VOYAGE_API_KEY: ${VOYAGE_API_KEY}
       QDRANT_API_KEY: ${QDRANT_API_KEY}
     ports:
-      - "${PORT:-8900}:${PORT:-8900}"
+      - "${PORT:-8902}:${PORT:-8902}"
     volumes:
       - ./products:/app/products:ro
       - qdrant-data:/qdrant/storage
     healthcheck:
-      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:${PORT:-8900}/health"]
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:${PORT:-8902}/health"]
       interval: 30s
       timeout: 10s
       retries: 3

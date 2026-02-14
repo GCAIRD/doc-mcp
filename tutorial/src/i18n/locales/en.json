@@ -1,6 +1,6 @@
 {
-	"title": "SpreadJS-knowledge-base",
-	"subtitle": "MESCIUS Product Documentation RAG + MCP Service",
+	"title": "spreadjs-mcp",
+	"subtitle": "GrapeCity Product Documentation RAG + MCP Service",
 	"description": "Follow the instructions below to configure the MCP service in your AI client",
 	"categories": {
 		"ide": "IDE",
@@ -12,9 +12,9 @@
 		"cursor": "Cursor",
 		"windsurf": "Windsurf",
 		"cline": "Cline",
-		"claudedesktop": "Claude Desktop",
-		"codex": "OpenAI Codex CLI",
+		"trae": "TRAE",
 		"jetbrains": "JetBrains IDE",
+		"cherrystudio": "Cherry Studio",
 		"lobechat": "LobeChat",
 		"other": "Universal Config"
 	},
@@ -33,7 +33,7 @@
 			"Type <strong>\"MCP: Add Server\"</strong> and select the command",
 			"Choose <strong>\"HTTP (sse)\"</strong> as the server type",
 			"Enter the server URL",
-			"Provide a name for the server (e.g. <strong>spreadjs-knowledge-base</strong>)"
+			"Provide a name for the server (e.g. <strong>spreadjs-mcp</strong>)"
 		],
 		"usageTitle": "Using MCP Tools with GitHub Copilot",
 		"usageSteps": [
@@ -76,36 +76,16 @@
 		"addTitle": "Add MCP Server Configuration",
 		"addDesc": "Add the following configuration to Cline's MCP settings."
 	},
-	"claudedesktop": {
-		"title": "Configure MCP in Claude Desktop",
+	"trae": {
+		"title": "Configure MCP in TRAE",
 		"steps": [
-			"Open Claude Desktop application",
-			"Go to <strong>Settings → Developer → MCP Servers</strong>",
+			"Open TRAE (ByteDance AI IDE)",
+			"Go to <strong>Settings → AI Assistant → MCP Servers</strong>",
 			"Click <strong>\"Add Server\"</strong>"
 		],
-		"note": "Claude Desktop natively supports MCP protocol for seamless AI integration.",
+		"note": "TRAE is ByteDance's AI IDE powered by Doubao LLM, with MCP protocol support.",
 		"addTitle": "Add MCP Server Configuration",
-		"addDesc": "Add the following configuration to Claude Desktop's MCP settings."
-	},
-	"codex": {
-		"title": "Configure MCP in OpenAI Codex CLI",
-		"installTitle": "Install Codex CLI",
-		"installDesc": "Codex CLI requires <strong>Node.js 18+</strong>. Install via npm or Homebrew:",
-		"installMethods": [
-			"<strong>npm (recommended):</strong> <code>npm install -g @openai/codex</code>",
-			"<strong>Homebrew (macOS):</strong> <code>brew install --cask codex</code>",
-			"Or download binaries from <a href=\"https://github.com/openai/codex/releases\" target=\"_blank\">GitHub Releases</a>"
-		],
-		"authTitle": "Authentication",
-		"authDesc": "Run <code>codex</code> and select <strong>\"Sign in with ChatGPT\"</strong> (requires Plus / Pro / Team / Edu / Enterprise subscription). Alternatively, set an OpenAI API key.",
-		"steps": [
-			"Install Codex CLI (see above)",
-			"Create or edit the config file at <code>~/.codex/config.toml</code>",
-			"Add the MCP server configuration below in <strong>TOML</strong> format"
-		],
-		"note": "Codex CLI uses <code>config.toml</code> (TOML format), <strong>not</strong> JSON. See <a href=\"https://github.com/openai/codex\" target=\"_blank\">official repository</a> for details.",
-		"addTitle": "Add MCP Server Configuration",
-		"addDesc": "Add the following to <code>~/.codex/config.toml</code>:"
+		"addDesc": "Add the following configuration to TRAE's MCP settings."
 	},
 	"jetbrains": {
 		"title": "Configure MCP in JetBrains IDE",
@@ -117,6 +97,24 @@
 		"note": "Requires AI Assistant plugin installed with MCP support enabled. Some older IDE versions may not support MCP.",
 		"addTitle": "Add MCP Server Configuration",
 		"addDesc": "Add the following server information in MCP Servers configuration."
+	},
+	"cherrystudio": {
+		"title": "Configure MCP in Cherry Studio",
+		"steps": [
+			"Open Cherry Studio application",
+			"Click the <strong>Settings</strong> icon (location depends on navigation bar setting: bottom-left for sidebar nav, top-right for top nav)",
+			"Select <strong>MCP Servers</strong> from the left menu",
+			"Click <strong>\"Add Server\"</strong> button"
+		],
+		"note": "Cherry Studio 1.1.10+ supports MCP. Dependencies (UV, Bun) will be auto-installed on first use.",
+		"addTitle": "Add MCP Server Configuration",
+		"addDesc": "Select <strong>Streamable HTTP</strong> type and fill in the configuration below.",
+		"configSteps": [
+			"Server name: <strong>GC-DOC-MCP-spreadjs</strong>",
+			"Type: <strong>streamableHttp</strong>",
+			"URL: Enter the corresponding service URL (see config below)",
+			"Save and enable the MCP service in the chat interface"
+		]
 	},
 	"lobechat": {
 		"title": "Configure MCP in LobeChat",
@@ -136,6 +134,10 @@
 		"spreadjsDesc": "For SpreadJS JavaScript spreadsheet component documentation:",
 		"gcexcelTitle": "GcExcel MCP Service",
 		"gcexcelDesc": "For GcExcel server-side Excel component documentation:",
+		"forguncyTitle": "Forguncy MCP Service",
+		"forguncyDesc": "For Forguncy low-code platform plugin SDK documentation:",
+		"wynTitle": "Wyn Enterprise MCP Service",
+		"wynDesc": "For Wyn embedded business intelligence documentation:",
 		"configTitle": "Common Configuration File Locations",
 		"configLocations": [
 			"<code>.vscode/mcp.json</code> (VS Code workspace)",
@@ -162,7 +164,9 @@
 	"products": {
 		"title": "Supported Products",
 		"spreadjs": "SpreadJS - JavaScript Spreadsheet Component",
-		"gcexcel": "GcExcel - Server-side Excel Component"
+		"gcexcel": "GcExcel - Server-side Excel Component",
+		"forguncy": "Forguncy - Low-Code Platform Plugin SDK",
+		"wyn": "Wyn Enterprise - Embedded Business Intelligence"
 	},
 	"tryNow": {
 		"title": "Try It Now",

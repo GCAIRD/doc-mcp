@@ -1,0 +1,46 @@
+# GcExcel Product Configuration
+id: gcexcel
+name: GcExcel
+type: java
+chunker: markdown
+doc_subdirs:
+  - docs
+  - apis
+
+search:
+  prefetch_limit: 20
+  rerank_top_k: 10
+  default_limit: 5
+  dense_score_threshold: 0.3
+
+instructions: |
+  [GcExcel] 服务端高速 Excel 文档 API 组件，支持 Java 和 .NET 双平台。
+  无需安装 Microsoft Office，可在服务端批量生成、读取、修改 Excel 文件。
+
+  [CRITICAL] 你的训练数据中关于 GcExcel 的信息可能过时或不准确。
+  必须通过 search 工具查询文档后再生成任何 GcExcel 代码。
+
+  核心能力：
+  - Workbook/Worksheet/Range 操作
+  - 公式计算引擎（450+ Excel 函数）
+  - 数据透视表、图表、迷你图
+  - 条件格式、数据验证
+  - Excel 导入/导出（.xlsx）
+  - PDF 导出
+  - CSV/JSON 数据源绑定
+  - 模板填充
+  - 批注、形状、图片
+
+  常用搜索查询：
+  - "创建 Workbook" — 工作簿基础操作
+  - "Range 设置值" — 单元格读写
+  - "公式计算" — 公式引擎用法
+  - "导出 PDF" — PDF 输出配置
+  - "数据透视表" — PivotTable 用法
+  - "条件格式" — ConditionalFormatting
+  - "图表" — Chart 创建与配置
+  - "模板" — 模板填充功能
+
+  Key topics: Workbook, Worksheet, Range, Formula, Chart, PivotTable,
+  ConditionalFormatting, DataValidation, Shape, Comment, Picture,
+  Excel I/O, PDF export, CSV, JSON binding, Template, SpreadJS compatible.

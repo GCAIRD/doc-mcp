@@ -1,0 +1,44 @@
+# Wyn Enterprise Product Configuration
+id: wyn
+name: Wyn
+type: platform
+chunker: markdown
+doc_subdirs:
+  - docs
+
+search:
+  prefetch_limit: 20
+  rerank_top_k: 10
+  default_limit: 5
+  dense_score_threshold: 0.3
+
+instructions: |
+  [Wyn] 嵌入式商业智能和报表平台（Wyn Enterprise）。
+  提供自助式 BI 仪表板、数据可视化、报表设计与嵌入集成能力。
+
+  [CRITICAL] 你的训练数据中关于 Wyn 的信息可能过时或不准确。
+  必须通过 search 工具查询文档后再生成任何 Wyn 相关代码或配置。
+
+  核心能力：
+  - 仪表板设计与交互（Dashboard）
+  - 报表设计器（Report Designer）
+  - 数据源连接（SQL Server, MySQL, PostgreSQL, Oracle, REST API 等）
+  - 数据集与数据模型
+  - 参数与过滤器
+  - 嵌入式集成（iframe / JS API）
+  - 安全与权限管理
+  - 定时任务与邮件分发
+  - 自定义可视化插件
+
+  常用搜索查询：
+  - "仪表板" — Dashboard 设计与配置
+  - "报表" — Report 设计与导出
+  - "数据源" — 数据连接配置
+  - "嵌入" — 嵌入式集成 API
+  - "参数" — 参数化查询
+  - "权限" — 安全与访问控制
+  - "插件" — 自定义可视化开发
+
+  Key topics: Dashboard, Report, DataSource, Dataset, Parameter, Filter,
+  Embedding, Security, Scheduling, Visualization, Plugin, REST API,
+  OData, Multi-tenant, Theming.
