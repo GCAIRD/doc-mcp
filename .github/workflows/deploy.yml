@@ -2,30 +2,20 @@ name: Deploy
 
 on:
   push:
-    branches: [main, feature/en-version, add_forguncy_wyn]
+    branches: [add_forguncy_wyn]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include:
-          - branch: main
-            remote_dir: GC-DOC-MCP
-          - branch: feature/en-version
-            remote_dir: MCS-DOC-MCP-en
-          - branch: add_forguncy_wyn
-            remote_dir: GC-DOC-MCP-v2
     steps:
       - name: Deploy to server
-        if: github.ref_name == matrix.branch
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd ${{ matrix.remote_dir }}
+            cd GC-DOC-MCP-v2
             git pull
             cd tutorial && npm ci && npm run build && cd ..
             docker compose down
