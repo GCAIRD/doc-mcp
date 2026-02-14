@@ -1,5 +1,5 @@
 {
-	"title": "spreadjs-mcp",
+	"title": "GC-DOC-MCP",
 	"subtitle": "GrapeCity 製品ドキュメント RAG + MCP サービス",
 	"description": "以下の手順に従って、AI クライアントで MCP サービスを設定してください",
 	"categories": {
@@ -33,7 +33,7 @@
 			"<strong>\"MCP: Add Server\"</strong> と入力して選択",
 			"サーバータイプとして <strong>\"HTTP (sse)\"</strong> を選択",
 			"サーバー URL を入力",
-			"サーバー名を入力（例：<strong>spreadjs-mcp</strong>）"
+			"サーバー名を入力（例：<strong>spreadjs-mcp</strong>、<strong>gcexcel-mcp</strong>）"
 		],
 		"usageTitle": "GitHub Copilot で MCP ツールを使用",
 		"usageSteps": [
@@ -110,7 +110,7 @@
 		"addTitle": "MCP サーバー設定を追加",
 		"addDesc": "<strong>Streamable HTTP</strong> タイプを選択し、以下の設定を入力してください。",
 		"configSteps": [
-			"サーバー名：<strong>GC-DOC-MCP-spreadjs</strong>",
+			"サーバー名：<strong>{product}-mcp</strong>（例：spreadjs-mcp、gcexcel-mcp）",
 			"タイプ：<strong>streamableHttp</strong>",
 			"URL：対応するサービス URL を入力（下記の設定を参照）",
 			"保存して、チャット画面で MCP サービスを有効にする"

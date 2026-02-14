@@ -1,5 +1,5 @@
 {
-	"title": "spreadjs-mcp",
+	"title": "GC-DOC-MCP",
 	"subtitle": "GrapeCity Product Documentation RAG + MCP Service",
 	"description": "Follow the instructions below to configure the MCP service in your AI client",
 	"categories": {
@@ -33,7 +33,7 @@
 			"Type <strong>\"MCP: Add Server\"</strong> and select the command",
 			"Choose <strong>\"HTTP (sse)\"</strong> as the server type",
 			"Enter the server URL",
-			"Provide a name for the server (e.g. <strong>spreadjs-mcp</strong>)"
+			"Provide a name for the server (e.g. <strong>spreadjs-mcp</strong>, <strong>gcexcel-mcp</strong>)"
 		],
 		"usageTitle": "Using MCP Tools with GitHub Copilot",
 		"usageSteps": [
@@ -110,7 +110,7 @@
 		"addTitle": "Add MCP Server Configuration",
 		"addDesc": "Select <strong>Streamable HTTP</strong> type and fill in the configuration below.",
 		"configSteps": [
-			"Server name: <strong>GC-DOC-MCP-spreadjs</strong>",
+			"Server name: <strong>{product}-mcp</strong> (e.g. spreadjs-mcp, gcexcel-mcp)",
 			"Type: <strong>streamableHttp</strong>",
 			"URL: Enter the corresponding service URL (see config below)",
 			"Save and enable the MCP service in the chat interface"

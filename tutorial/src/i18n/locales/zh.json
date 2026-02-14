@@ -1,5 +1,5 @@
 {
-	"title": "spreadjs-mcp",
+	"title": "GC-DOC-MCP",
 	"subtitle": "GrapeCity 产品文档 RAG + MCP 服务",
 	"description": "按照以下说明在您的 AI 客户端中配置 MCP 服务",
 	"categories": {
@@ -33,7 +33,7 @@
 			"输入 <strong>\"MCP: Add Server\"</strong> 并选择",
 			"选择 <strong>\"HTTP (sse)\"</strong> 作为服务器类型",
 			"输入服务器 URL",
-			"为服务器命名（例如 <strong>spreadjs-mcp</strong>）"
+			"为服务器命名（例如 <strong>spreadjs-mcp</strong>、<strong>gcexcel-mcp</strong>）"
 		],
 		"usageTitle": "使用 MCP 工具",
 		"usageSteps": [
@@ -110,7 +110,7 @@
 		"addTitle": "添加 MCP 服务器配置",
 		"addDesc": "选择 <strong>Streamable HTTP</strong> 类型，填入以下配置信息。",
 		"configSteps": [
-			"服务器名称填写：<strong>GC-DOC-MCP-spreadjs</strong>",
+			"服务器名称填写：<strong>{产品名}-mcp</strong>（如 spreadjs-mcp、gcexcel-mcp）",
 			"类型选择：<strong>streamableHttp</strong>",
 			"URL 填写对应的服务地址（见下方配置）",
 			"点击保存，然后在聊天界面启用该 MCP 服务"
