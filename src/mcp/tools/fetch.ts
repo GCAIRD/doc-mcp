@@ -13,11 +13,12 @@ import { logAccess } from '../../shared/access-logger.js';
 const logger = createDefaultLogger('mcp:tool:fetch');
 
 function formatDocChunks(docId: string, chunks: DocChunk[]) {
-	return chunks.map((c, i) => textContent(
-		i === 0
-			? `Document: ${docId}\nTotal chunks: ${chunks.length}\n\n${c.content}`
-			: c.content,
-	));
+	const meta = textContent(JSON.stringify({
+		doc_id: docId,
+		total_chunks: chunks.length,
+	}));
+	const contents = chunks.map(c => textContent(c.content));
+	return [meta, ...contents];
 }
 
 export function createFetchHandler(config: ResolvedConfig, searcher: ISearcher) {

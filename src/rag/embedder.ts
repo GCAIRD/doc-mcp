@@ -37,6 +37,9 @@ export interface EmbedResult {
 	tokens: number;
 }
 
+/** Voyage API 单次 batch 的 token 上限（留 10% 余量，实际限制 120k） */
+const MAX_BATCH_TOKENS = 100_000;
+
 /**
  * 估算文本 token 数（粗略估算：英文 4 字符/token，中文 1.5 字符/token）
  */
@@ -77,7 +80,7 @@ export class VoyageEmbedder {
 	}
 
 	/**
-	 * 批量嵌入
+	 * 批量嵌入（按 token 数动态分批，避免超出 Voyage API 的 batch token 限制）
 	 */
 	async embedBatch(texts: string[]): Promise<EmbedResult[]> {
 		if (texts.length === 0) {
@@ -86,9 +89,24 @@ export class VoyageEmbedder {
 
 		const allResults: EmbedResult[] = [];
 
-		// 分批处理
-		for (let i = 0; i < texts.length; i += this.config.batchSize) {
-			const batch = texts.slice(i, i + this.config.batchSize);
+		let batch: string[] = [];
+		let batchTokens = 0;
+
+		for (const text of texts) {
+			const tokens = estimateTokens(text);
+
+			if (batch.length > 0 && (batchTokens + tokens > MAX_BATCH_TOKENS || batch.length >= this.config.batchSize)) {
+				const results = await this.embedBatchWithRetry(batch);
+				allResults.push(...results);
+				batch = [];
+				batchTokens = 0;
+			}
+
+			batch.push(text);
+			batchTokens += tokens;
+		}
+
+		if (batch.length > 0) {
 			const results = await this.embedBatchWithRetry(batch);
 			allResults.push(...results);
 		}
