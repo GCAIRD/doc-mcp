@@ -15,52 +15,52 @@ description: SpreadJS 纯前端表格控件，中文文档
 resources:
   cdn_scripts:
     name: SpreadJS CDN 脚本引用
-    description: SpreadJS 18.2.5 版本所有模块的 CDN 引用链接。适用于纯 HTML 页面或快速原型开发。
+    description: SpreadJS 19.0.0 版本所有模块的 CDN 引用链接。适用于纯 HTML 页面或快速原型开发。
     mimeType: text/html
     content: |
-      <!-- SpreadJS 18.2.5 CDN -->
+      <!-- SpreadJS 19.0.0 CDN -->
       <!-- 样式（必需） -->
-      <link href="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets/styles/gc.spread.sheets.excel2013white.css" rel="stylesheet" type="text/css" />
-      <link href="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-designer/styles/gc.spread.sheets.designer.light.min.css" rel="stylesheet" type="text/css" />
+      <link href="https://cdn.grapecity.com.cn/SpreadJS/package-contents/19.0.0/spread-sheets/styles/gc.spread.sheets.excel2013white.css" rel="stylesheet" type="text/css" />
+      <link href="https://cdn.grapecity.com.cn/SpreadJS/package-contents/19.0.0/spread-sheets-designer/styles/gc.spread.sheets.designer.light.min.css" rel="stylesheet" type="text/css" />
 
       <!-- 核心库（必需） -->
-      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets/dist/gc.spread.sheets.all.min.js"></script>
+      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/19.0.0/spread-sheets/dist/gc.spread.sheets.all.min.js"></script>
 
       <!-- 可选模块 - 按需引入 -->
-      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-shapes/dist/gc.spread.sheets.shapes.min.js"></script>
-      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-charts/dist/gc.spread.sheets.charts.min.js"></script>
-      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-datacharts-addon/dist/gc.spread.sheets.datacharts.min.js"></script>
-      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-slicers/dist/gc.spread.sheets.slicers.min.js"></script>
-      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-print/dist/gc.spread.sheets.print.min.js"></script>
-      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-barcode/dist/gc.spread.sheets.barcode.min.js"></script>
-      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-pdf/dist/gc.spread.sheets.pdf.min.js"></script>
-      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-pivot-addon/dist/gc.spread.pivot.pivottables.min.js"></script>
-      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-tablesheet/dist/gc.spread.sheets.tablesheet.min.js"></script>
-      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-ganttsheet/dist/gc.spread.sheets.ganttsheet.min.js"></script>
-      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-reportsheet-addon/dist/gc.spread.report.reportsheet.min.js"></script>
-      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-formula-panel/dist/gc.spread.sheets.formulapanel.min.js"></script>
-      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-ai-addon/dist/gc.spread.sheets.ai.min.js"></script>
-      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-io/dist/gc.spread.sheets.io.min.js"></script>
+      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/19.0.0/spread-sheets-shapes/dist/gc.spread.sheets.shapes.min.js"></script>
+      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/19.0.0/spread-sheets-charts/dist/gc.spread.sheets.charts.min.js"></script>
+      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/19.0.0/spread-sheets-datacharts-addon/dist/gc.spread.sheets.datacharts.min.js"></script>
+      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/19.0.0/spread-sheets-slicers/dist/gc.spread.sheets.slicers.min.js"></script>
+      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/19.0.0/spread-sheets-print/dist/gc.spread.sheets.print.min.js"></script>
+      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/19.0.0/spread-sheets-barcode/dist/gc.spread.sheets.barcode.min.js"></script>
+      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/19.0.0/spread-sheets-pdf/dist/gc.spread.sheets.pdf.min.js"></script>
+      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/19.0.0/spread-sheets-pivot-addon/dist/gc.spread.pivot.pivottables.min.js"></script>
+      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/19.0.0/spread-sheets-tablesheet/dist/gc.spread.sheets.tablesheet.min.js"></script>
+      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/19.0.0/spread-sheets-ganttsheet/dist/gc.spread.sheets.ganttsheet.min.js"></script>
+      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/19.0.0/spread-sheets-reportsheet-addon/dist/gc.spread.report.reportsheet.min.js"></script>
+      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/19.0.0/spread-sheets-formula-panel/dist/gc.spread.sheets.formulapanel.min.js"></script>
+      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/19.0.0/spread-sheets-ai-addon/dist/gc.spread.sheets.ai.min.js"></script>
+      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/19.0.0/spread-sheets-io/dist/gc.spread.sheets.io.min.js"></script>
 
       <!-- 中文资源 -->
-      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-resources-zh/dist/gc.spread.sheets.resources.zh.min.js"></script>
+      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/19.0.0/spread-sheets-resources-zh/dist/gc.spread.sheets.resources.zh.min.js"></script>
 
       <!-- 设计器（可选） -->
-      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-designer-resources-cn/dist/gc.spread.sheets.designer.resource.cn.min.js"></script>
-      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-designer/dist/gc.spread.sheets.designer.all.min.js"></script>
+      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/19.0.0/spread-sheets-designer-resources-cn/dist/gc.spread.sheets.designer.resource.cn.min.js"></script>
+      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/19.0.0/spread-sheets-designer/dist/gc.spread.sheets.designer.all.min.js"></script>
 
       <!-- 三方框架支持(可选) -->
-      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-react/dist/gc.spread.sheets.react.min.js"></script>
-      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-vue/dist/gc.spread.sheets.vue.min.js"></script>
-      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-designer-vue/dist/gc.spread.sheets.designer.vue.min.js"></script>
-      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/18.2.5/spread-sheets-designer-react/dist/gc.spread.sheets.designer.react.min.js"></script>
+      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/19.0.0/spread-sheets-react/dist/gc.spread.sheets.react.min.js"></script>
+      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/19.0.0/spread-sheets-vue/dist/gc.spread.sheets.vue.min.js"></script>
+      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/19.0.0/spread-sheets-designer-vue/dist/gc.spread.sheets.designer.vue.min.js"></script>
+      <script src="https://cdn.grapecity.com.cn/SpreadJS/package-contents/19.0.0/spread-sheets-designer-react/dist/gc.spread.sheets.designer.react.min.js"></script>
 
   npm_packages:
     name: SpreadJS npm 包引用
-    description: SpreadJS 18.2.5 版本 npm 包列表。适用于 React/Vue/Angular 等框架项目。
+    description: SpreadJS 19.0.0 版本 npm 包列表。适用于 React/Vue/Angular 等框架项目。
     mimeType: text/plain
     content: |
-      # SpreadJS npm 包 (版本 18.2.5)
+      # SpreadJS npm 包 (版本 19.0.0)
       # 作用域: @grapecity-software
 
       ## 核心包（必需）
