@@ -5,7 +5,7 @@
 import { z } from 'zod';
 
 export type ProductType = 'javascript' | 'dotnet' | 'java' | 'platform';
-export type ChunkerType = 'markdown' | 'javadoc';
+export type ChunkerType = 'markdown' | 'javadoc' | 'typedoc';
 export type Language = 'zh' | 'en' | 'ja';
 
 /**
@@ -126,7 +126,7 @@ export const productYamlSchema = z.object({
 	id: z.string(),
 	name: z.string(),
 	type: z.enum(['javascript', 'dotnet', 'java', 'platform']),
-	chunker: z.enum(['markdown', 'javadoc']),
+	chunker: z.enum(['markdown', 'javadoc', 'typedoc']),
 	doc_subdirs: z.array(z.string()),
 	search: z.object({
 		prefetch_limit: z.number(),

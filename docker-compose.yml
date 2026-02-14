@@ -18,13 +18,10 @@ services:
     volumes:
       - ./products:/app/products:ro
       - ./raw_data:/app/raw_data:ro
-      - qdrant-data:/qdrant/storage
+      - ./storage/qdrant:/qdrant/storage
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:${PORT:-8902}/health"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 30s
-
-volumes:
-  qdrant-data:

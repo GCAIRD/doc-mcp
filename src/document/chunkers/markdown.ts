@@ -2,29 +2,54 @@
  * Markdown chunker for GC-DOC-MCP v2
  *
  * Strategy:
- * 1. Split by headers (#)
- * 2. Secondary split by char count for long sections
- * 3. Protect code block integrity
+ * 1. Small docs (< chunkSize) → output whole
+ * 2. Split by h2 as primary boundary
+ * 3. h2 section still too large → secondary split by h3
+ * 4. Protect code block integrity + header context prefix
  */
 
 import { BaseChunker } from './base.js';
 import { Document, Chunk } from '../types.js';
 
 export class MarkdownChunker extends BaseChunker {
-	/**
-	 * Chunk the document
-	 */
 	public *chunkDocument(doc: Document): Generator<Chunk> {
-		const sections = this.splitByHeaders(doc.content);
+		// 小文件直接输出
+		if (doc.content.length <= this.chunkSize) {
+			if (doc.content.trim().length >= this.minChunkSize) {
+				yield this.createChunk(doc, 0, doc.content);
+			}
+			return;
+		}
+
+		// 按 h2 切分（主级别）
+		const sections = this.splitByHeaders(doc.content, '#{2}');
 
 		let chunkIndex = 0;
 		for (const section of sections) {
-			const textChunks = this.splitProtected(section);
+			if (section.length <= this.chunkSize) {
+				if (section.trim().length >= this.minChunkSize) {
+					yield this.createChunk(doc, chunkIndex, section);
+					chunkIndex++;
+				}
+				continue;
+			}
 
-			for (const text of textChunks) {
-				if (text.trim().length < this.minChunkSize) continue;
-				yield this.createChunk(doc, chunkIndex, text);
-				chunkIndex++;
+			// h2 section 仍然太大 → 按 h3 二次切分
+			const subSections = this.splitByHeaders(section, '#{3}');
+			const sectionHeader = this.extractHeader(section);
+
+			for (const sub of subSections) {
+				const textChunks = this.splitProtected(sub);
+				for (let i = 0; i < textChunks.length; i++) {
+					let text = textChunks[i];
+					if (text.trim().length < this.minChunkSize) continue;
+					// 非首块且缺少 header → 补上 section header
+					if (i > 0 && sectionHeader && !text.startsWith('#')) {
+						text = sectionHeader + '\n\n' + text;
+					}
+					yield this.createChunk(doc, chunkIndex, text);
+					chunkIndex++;
+				}
 			}
 		}
 	}

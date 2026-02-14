@@ -145,7 +145,7 @@ export class JavaDocChunker extends BaseChunker {
 	}
 
 	/**
-	 * Demo document: keep short docs whole
+	 * Demo document: keep short docs whole, split large code blocks
 	 */
 	private *chunkDemo(doc: Document): Generator<Chunk> {
 		if (doc.content.length <= this.chunkSize) {
@@ -153,7 +153,20 @@ export class JavaDocChunker extends BaseChunker {
 			return;
 		}
 
-		yield* this.chunkBySize(doc);
+		// 提取标题作为上下文
+		const header = this.extractHeader(doc.content);
+		const chunks = this.splitProtected(doc.content);
+		let chunkIndex = 0;
+
+		for (let i = 0; i < chunks.length; i++) {
+			let text = chunks[i];
+			if (text.trim().length < this.minChunkSize) continue;
+			if (i > 0 && header && !text.startsWith('#') && !text.startsWith('```')) {
+				text = header + '\n\n' + text;
+			}
+			yield this.createChunk(doc, chunkIndex, text, 'demo');
+			chunkIndex++;
+		}
 	}
 
 	/**

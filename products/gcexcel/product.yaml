@@ -2,10 +2,29 @@
 id: gcexcel
 name: GcExcel
 type: java
-chunker: markdown
 doc_subdirs:
   - docs
   - apis
+
+# ── Chunker ──────────────────────────────────────────────
+# 选型: javadoc
+#
+# 文档画像 (清洗后, chunk_size=3000):
+#   apis  — 570 files, median 3.6K, p95 13K, max 77K
+#           JavaDoc 生成, 有 Method Summary / Method Details 标记
+#           55% 文件超过 3K, 需要按方法切分
+#   docs  — 477 files, median 1.4K, p95 10K, max 40K
+#           人工编写, h2/h3 结构, 含代码对比/性能表格等大段内容
+#   demos — 978 files, median 957, p95 7K, max 42K
+#           "标题 + 整段 Java 代码"结构, 代码块无空行 (单行紧密)
+#           13% 超过 3K, 最大 42K 为单个代码块
+#
+# 策略:
+#   api  → 提取类头 → 按 ### method 切分 → 合并分组,
+#           每组前缀类名+包信息; 方法数不足时回退按大小切
+#   doc  → 按 h2/h3 切 + splitProtected
+#   demo → 小文件直出; 大代码块三级切分 (空行→单行→硬切)
+chunker: javadoc
 
 search:
   prefetch_limit: 20

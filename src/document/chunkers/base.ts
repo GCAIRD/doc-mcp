@@ -8,6 +8,9 @@ import { Document, Chunk, ChunkerOptions } from '../types.js';
 /** 代码块合并容忍倍数（允许超出 chunkSize 的比例） */
 const CODE_BLOCK_SIZE_TOLERANCE = 1.5;
 
+/** 代码块超过此倍数时强制切分 */
+const CODE_BLOCK_SPLIT_THRESHOLD = 3;
+
 export abstract class BaseChunker {
 	protected readonly chunkSize: number;
 	protected readonly chunkOverlap: number;
@@ -135,18 +138,22 @@ export abstract class BaseChunker {
 			const segmentText = text.slice(start, end);
 
 			if (isCode) {
-				// Code block: keep intact
-				if (currentChunk) {
-					if (currentChunk.length + segmentText.length <= this.chunkSize * CODE_BLOCK_SIZE_TOLERANCE) {
-						currentChunk += segmentText;
-					} else {
-						if (currentChunk.trim()) {
-							chunks.push(currentChunk.trim());
+				// 代码块处理：小块合并，超大块切分
+				if (currentChunk && currentChunk.length + segmentText.length <= this.chunkSize * CODE_BLOCK_SIZE_TOLERANCE) {
+					currentChunk += segmentText;
+				} else {
+					if (currentChunk.trim()) {
+						chunks.push(currentChunk.trim());
+					}
+					if (segmentText.length > this.chunkSize * CODE_BLOCK_SPLIT_THRESHOLD) {
+						const codeChunks = this.splitCodeBlock(segmentText);
+						for (let ci = 0; ci < codeChunks.length - 1; ci++) {
+							if (codeChunks[ci].trim()) chunks.push(codeChunks[ci].trim());
 						}
+						currentChunk = codeChunks[codeChunks.length - 1];
+					} else {
 						currentChunk = segmentText;
 					}
-				} else {
-					currentChunk = segmentText;
 				}
 			} else {
 				// Regular text: can split
@@ -181,19 +188,89 @@ export abstract class BaseChunker {
 	}
 
 	/**
-	 * Find best break point in text
+	 * Find best break point in text (URL-safe)
 	 */
 	protected findBreakPoint(text: string, maxPos: number): number {
-		const separators = ['\n\n', '\n', '\u3002', '.'];
-
-		for (const sep of separators) {
+		// 优先级：段落 > 换行 > 中文句号 > 英文句号（跳过 URL 内的点）
+		const simpleSeps = ['\n\n', '\n', '\u3002'];
+		for (const sep of simpleSeps) {
 			const pos = text.lastIndexOf(sep, maxPos);
 			if (pos > maxPos / 2) {
 				return pos + sep.length;
 			}
 		}
 
+		// '.' 需要额外判断：句末的 '.' 后跟空白/换行/EOF，URL 内的 '.' 后跟字母数字
+		let searchPos = maxPos;
+		const halfPos = maxPos / 2;
+		while (searchPos > halfPos) {
+			const pos = text.lastIndexOf('.', searchPos);
+			if (pos <= halfPos) break;
+			const next = text[pos + 1];
+			if (!next || /\s/.test(next)) {
+				return pos + 1;
+			}
+			searchPos = pos - 1;
+		}
+
 		return maxPos;
+	}
+
+	/**
+	 * 提取 section 的首行 header（# 开头的行）
+	 */
+	protected extractHeader(section: string): string {
+		const match = section.match(/^(#{1,6}\s+.+)/);
+		return match?.[1] ?? '';
+	}
+
+	/**
+	 * 切分超大代码块（空行 → 单行 → 硬切，保持 fence 完整）
+	 */
+	protected splitCodeBlock(codeBlock: string): string[] {
+		const firstNewline = codeBlock.indexOf('\n');
+		const fence = firstNewline > 0 ? codeBlock.slice(0, firstNewline) : '```';
+		const inner = codeBlock.slice(firstNewline + 1, codeBlock.lastIndexOf('```'));
+		const fenceOverhead = fence.length + 1 + 4; // fence + \n + \n```
+		const contentBudget = this.chunkSize - fenceOverhead;
+
+		// 先尝试按空行切，如果只有一块则按单行切
+		let parts = inner.split(/\n\n+/);
+		const separator = parts.length > 1 ? '\n\n' : '\n';
+		if (parts.length <= 1) {
+			parts = inner.split('\n');
+		}
+
+		const result: string[] = [];
+		let current = '';
+
+		for (const part of parts) {
+			// 单个 part 超长（例如 base64 行）→ 硬切
+			if (part.length > contentBudget) {
+				if (current) {
+					result.push(fence + '\n' + current.trimEnd() + '\n```');
+					current = '';
+				}
+				for (let pos = 0; pos < part.length; pos += contentBudget) {
+					const slice = part.slice(pos, pos + contentBudget);
+					result.push(fence + '\n' + slice + '\n```');
+				}
+				continue;
+			}
+
+			const addition = part + separator;
+			if (current.length + addition.length > contentBudget && current) {
+				result.push(fence + '\n' + current.trimEnd() + '\n```');
+				current = '';
+			}
+			current += addition;
+		}
+
+		if (current.trim()) {
+			result.push(fence + '\n' + current.trimEnd() + '\n```');
+		}
+
+		return result.length > 0 ? result : [codeBlock];
 	}
 
 	/**

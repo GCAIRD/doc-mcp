@@ -2,11 +2,24 @@
 id: forguncy
 name: Forguncy
 type: dotnet
-chunker: markdown
 doc_subdirs:
   - docs
   - apis
   - demos
+
+# ── Chunker ──────────────────────────────────────────────
+# 选型: markdown
+#
+# 文档画像 (清洗后, chunk_size=3000):
+#   docs  — 99 files, median 1.5K, p95 4K, max 15.6K
+#           人工编写, h2/h3 结构, 仅 12 个文件超过 3K
+#   apis  — 1 file, 1.3K
+#   demos — 6 files, median 1.4K, max 4.9K
+#
+# 体量小, 通用 markdown chunker 即可:
+#   < chunk_size 的文件直接输出不切 (占 87%)
+#   大文件按 h2 主切 → h3 二次切, 附 header 上下文
+chunker: markdown
 
 search:
   prefetch_limit: 20

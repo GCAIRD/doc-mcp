@@ -2,11 +2,29 @@
 id: spreadjs
 name: SpreadJS
 type: javascript
-chunker: markdown
 doc_subdirs:
   - apis
   - docs
   - demos
+
+# ── Chunker ──────────────────────────────────────────────
+# 选型: typedoc
+#
+# 文档画像 (清洗后, chunk_size=3000):
+#   apis  — 1097 files, median 1.2K, p95 20K, max 510K
+#           TypeDoc 生成, h1 类名 / h2 分类 / h3 成员 / h4 参数
+#           单个文件 h3 数可达 1100+
+#   docs  — 1599 files, median 1.2K, p95 7K, max 32K
+#           人工编写 Markdown, h2/h3 结构, 部分含大代码块+base64
+#   demos — 592 files, median 1K, p95 4K, max 46K
+#           标题+代码块为主, 90% 小于 3K
+#
+# 策略:
+#   api  → 跳过 TOC, 按 h2/h3 切分成员, 合并至逼近 chunk_size,
+#           每个 chunk 前缀 h1 类名 (消除上下文丢失)
+#   doc  → h2 主切 → h3 二次切 → splitProtected, header 上下文前缀
+#   demo → 小文件直出; 大文件 splitProtected (含代码块切分)
+chunker: typedoc
 
 search:
   prefetch_limit: 20

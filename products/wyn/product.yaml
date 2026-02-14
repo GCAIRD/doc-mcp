@@ -2,9 +2,20 @@
 id: wyn
 name: Wyn
 type: platform
-chunker: markdown
 doc_subdirs:
   - docs
+
+# ── Chunker ──────────────────────────────────────────────
+# 选型: markdown
+#
+# 文档画像 (清洗后, chunk_size=3000):
+#   docs — 13 files, median 3K, max 6.6K
+#          插件开发文档, h2 结构为主, 无极端大文件
+#
+# 体量极小, 通用 markdown chunker:
+#   < chunk_size 直接输出 (7 files)
+#   > chunk_size 按 h2 切分 (6 files)
+chunker: markdown
 
 search:
   prefetch_limit: 20
