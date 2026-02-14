@@ -56,7 +56,7 @@ async function main(): Promise<void> {
 		setupShutdownHandlers();
 	} catch (err) {
 		if (err instanceof Error) {
-			logger.error(`Startup failed: ${err.message}`, err);
+			logger.error(`Startup failed: ${err.message}`);
 			if (err instanceof ConfigError) {
 				logger.error('Configuration error - check PRODUCT, DOC_LANG, and YAML files');
 			}
@@ -73,7 +73,7 @@ function setupShutdownHandlers(): void {
 			logger.info('Shutdown complete');
 			process.exit(0);
 		} catch (err) {
-			logger.error('Shutdown error', err);
+			logger.error('Shutdown error', { error: err instanceof Error ? err.message : String(err) });
 			process.exit(1);
 		}
 	};

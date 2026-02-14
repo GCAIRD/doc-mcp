@@ -13,12 +13,10 @@ const CODE_BLOCK_SPLIT_THRESHOLD = 3;
 
 export abstract class BaseChunker {
 	protected readonly chunkSize: number;
-	protected readonly chunkOverlap: number;
 	protected readonly minChunkSize: number;
 
 	constructor(options: ChunkerOptions) {
 		this.chunkSize = options.chunk_size;
-		this.chunkOverlap = options.chunk_overlap;
 		this.minChunkSize = options.min_chunk_size;
 	}
 
@@ -51,15 +49,47 @@ export abstract class BaseChunker {
 
 	/**
 	 * Batch chunk documents
+	 * 回填 total_chunks 和 doc_toc
 	 */
 	public chunkDocuments(docs: Document[]): Chunk[] {
-		const chunks: Chunk[] = [];
+		const allChunks: Chunk[] = [];
+
 		for (const doc of docs) {
+			const docChunks: Chunk[] = [];
+			const toc = this.extractToc(doc.content);
+
 			for (const chunk of this.chunkDocument(doc)) {
-				chunks.push(chunk);
+				chunk.metadata.doc_toc = toc;
+				docChunks.push(chunk);
+			}
+
+			const total = docChunks.length;
+			for (const chunk of docChunks) {
+				chunk.metadata.total_chunks = total;
+			}
+
+			allChunks.push(...docChunks);
+		}
+
+		return allChunks;
+	}
+
+	/**
+	 * 从文档内容提取目录结构（所有 Markdown header）
+	 */
+	protected extractToc(content: string): string {
+		const lines = content.split('\n');
+		const tocLines: string[] = [];
+
+		for (const line of lines) {
+			const match = line.match(/^(#{1,6})\s+(.+)/);
+			if (match) {
+				const indent = '  '.repeat(match[1].length - 1);
+				tocLines.push(`${indent}${match[2].trim()}`);
 			}
 		}
-		return chunks;
+
+		return tocLines.join('\n');
 	}
 
 	/**
@@ -128,7 +158,7 @@ export abstract class BaseChunker {
 		}
 
 		if (segments.length === 0) {
-			return this.simpleSplit(text);
+			return [text];
 		}
 
 		const chunks: string[] = [];
@@ -217,11 +247,19 @@ export abstract class BaseChunker {
 	}
 
 	/**
-	 * 提取 section 的首行 header（# 开头的行）
+	 * 提取 section 的首行 header（# 开头的行，含 # 前缀）
 	 */
 	protected extractHeader(section: string): string {
 		const match = section.match(/^(#{1,6}\s+.+)/);
 		return match?.[1] ?? '';
+	}
+
+	/**
+	 * 提取 section 的首行 header 文字（不含 # 前缀）
+	 */
+	protected extractHeaderText(section: string): string {
+		const match = section.match(/^#{1,6}\s+(.+)/);
+		return match?.[1]?.trim() ?? '';
 	}
 
 	/**
@@ -273,32 +311,4 @@ export abstract class BaseChunker {
 		return result.length > 0 ? result : [codeBlock];
 	}
 
-	/**
-	 * Simple size-based split (when no code blocks)
-	 */
-	protected simpleSplit(text: string): string[] {
-		const chunks: string[] = [];
-		let start = 0;
-
-		while (start < text.length) {
-			let end = start + this.chunkSize;
-
-			if (end < text.length) {
-				const breakPos = this.findBreakPoint(text.slice(start), this.chunkSize);
-				end = start + breakPos;
-			}
-
-			const chunk = text.slice(start, end).trim();
-			if (chunk && chunk.length >= this.minChunkSize) {
-				chunks.push(chunk);
-			}
-
-			start = end - this.chunkOverlap;
-			if (start >= text.length) {
-				break;
-			}
-		}
-
-		return chunks;
-	}
 }

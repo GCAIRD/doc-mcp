@@ -127,9 +127,13 @@ export class TypeDocChunker extends BaseChunker {
 		let chunkIndex = 0;
 
 		for (const section of sections) {
+			const h2 = this.extractHeaderText(section);
+
 			if (section.length <= this.chunkSize) {
 				if (section.trim().length >= this.minChunkSize) {
-					yield this.createChunk(doc, chunkIndex, section, 'doc');
+					const chunk = this.createChunk(doc, chunkIndex, section, 'doc');
+					if (h2) chunk.metadata.section_path = [h2];
+					yield chunk;
 					chunkIndex++;
 				}
 				continue;
@@ -140,14 +144,19 @@ export class TypeDocChunker extends BaseChunker {
 			const sectionHeader = this.extractHeader(section);
 
 			for (const sub of subSections) {
+				const h3 = this.extractHeaderText(sub);
+				const path = [h2, h3].filter(Boolean) as string[];
 				const textChunks = this.splitProtected(sub);
+
 				for (let i = 0; i < textChunks.length; i++) {
 					let text = textChunks[i];
 					if (text.trim().length < this.minChunkSize) continue;
 					if (i > 0 && sectionHeader && !text.startsWith('#')) {
 						text = sectionHeader + '\n\n' + text;
 					}
-					yield this.createChunk(doc, chunkIndex, text, 'doc');
+					const chunk = this.createChunk(doc, chunkIndex, text, 'doc');
+					if (path.length > 0) chunk.metadata.section_path = path;
+					yield chunk;
 					chunkIndex++;
 				}
 			}
@@ -158,8 +167,12 @@ export class TypeDocChunker extends BaseChunker {
 	 * Demo 文档策略：小文件整体输出，大文件走 splitProtected（含代码块切分）
 	 */
 	private *chunkDemo(doc: Document): Generator<Chunk> {
+		const title = this.extractHeaderText(doc.content);
+
 		if (doc.content.length <= this.chunkSize) {
-			yield this.createChunk(doc, 0, doc.content, 'demo');
+			const chunk = this.createChunk(doc, 0, doc.content, 'demo');
+			if (title) chunk.metadata.section_path = [title];
+			yield chunk;
 			return;
 		}
 
@@ -173,7 +186,9 @@ export class TypeDocChunker extends BaseChunker {
 			if (i > 0 && header && !text.startsWith('#') && !text.startsWith('```')) {
 				text = header + '\n\n' + text;
 			}
-			yield this.createChunk(doc, chunkIndex, text, 'demo');
+			const chunk = this.createChunk(doc, chunkIndex, text, 'demo');
+			if (title) chunk.metadata.section_path = [title];
+			yield chunk;
 			chunkIndex++;
 		}
 	}

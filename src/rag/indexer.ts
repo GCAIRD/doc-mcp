@@ -103,7 +103,7 @@ export class RagIndexer {
 				);
 			} catch (error) {
 				failedCount += batch.length;
-				this.logger.error(`Failed to index batch starting at ${i}:`, error);
+				this.logger.error(`Failed to index batch starting at ${i}`, { error: error instanceof Error ? error.message : String(error) });
 				throw error;
 			}
 		}

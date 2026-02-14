@@ -15,6 +15,7 @@ import type { ResolvedConfig } from './config/index.js';
 import type { ISearcher } from './rag/types.js';
 import { MCPServer } from './mcp/server.js';
 import { createDefaultLogger } from './shared/logger.js';
+import { requestContext, type RequestContext } from './shared/request-context.js';
 
 const logger = createDefaultLogger('HTTP');
 
@@ -34,6 +35,7 @@ export interface ProductEntry {
 interface SessionEntry {
 	transport: StreamableHTTPServerTransport;
 	lastActivity: number;
+	clientInfo: { name: string; version: string } | null;
 }
 
 function serveTutorial(page: 'index' | 'playground'): RequestHandler {
@@ -70,7 +72,7 @@ function createMcpHandler(config: ResolvedConfig, searcher: ISearcher, version: 
 			if (now - entry.lastActivity > SESSION_TTL_MS) {
 				entry.transport.close?.();
 				sessions.delete(sid);
-				logger.info(`[${config.product.id}] Session expired: ${sid}`);
+				logger.info('Session expired', { productId: config.product.id, sessionId: sid });
 			}
 		}
 	}, SESSION_CLEANUP_INTERVAL_MS);
@@ -80,11 +82,18 @@ function createMcpHandler(config: ResolvedConfig, searcher: ISearcher, version: 
 		try {
 			const sessionId = req.headers['mcp-session-id'] as string | undefined;
 
-			// 已有 session：更新活跃时间并转发
+			// 已有 session：注入上下文并转发
 			if (sessionId && sessions.has(sessionId)) {
 				const entry = sessions.get(sessionId)!;
 				entry.lastActivity = Date.now();
-				await entry.transport.handleRequest(req, res, req.body);
+				const ctx: RequestContext = {
+					requestId: crypto.randomUUID().slice(0, 8),
+					sessionId,
+					productId: config.product.id,
+					clientInfo: entry.clientInfo,
+					clientIp: req.ip || 'unknown',
+				};
+				await requestContext.run(ctx, () => entry.transport.handleRequest(req, res, req.body));
 				return;
 			}
 
@@ -96,34 +105,59 @@ function createMcpHandler(config: ResolvedConfig, searcher: ISearcher, version: 
 
 			// 新 session：仅接受 initialize 请求
 			if (!sessionId && isInitializeRequest(req.body)) {
+				// 提取 clientInfo
+				const rawClient = req.body?.params?.clientInfo;
+				const clientInfo = rawClient?.name
+					? { name: String(rawClient.name), version: String(rawClient.version ?? '') }
+					: null;
+
 				const transport = new StreamableHTTPServerTransport({
 					sessionIdGenerator: () => crypto.randomUUID(),
 					enableJsonResponse: true,
 					onsessioninitialized: (sid) => {
-						sessions.set(sid, { transport, lastActivity: Date.now() });
-						logger.info(`[${config.product.id}] MCP session created: ${sid}`);
+						sessions.set(sid, { transport, lastActivity: Date.now(), clientInfo });
+						logger.info('MCP session created', {
+							productId: config.product.id,
+							sessionId: sid,
+							client: clientInfo as unknown as Record<string, unknown>,
+						});
 					},
 				});
 
-				transport.onerror = (err) => logger.error(`[${config.product.id}] MCP transport error`, err);
+				transport.onerror = (err) => logger.error('MCP transport error', {
+					productId: config.product.id,
+					error: err instanceof Error ? err.message : String(err),
+				});
 				transport.onclose = () => {
 					const sid = transport.sessionId;
 					if (sid) {
 						sessions.delete(sid);
-						logger.info(`[${config.product.id}] MCP session closed: ${sid}`);
+						logger.info('MCP session closed', { productId: config.product.id, sessionId: sid });
 					}
 				};
 
 				const mcpServer = new MCPServer(config, searcher, version);
 				await mcpServer.getServer().connect(transport);
-				await transport.handleRequest(req, res, req.body);
+
+				// initialize 请求也注入上下文
+				const initCtx: RequestContext = {
+					requestId: crypto.randomUUID().slice(0, 8),
+					sessionId: transport.sessionId ?? '-',
+					productId: config.product.id,
+					clientInfo,
+					clientIp: req.ip || 'unknown',
+				};
+				await requestContext.run(initCtx, () => transport.handleRequest(req, res, req.body));
 				return;
 			}
 
 			// 无 session ID + 非 initialize 请求
 			jsonRpcError(res, 400, -32600, 'Bad Request: Missing session ID or not an initialize request.');
 		} catch (err) {
-			logger.error(`[${config.product.id}] MCP request error`, err);
+			logger.error('MCP request error', {
+				productId: config.product.id,
+				error: err instanceof Error ? err.message : String(err),
+			});
 			if (!res.headersSent) {
 				jsonRpcError(res, 500, -32603, 'Internal server error');
 			}
@@ -194,7 +228,7 @@ export async function startServer(
 		app.get(mcpPath, handler);
 		app.delete(mcpPath, handler);
 
-		logger.info(`MCP endpoint registered: ${mcpPath}`);
+		logger.info('MCP endpoint registered', { path: mcpPath });
 	}
 
 	// Static assets
@@ -208,7 +242,7 @@ export async function startServer(
 	// Listen
 	await new Promise<void>((resolve, reject) => {
 		const server = app.listen(port, host, () => {
-			logger.info(`Server listening on http://${host}:${port}`);
+			logger.info('Server listening', { url: `http://${host}:${port}` });
 			resolve();
 		});
 		server.on('error', reject);

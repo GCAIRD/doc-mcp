@@ -59,7 +59,7 @@ export class MCPServer {
 			'fetch',
 			`Fetch full document content from ${this.config.product.name} documentation by doc_id.`,
 			{ doc_id: z.string().describe('Document ID to fetch (obtained from search results)') },
-			createFetchHandler(searcher),
+			createFetchHandler(this.config, searcher),
 		);
 
 		this.server.tool(

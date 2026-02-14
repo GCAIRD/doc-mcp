@@ -29,7 +29,6 @@ export const envSchema = z.object({
 
 	// === Embedding ===
 	CHUNK_SIZE: z.coerce.number().int().positive().default(3000),
-	CHUNK_OVERLAP: z.coerce.number().int().nonnegative().default(200),
 	BATCH_SIZE: z.coerce.number().int().positive().default(128),
 
 	// === Logging ===

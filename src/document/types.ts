@@ -21,7 +21,12 @@ export interface Document {
 
 export interface DocChunkMetadata extends DocumentMetadata {
 	chunk_index: number;
+	total_chunks?: number;
 	chunk_type?: string;
+	/** 当前 chunk 所属的 header 层级路径，如 ["基本用法", "绑定到数组"] */
+	section_path?: string[];
+	/** 文档目录结构（所有 header 提取） */
+	doc_toc?: string;
 }
 
 export interface Chunk {
@@ -34,7 +39,6 @@ export interface Chunk {
 
 export interface ChunkerOptions {
 	chunk_size: number;
-	chunk_overlap: number;
 	min_chunk_size: number;
 }
 

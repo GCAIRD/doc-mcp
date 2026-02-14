@@ -1,7 +1,8 @@
 /**
- * 简单日志模块
+ * 结构化日志模块
  *
- * 支持多级别日志输出，格式化时间戳
+ * TTY 模式：彩色可读格式 + JSON 附加字段
+ * 非 TTY 模式（Docker/CI）：JSON Lines
  */
 
 export enum LogLevel {
@@ -30,25 +31,14 @@ const LEVEL_COLORS: Record<LogLevel, number> = {
 	[LogLevel.ERROR]: 31,  // 红色
 };
 
-/**
- * 格式化时间戳
- */
-function formatTimestamp(): string {
-	return new Date().toISOString();
-}
+const isTTY = process.stdout.isTTY === true;
 
-/**
- * 着色输出（仅支持终端）
- */
 function colorize(text: string, colorCode: number): string {
-	if (process.stdout.isTTY) {
-		return `\x1b[${colorCode}m${text}\x1b[0m`;
-	}
-	return text;
+	return `\x1b[${colorCode}m${text}\x1b[0m`;
 }
 
 /**
- * 日志类
+ * 日志类 — 支持 TTY 彩色输出 / 非 TTY JSON Lines
  */
 export class Logger {
 	private level: LogLevel;
@@ -59,9 +49,7 @@ export class Logger {
 		this.prefix = options.prefix ?? '';
 	}
 
-	/**
-	 * 创建带前缀的子 logger
-	 */
+	/** 创建带前缀的子 logger */
 	withPrefix(prefix: string): Logger {
 		return new Logger({
 			level: this.level,
@@ -69,74 +57,67 @@ export class Logger {
 		});
 	}
 
-	/**
-	 * 设置日志级别
-	 */
+	/** 设置日志级别 */
 	setLevel(level: LogLevel): void {
 		this.level = level;
 	}
 
-	/**
-	 * 核心日志方法
-	 */
-	private log(level: LogLevel, message: string, ...args: unknown[]): void {
-		if (level < this.level) {
-			return;
-		}
+	private log(level: LogLevel, message: string, data?: Record<string, unknown>): void {
+		if (level < this.level) return;
 
+		const ts = new Date().toISOString();
 		const levelName = LEVEL_NAMES[level];
-		const timestamp = formatTimestamp();
-		const prefix = this.prefix ? `[${this.prefix}] ` : '';
+		const stream = level >= LogLevel.ERROR ? process.stderr : process.stdout;
 
-		const formattedMessage = `${timestamp} ${colorize(levelName.padEnd(5), LEVEL_COLORS[level])} ${prefix}${message}`;
-
-		// 使用 console 对应方法
-		const consoleMethod = level === LogLevel.ERROR ? console.error :
-		                      level === LogLevel.WARN ? console.warn :
-		                      console.log;
-
-		consoleMethod(formattedMessage, ...args);
+		if (isTTY) {
+			const prefix = this.prefix ? `[${this.prefix}] ` : '';
+			const colored = colorize(levelName.padEnd(5), LEVEL_COLORS[level]);
+			const extra = data && Object.keys(data).length > 0
+				? ' ' + JSON.stringify(data)
+				: '';
+			stream.write(`${ts} ${colored} ${prefix}${message}${extra}\n`);
+		} else {
+			const entry: Record<string, unknown> = {
+				ts,
+				level: levelName,
+				...(this.prefix ? { module: this.prefix } : {}),
+				msg: message,
+				...data,
+			};
+			stream.write(JSON.stringify(entry) + '\n');
+		}
 	}
 
-	debug(message: string, ...args: unknown[]): void {
-		this.log(LogLevel.DEBUG, message, ...args);
+	debug(message: string, data?: Record<string, unknown>): void {
+		this.log(LogLevel.DEBUG, message, data);
 	}
 
-	info(message: string, ...args: unknown[]): void {
-		this.log(LogLevel.INFO, message, ...args);
+	info(message: string, data?: Record<string, unknown>): void {
+		this.log(LogLevel.INFO, message, data);
 	}
 
-	warn(message: string, ...args: unknown[]): void {
-		this.log(LogLevel.WARN, message, ...args);
+	warn(message: string, data?: Record<string, unknown>): void {
+		this.log(LogLevel.WARN, message, data);
 	}
 
-	error(message: string, ...args: unknown[]): void {
-		this.log(LogLevel.ERROR, message, ...args);
+	error(message: string, data?: Record<string, unknown>): void {
+		this.log(LogLevel.ERROR, message, data);
 	}
 }
 
-/**
- * 从环境变量读取日志级别
- */
+/** 从环境变量读取日志级别 */
 export function getLogLevelFromEnv(): LogLevel {
 	const levelStr = process.env.LOG_LEVEL?.toUpperCase();
 	switch (levelStr) {
-		case 'DEBUG':
-			return LogLevel.DEBUG;
-		case 'INFO':
-			return LogLevel.INFO;
-		case 'WARN':
-			return LogLevel.WARN;
-		case 'ERROR':
-			return LogLevel.ERROR;
-		default:
-			return LogLevel.INFO;
+		case 'DEBUG': return LogLevel.DEBUG;
+		case 'INFO':  return LogLevel.INFO;
+		case 'WARN':  return LogLevel.WARN;
+		case 'ERROR': return LogLevel.ERROR;
+		default:      return LogLevel.INFO;
 	}
 }
 
-/**
- * 创建默认 logger（从环境变量读取级别）
- */
+/** 创建默认 logger（从环境变量读取级别） */
 export function createDefaultLogger(prefix?: string): Logger {
 	return new Logger({
 		level: getLogLevelFromEnv(),

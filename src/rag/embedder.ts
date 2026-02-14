@@ -137,7 +137,7 @@ export class VoyageEmbedder {
 
 			if (shouldRetry) {
 				const delay = this.config.retryDelay * Math.pow(2, attempt - 1);
-				this.logger.warn(`Embed failed (attempt ${attempt}), retrying in ${delay}ms:`, error);
+				this.logger.warn(`Embed failed (attempt ${attempt}), retrying in ${delay}ms`, { error: error instanceof Error ? error.message : String(error) });
 				await this.sleep(delay);
 				return this.embedBatchWithRetry(texts, attempt + 1);
 			}

@@ -100,7 +100,7 @@ class VoyageReranker {
 				}))
 				.sort((a, b) => b.score - a.score);
 		} catch (error) {
-			this.logger.warn('Rerank failed, returning original results:', error);
+			this.logger.warn('Rerank failed, returning original results', { error: error instanceof Error ? error.message : String(error) });
 			return documents;
 		}
 	}

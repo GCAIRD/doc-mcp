@@ -47,11 +47,14 @@ export class JavaDocChunker extends BaseChunker {
 		header: string,
 		group: string[],
 		chunkIndex: number,
+		sectionPath?: string[],
 	): Generator<Chunk> {
 		const combined = header
 			? `${header}\n\n---\n\n${group.join('\n\n')}`
 			: group.join('\n\n');
-		yield this.createChunk(doc, chunkIndex, combined, 'api_methods');
+		const chunk = this.createChunk(doc, chunkIndex, combined, 'api_methods');
+		if (sectionPath && sectionPath.length > 0) chunk.metadata.section_path = sectionPath;
+		yield chunk;
 	}
 
 	/**
@@ -63,6 +66,7 @@ export class JavaDocChunker extends BaseChunker {
 	private *chunkApi(doc: Document): Generator<Chunk> {
 		const content = doc.content;
 		const lines = content.split('\n');
+		const className = this.extractHeaderText(content);
 
 		// Extract header: class name, package, description
 		let headerEnd = 0;
@@ -126,10 +130,11 @@ export class JavaDocChunker extends BaseChunker {
 		let chunkIndex = 0;
 		const group: string[] = [];
 		let groupSize = 0;
+		const basePath = [className, 'Method Details'].filter(Boolean);
 
 		for (const method of methods) {
 			if (groupSize + method.length > this.chunkSize && group.length > 0) {
-				yield* this.yieldMethodGroup(doc, header, group, chunkIndex);
+				yield* this.yieldMethodGroup(doc, header, group, chunkIndex, basePath);
 				chunkIndex++;
 				group.length = 0;
 				groupSize = 0;
@@ -140,7 +145,7 @@ export class JavaDocChunker extends BaseChunker {
 		}
 
 		if (group.length > 0) {
-			yield* this.yieldMethodGroup(doc, header, group, chunkIndex);
+			yield* this.yieldMethodGroup(doc, header, group, chunkIndex, basePath);
 		}
 	}
 
@@ -148,12 +153,15 @@ export class JavaDocChunker extends BaseChunker {
 	 * Demo document: keep short docs whole, split large code blocks
 	 */
 	private *chunkDemo(doc: Document): Generator<Chunk> {
+		const title = this.extractHeaderText(doc.content);
+
 		if (doc.content.length <= this.chunkSize) {
-			yield this.createChunk(doc, 0, doc.content, 'demo');
+			const chunk = this.createChunk(doc, 0, doc.content, 'demo');
+			if (title) chunk.metadata.section_path = [title];
+			yield chunk;
 			return;
 		}
 
-		// 提取标题作为上下文
 		const header = this.extractHeader(doc.content);
 		const chunks = this.splitProtected(doc.content);
 		let chunkIndex = 0;
@@ -164,7 +172,9 @@ export class JavaDocChunker extends BaseChunker {
 			if (i > 0 && header && !text.startsWith('#') && !text.startsWith('```')) {
 				text = header + '\n\n' + text;
 			}
-			yield this.createChunk(doc, chunkIndex, text, 'demo');
+			const chunk = this.createChunk(doc, chunkIndex, text, 'demo');
+			if (title) chunk.metadata.section_path = [title];
+			yield chunk;
 			chunkIndex++;
 		}
 	}
@@ -177,9 +187,12 @@ export class JavaDocChunker extends BaseChunker {
 
 		let chunkIndex = 0;
 		for (const section of sections) {
+			const h = this.extractHeaderText(section);
 			for (const text of this.splitProtected(section)) {
 				if (text.trim().length < this.minChunkSize) continue;
-				yield this.createChunk(doc, chunkIndex, text, 'docs');
+				const chunk = this.createChunk(doc, chunkIndex, text, 'docs');
+				if (h) chunk.metadata.section_path = [h];
+				yield chunk;
 				chunkIndex++;
 			}
 		}

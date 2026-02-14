@@ -58,7 +58,6 @@ async function embedProduct(
 	const env = getEnv();
 	const chunker = createChunker(config.product.chunker, {
 		chunk_size: env.CHUNK_SIZE,
-		chunk_overlap: env.CHUNK_OVERLAP,
 		min_chunk_size: 50,
 	});
 
@@ -116,6 +115,6 @@ async function main(): Promise<void> {
 }
 
 main().catch(err => {
-	logger.error('Embed failed:', err);
+	logger.error('Embed failed', { error: err instanceof Error ? err.message : String(err) });
 	process.exit(1);
 });

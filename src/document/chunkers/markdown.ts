@@ -26,9 +26,13 @@ export class MarkdownChunker extends BaseChunker {
 
 		let chunkIndex = 0;
 		for (const section of sections) {
+			const h2 = this.extractHeaderText(section);
+
 			if (section.length <= this.chunkSize) {
 				if (section.trim().length >= this.minChunkSize) {
-					yield this.createChunk(doc, chunkIndex, section);
+					const chunk = this.createChunk(doc, chunkIndex, section);
+					if (h2) chunk.metadata.section_path = [h2];
+					yield chunk;
 					chunkIndex++;
 				}
 				continue;
@@ -39,7 +43,10 @@ export class MarkdownChunker extends BaseChunker {
 			const sectionHeader = this.extractHeader(section);
 
 			for (const sub of subSections) {
+				const h3 = this.extractHeaderText(sub);
+				const path = [h2, h3].filter(Boolean) as string[];
 				const textChunks = this.splitProtected(sub);
+
 				for (let i = 0; i < textChunks.length; i++) {
 					let text = textChunks[i];
 					if (text.trim().length < this.minChunkSize) continue;
@@ -47,7 +54,9 @@ export class MarkdownChunker extends BaseChunker {
 					if (i > 0 && sectionHeader && !text.startsWith('#')) {
 						text = sectionHeader + '\n\n' + text;
 					}
-					yield this.createChunk(doc, chunkIndex, text);
+					const chunk = this.createChunk(doc, chunkIndex, text);
+					if (path.length > 0) chunk.metadata.section_path = path;
+					yield chunk;
 					chunkIndex++;
 				}
 			}
