@@ -12,13 +12,8 @@ import { logAccess } from '../../shared/access-logger.js';
 
 const logger = createDefaultLogger('mcp:tool:fetch');
 
-function formatDocChunks(docId: string, chunks: DocChunk[]) {
-	const meta = textContent(JSON.stringify({
-		doc_id: docId,
-		total_chunks: chunks.length,
-	}));
-	const contents = chunks.map(c => textContent(c.content));
-	return [meta, ...contents];
+function formatDocChunks(chunks: DocChunk[]) {
+	return chunks.map(c => textContent(c.content));
 }
 
 export function createFetchHandler(config: ResolvedConfig, searcher: ISearcher) {
@@ -47,7 +42,7 @@ export function createFetchHandler(config: ResolvedConfig, searcher: ISearcher) 
 				error: null,
 			});
 
-			return { content: formatDocChunks(doc_id, chunks) };
+			return { content: formatDocChunks(chunks) };
 		} catch (err) {
 			logAccess({
 				ts: new Date().toISOString(),
