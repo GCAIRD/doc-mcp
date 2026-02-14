@@ -16,9 +16,9 @@ jobs:
             remote_dir: MCS-DOC-MCP-en
           - branch: add_forguncy_wyn
             remote_dir: GC-DOC-MCP-v2
-    if: github.ref_name == matrix.branch
     steps:
       - name: Deploy to server
+        if: github.ref_name == matrix.branch
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SSH_HOST }}
