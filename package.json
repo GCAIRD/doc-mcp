@@ -19,7 +19,8 @@
 	"scripts": {
 		"dev": "tsx watch src/index.ts",
 		"build": "tsc",
-		"embed": "node --env-file=.env --import=tsx/esm scripts/embed.ts",
+		"embed": "node --env-file=.env --import=tsx/esm src/embed.ts",
+		"embed:compiled": "node dist/embed.js",
 		"serve": "node dist/index.js",
 		"test": "vitest",
 		"typecheck": "tsc --noEmit"
