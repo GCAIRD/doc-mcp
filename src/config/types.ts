@@ -20,8 +20,6 @@ export interface SearchConfig {
 	default_limit: number;
 	/** Dense search score threshold */
 	dense_score_threshold: number;
-	/** Sparse search score threshold */
-	sparse_score_threshold: number;
 }
 
 /**
@@ -135,7 +133,6 @@ export const productYamlSchema = z.object({
 		rerank_top_k: z.number(),
 		default_limit: z.number(),
 		dense_score_threshold: z.number(),
-		sparse_score_threshold: z.number(),
 	}).partial().optional(),
 	instructions: z.string().optional(),
 });

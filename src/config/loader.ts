@@ -29,7 +29,6 @@ const DEFAULT_SEARCH_CONFIG: SearchConfig = {
 	rerank_top_k: 10,
 	default_limit: 5,
 	dense_score_threshold: 0.3,
-	sparse_score_threshold: 0.1,
 };
 
 /**

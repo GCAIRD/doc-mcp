@@ -10,6 +10,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Server as HttpServer } from 'node:http';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 import type { ResolvedConfig } from './config/index.js';
 import type { ISearcher } from './rag/types.js';
 import { createMCPServer } from './mcp/server.js';
@@ -59,20 +60,8 @@ export async function startServer(
 		throw new Error('Server already running');
 	}
 
-	// 创建 MCP Server（版本号从 package.json 读取）
-	const mcpServer = await createMCPServer(config, searcher);
-
-	// 创建 Streamable HTTP transport
-	const transport = new StreamableHTTPServerTransport({
-		sessionIdGenerator: () => crypto.randomUUID(),
-	});
-
-	transport.onerror = (err) => {
-		logger.error('MCP transport error', err);
-	};
-
-	// 连接 MCP 到 transport
-	await mcpServer.getServer().connect(transport);
+	// Per-session transport management (每个 MCP 客户端一个独立 session)
+	const sessions = new Map<string, StreamableHTTPServerTransport>();
 
 	// 创建 Express app
 	const app = express();
@@ -88,10 +77,51 @@ export async function startServer(
 	app.get('/playground', serveTutorial('playground'));
 	app.get('/health', createHealthHandler(config));
 
-	// MCP Streamable HTTP endpoint (POST: messages, GET: SSE stream, DELETE: session teardown)
+	// MCP Streamable HTTP endpoint: /mcp/${product}
+	const mcpPath = `/mcp/${config.product.id}`;
+
 	const mcpHandler = async (req: Request, res: Response): Promise<void> => {
 		try {
-			await transport.handleRequest(req, res, req.body);
+			const sessionId = req.headers['mcp-session-id'] as string | undefined;
+
+			if (sessionId && sessions.has(sessionId)) {
+				// 已有 session，复用 transport
+				await sessions.get(sessionId)!.handleRequest(req, res, req.body);
+				return;
+			}
+
+			if (!sessionId && isInitializeRequest(req.body)) {
+				// 新 session: 创建独立 transport + MCP server
+				const transport = new StreamableHTTPServerTransport({
+					sessionIdGenerator: () => crypto.randomUUID(),
+					enableJsonResponse: true,
+					onsessioninitialized: (sid) => {
+						sessions.set(sid, transport);
+						logger.info(`MCP session created: ${sid}`);
+					},
+				});
+
+				transport.onerror = (err) => logger.error('MCP transport error', err);
+				transport.onclose = () => {
+					const sid = transport.sessionId;
+					if (sid) {
+						sessions.delete(sid);
+						logger.info(`MCP session closed: ${sid}`);
+					}
+				};
+
+				const mcpServer = await createMCPServer(config, searcher);
+				await mcpServer.getServer().connect(transport);
+				await transport.handleRequest(req, res, req.body);
+				return;
+			}
+
+			// 无效请求
+			res.status(400).json({
+				jsonrpc: '2.0',
+				error: { code: -32000, message: 'Bad Request: No valid session ID provided' },
+				id: null,
+			});
 		} catch (err) {
 			logger.error('MCP request error', err);
 			if (!res.headersSent) {
@@ -99,9 +129,10 @@ export async function startServer(
 			}
 		}
 	};
-	app.post('/mcp', mcpHandler);
-	app.get('/mcp', mcpHandler);
-	app.delete('/mcp', mcpHandler);
+
+	app.post(mcpPath, mcpHandler);
+	app.get(mcpPath, mcpHandler);
+	app.delete(mcpPath, mcpHandler);
 
 	// Static assets
 	app.use(express.static(TUTORIAL_DIST, { index: false }));

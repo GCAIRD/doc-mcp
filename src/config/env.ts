@@ -24,7 +24,7 @@ export const envSchema = z.object({
 	VOYAGE_TPM_LIMIT: z.coerce.number().int().positive().default(3000000),
 
 	// === Qdrant ===
-	QDRANT_URL: z.string().url('QDRANT_URL must be a valid URL'),
+	QDRANT_URL: z.string().url('QDRANT_URL must be a valid URL').default('http://localhost:6333'),
 	QDRANT_API_KEY: z.string().optional(),
 
 	// === Embedding ===

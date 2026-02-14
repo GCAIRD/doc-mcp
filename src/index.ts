@@ -40,7 +40,6 @@ async function main(): Promise<void> {
 			prefetchLimit: config.product.search.prefetch_limit,
 			rerankTopK: config.product.search.rerank_top_k,
 			denseScoreThreshold: config.product.search.dense_score_threshold,
-			sparseScoreThreshold: config.product.search.sparse_score_threshold,
 		});
 
 		// 启动 HTTP server（内含 MCP server）

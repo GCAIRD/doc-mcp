@@ -1,10 +1,11 @@
 /**
  * RAG 索引构建器
  *
- * 批量 embedding + Qdrant upsert + Checkpoint 断点续传
+ * Dense embedding (Voyage) + BM25 text inference (Qdrant native)
+ * Checkpoint 断点续传
  */
 
-import { QdrantClient } from './qdrant-client.js';
+import { QdrantClient, BM25_MODEL, type UpsertPoint } from './qdrant-client.js';
 import { VoyageEmbedder } from './embedder.js';
 import { Chunk } from '../document/types.js';
 import { Logger } from '../shared/logger.js';
@@ -12,17 +13,11 @@ import { promises as fs } from 'fs';
 import { join } from 'path';
 
 export interface IndexerConfig {
-	/** Qdrant 客户端 */
 	qdrant: QdrantClient;
-	/** Collection 名称 */
 	collection: string;
-	/** Embedder */
 	embedder: VoyageEmbedder;
-	/** 批量 upsert 大小 */
 	batchSize: number;
-	/** Checkpoint 文件路径 */
 	checkpointPath?: string;
-	/** 日志器 */
 	logger?: Logger;
 }
 
@@ -39,9 +34,6 @@ export interface CheckpointData {
 	timestamp: number;
 }
 
-/**
- * RAG 索引构建器
- */
 export class RagIndexer {
 	private readonly qdrant: QdrantClient;
 	private readonly embedder: VoyageEmbedder;
@@ -59,9 +51,6 @@ export class RagIndexer {
 		this.logger = config.logger ?? new Logger();
 	}
 
-	/**
-	 * 初始化 collection
-	 */
 	async initCollection(forceRecreate = false): Promise<void> {
 		const exists = await this.qdrant.collectionExists(this.collection);
 
@@ -77,9 +66,6 @@ export class RagIndexer {
 		}
 	}
 
-	/**
-	 * 索引 chunks
-	 */
 	async indexChunks(chunks: Chunk[]): Promise<IndexStats> {
 		const startTime = Date.now();
 
@@ -102,6 +88,7 @@ export class RagIndexer {
 		for (let i = resumeFrom; i < chunks.length; i += this.batchSize) {
 			const batch = chunks.slice(i, i + this.batchSize);
 			const batchNum = Math.floor((i - resumeFrom) / this.batchSize) + 1;
+			const progress = ((i - resumeFrom + batch.length) / (chunks.length - resumeFrom) * 100).toFixed(1);
 
 			try {
 				await this.indexBatch(batch);
@@ -110,7 +97,10 @@ export class RagIndexer {
 				const lastChunk = batch[batch.length - 1];
 				await this.saveCheckpoint(lastChunk.id);
 
-				this.logger.debug(`Indexed batch ${batchNum}/${totalBatches} (${i + batch.length}/${chunks.length})`);
+				this.logger.info(
+					`[${progress}%] batch ${batchNum}/${totalBatches} ` +
+					`(${i + batch.length}/${chunks.length} chunks)`,
+				);
 			} catch (error) {
 				failedCount += batch.length;
 				this.logger.error(`Failed to index batch starting at ${i}:`, error);
@@ -130,7 +120,11 @@ export class RagIndexer {
 	}
 
 	/**
-	 * 索引单批 chunks — payload 中包含 doc_id 和 chunk_index 以支持按文档检索
+	 * 索引单批 chunks
+	 *
+	 * 每个 point 包含:
+	 * - dense: Voyage embedding
+	 * - bm25: 原文文本 (Qdrant 服务端 BM25 推理)
 	 */
 	private async indexBatch(chunks: Chunk[]): Promise<void> {
 		if (chunks.length === 0) return;
@@ -138,11 +132,14 @@ export class RagIndexer {
 		const texts = chunks.map(c => c.content);
 		const embedResults = await this.embedder.embedBatch(texts);
 
-		const points = embedResults.map((er, idx) => {
+		const points: UpsertPoint[] = embedResults.map((er, idx) => {
 			const chunk = chunks[idx];
 			return {
 				id: chunk.id,
-				vector: er.embedding,
+				vector: {
+					dense: er.embedding,
+					bm25: { text: chunk.content, model: BM25_MODEL },
+				},
 				payload: {
 					content: chunk.content,
 					doc_id: chunk.doc_id,
@@ -152,7 +149,11 @@ export class RagIndexer {
 			};
 		});
 
-		await this.qdrant.upsert(this.collection, points);
+		// Upsert 分小批写入（每个 point 含全文 BM25 text，payload 较大）
+		const upsertBatchSize = 32;
+		for (let j = 0; j < points.length; j += upsertBatchSize) {
+			await this.qdrant.upsert(this.collection, points.slice(j, j + upsertBatchSize));
+		}
 	}
 
 	private async loadCheckpoint(): Promise<CheckpointData> {
@@ -187,7 +188,7 @@ export class RagIndexer {
 
 	async getStats(): Promise<{ pointsCount?: number }> {
 		const info = await this.qdrant.getCollectionInfo(this.collection);
-		return { pointsCount: info.result?.points_count };
+		return { pointsCount: info.pointsCount ?? undefined };
 	}
 
 	async deleteChunks(chunkIds: string[]): Promise<void> {
@@ -196,9 +197,7 @@ export class RagIndexer {
 	}
 }
 
-/**
- * 工厂函数
- */
+/** 工厂函数 */
 export interface CreateIndexerOptions {
 	qdrantUrl: string;
 	qdrantApiKey?: string;

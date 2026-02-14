@@ -994,6 +994,7 @@
 			serverEl.innerHTML = PRODUCTS.map(p =>
 				`<option value="${MCP_BASE}/${p.id}">${t(p.label)}</option>`
 			).join('');
+			sessionId = null;
 		}
 
 		// ========== Marked config ==========
@@ -1013,6 +1014,7 @@
 		// ========== State ==========
 		let searchResultsData = [];
 		let requestId = 1;
+		let sessionId = null;
 		const logEl = document.getElementById('log');
 
 		// ========== Utilities ==========
@@ -1041,8 +1043,58 @@
 			return text.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 		}
 
+		// ========== MCP Session ==========
+		async function ensureSession() {
+			if (sessionId) return;
+
+			const server = document.getElementById('server').value;
+			log('req', 'initialize → new session');
+
+			const res = await fetch(server, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Accept': 'application/json, text/event-stream'
+				},
+				body: JSON.stringify({
+					jsonrpc: '2.0',
+					id: requestId++,
+					method: 'initialize',
+					params: {
+						protocolVersion: '2025-03-26',
+						capabilities: {},
+						clientInfo: { name: 'RAG Playground', version: '1.0.0' }
+					}
+				})
+			});
+
+			if (!res.ok) {
+				const text = await res.text();
+				throw new Error(`Initialize failed: ${res.status} ${text}`);
+			}
+
+			sessionId = res.headers.get('mcp-session-id');
+			log('res', `Session: ${sessionId}`);
+
+			// Send initialized notification (MCP protocol requirement)
+			await fetch(server, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Accept': 'application/json, text/event-stream',
+					'Mcp-Session-Id': sessionId
+				},
+				body: JSON.stringify({
+					jsonrpc: '2.0',
+					method: 'notifications/initialized'
+				})
+			});
+		}
+
 		// ========== MCP API ==========
 		async function mcpCall(method, params = {}) {
+			await ensureSession();
+
 			const server = document.getElementById('server').value;
 			const body = {
 				jsonrpc: '2.0',
@@ -1056,9 +1108,36 @@
 			try {
 				const res = await fetch(server, {
 					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
+					headers: {
+						'Content-Type': 'application/json',
+						'Accept': 'application/json, text/event-stream',
+						'Mcp-Session-Id': sessionId
+					},
 					body: JSON.stringify(body)
 				});
+
+				if (!res.ok) {
+					// Session expired or invalid — reset and retry once
+					if (res.status === 400 || res.status === 404) {
+						sessionId = null;
+						await ensureSession();
+						const retry = await fetch(server, {
+							method: 'POST',
+							headers: {
+								'Content-Type': 'application/json',
+								'Accept': 'application/json, text/event-stream',
+								'Mcp-Session-Id': sessionId
+							},
+							body: JSON.stringify(body)
+						});
+						const retryData = await retry.json();
+						if (retryData.error) throw new Error(retryData.error.message);
+						log('res', `OK (retry, ${JSON.stringify(retryData.result).length} bytes)`);
+						return retryData.result;
+					}
+					throw new Error(`HTTP ${res.status}`);
+				}
+
 				const data = await res.json();
 				if (data.error) {
 					log('err', `Error: ${data.error.message}`);

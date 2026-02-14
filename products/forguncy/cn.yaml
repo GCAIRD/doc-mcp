@@ -5,7 +5,7 @@ company_short: GC
 doc_language: zh
 
 collection: forguncy_zh
-raw_data: forguncy
+raw_data: cn/forguncy
 
 npm_scope: ''
 cdn_domain: ''

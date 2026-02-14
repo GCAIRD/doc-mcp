@@ -1,58 +1,69 @@
-# Multi-stage build for GC-DOC-MCP v2 (TypeScript)
+# Multi-stage build: GC-DOC-MCP + Qdrant all-in-one
 
-# Stage 1: Builder
+# ── Stage 1: Build TypeScript ──────────────────────────────
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Build arguments for product and language
 ARG PRODUCT=spreadjs
 ARG DOC_LANG=cn
 
-# Copy package files
 COPY package.json package-lock.json tsconfig.json ./
-
-# Install ALL dependencies (devDependencies needed for tsc)
 RUN npm ci
 
-# Copy source files
 COPY src/ ./src/
 COPY products/ ./products/
 
-# Build TypeScript
 RUN npm run build
 
-# Stage 2: Runtime
-FROM node:20-alpine
+# ── Stage 2: Copy Qdrant binary ────────────────────────────
+FROM qdrant/qdrant:v1.16 AS qdrant
 
-# Use built-in non-root user before installing dependencies (avoid chown overhead)
-RUN mkdir -p /app && chown node:node /app
-WORKDIR /app
-USER node
+# ── Stage 3: Runtime (Debian-based for Qdrant compatibility) ─
+FROM node:20-slim
 
-# Build arguments (persisted for runtime)
 ARG PRODUCT=spreadjs
 ARG DOC_LANG=cn
 ENV PRODUCT=${PRODUCT} DOC_LANG=${DOC_LANG} NODE_ENV=production
 
-# Copy package files and install production-only dependencies (as node user)
-COPY --chown=node:node package.json package-lock.json ./
+WORKDIR /app
+
+# Install wget (health checks) + libunwind8 (Qdrant runtime dependency)
+RUN apt-get update && apt-get install -y --no-install-recommends wget libunwind8 && rm -rf /var/lib/apt/lists/*
+
+# Copy Qdrant binary and default config
+COPY --from=qdrant /qdrant/qdrant /qdrant/qdrant
+COPY --from=qdrant /qdrant/config /qdrant/config
+
+# Create storage directories
+RUN mkdir -p /qdrant/storage /app/storage
+
+# Node.js production dependencies
+COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
 
-# Copy compiled output
-COPY --chown=node:node --from=builder /app/dist ./dist
+# Compiled output
+COPY --from=builder /app/dist ./dist
 
-# Copy products configuration
-COPY --chown=node:node products/ ./products/
+# Product configs
+COPY products/ ./products/
 
-# Port from environment, default 8900
-ENV PORT=8900
+# Tutorial static files
+COPY tutorial/dist ./tutorial/dist
 
-# Health check using wget (installed in base image)
-HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
-	CMD wget -q -O /dev/null http://localhost:${PORT}/health || exit 1
+# Entrypoint
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN sed -i 's/\r$//' /docker-entrypoint.sh && chmod +x /docker-entrypoint.sh
 
+# Ports: MCP server + Qdrant (internal, optionally exposed)
+ENV PORT=8900 QDRANT_PORT=6333
 EXPOSE ${PORT}
 
-# Start server
-CMD ["node", "dist/index.js"]
+# Health check targets the MCP server
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+	CMD wget -q -O /dev/null http://localhost:${PORT}/health || exit 1
+
+# Persistent storage
+VOLUME ["/qdrant/storage"]
+
+ENTRYPOINT ["/docker-entrypoint.sh"]

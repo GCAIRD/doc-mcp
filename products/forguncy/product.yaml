@@ -13,7 +13,6 @@ search:
   rerank_top_k: 10
   default_limit: 5
   dense_score_threshold: 0.3
-  sparse_score_threshold: 0.1
 
 instructions: |
   [Forguncy] 活字格低代码平台的插件开发 SDK 文档。

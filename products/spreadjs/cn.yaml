@@ -5,7 +5,7 @@ company_short: GC
 doc_language: zh
 
 collection: spreadjs_zh
-raw_data: spreadjs/cn
+raw_data: cn/spreadjs
 
 npm_scope: '@grapecity-software'
 cdn_domain: cdn.grapecity.com.cn
