@@ -41,7 +41,7 @@ export class TypeDocChunker extends BaseChunker {
 
 		// 小文件直出
 		if (content.length <= this.chunkSize) {
-			yield this.createChunk(doc, 0, content, 'api');
+			yield this.createChunk(doc, 0, content);
 			return;
 		}
 
@@ -92,7 +92,6 @@ export class TypeDocChunker extends BaseChunker {
 				yield this.createChunk(
 					doc, chunkIndex,
 					classHeader + '\n\n---\n\n' + group.join('\n\n'),
-					'api',
 				);
 				chunkIndex++;
 				group = [];
@@ -107,8 +106,7 @@ export class TypeDocChunker extends BaseChunker {
 			yield this.createChunk(
 				doc, chunkIndex,
 				classHeader + '\n\n---\n\n' + group.join('\n\n'),
-				'api',
-			);
+				);
 		}
 	}
 
@@ -118,7 +116,7 @@ export class TypeDocChunker extends BaseChunker {
 	private *chunkDocs(doc: Document): Generator<Chunk> {
 		if (doc.content.length <= this.chunkSize) {
 			if (doc.content.trim().length >= this.minChunkSize) {
-				yield this.createChunk(doc, 0, doc.content, 'doc');
+				yield this.createChunk(doc, 0, doc.content);
 			}
 			return;
 		}
@@ -131,7 +129,7 @@ export class TypeDocChunker extends BaseChunker {
 
 			if (section.length <= this.chunkSize) {
 				if (section.trim().length >= this.minChunkSize) {
-					const chunk = this.createChunk(doc, chunkIndex, section, 'doc');
+					const chunk = this.createChunk(doc, chunkIndex, section);
 					if (h2) chunk.metadata.section_path = [h2];
 					yield chunk;
 					chunkIndex++;
@@ -154,7 +152,7 @@ export class TypeDocChunker extends BaseChunker {
 					if (i > 0 && sectionHeader && !text.startsWith('#')) {
 						text = sectionHeader + '\n\n' + text;
 					}
-					const chunk = this.createChunk(doc, chunkIndex, text, 'doc');
+					const chunk = this.createChunk(doc, chunkIndex, text);
 					if (path.length > 0) chunk.metadata.section_path = path;
 					yield chunk;
 					chunkIndex++;
@@ -170,7 +168,7 @@ export class TypeDocChunker extends BaseChunker {
 		const title = this.extractHeaderText(doc.content);
 
 		if (doc.content.length <= this.chunkSize) {
-			const chunk = this.createChunk(doc, 0, doc.content, 'demo');
+			const chunk = this.createChunk(doc, 0, doc.content);
 			if (title) chunk.metadata.section_path = [title];
 			yield chunk;
 			return;
@@ -186,7 +184,7 @@ export class TypeDocChunker extends BaseChunker {
 			if (i > 0 && header && !text.startsWith('#') && !text.startsWith('```')) {
 				text = header + '\n\n' + text;
 			}
-			const chunk = this.createChunk(doc, chunkIndex, text, 'demo');
+			const chunk = this.createChunk(doc, chunkIndex, text);
 			if (title) chunk.metadata.section_path = [title];
 			yield chunk;
 			chunkIndex++;
@@ -206,7 +204,7 @@ export class TypeDocChunker extends BaseChunker {
 			if (i > 0 && header && !text.startsWith('#')) {
 				text = header + '\n\n' + text;
 			}
-			yield this.createChunk(doc, chunkIndex, text, 'api');
+			yield this.createChunk(doc, chunkIndex, text);
 			chunkIndex++;
 		}
 	}

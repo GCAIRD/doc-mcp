@@ -32,7 +32,6 @@ export abstract class BaseChunker {
 		doc: Document,
 		chunkIndex: number,
 		content: string,
-		chunkType?: string,
 	): Chunk {
 		return {
 			id: `${doc.id}_chunk${chunkIndex}`,
@@ -42,7 +41,6 @@ export abstract class BaseChunker {
 			metadata: {
 				...doc.metadata,
 				chunk_index: chunkIndex,
-				...(chunkType && { chunk_type: chunkType }),
 			},
 		};
 	}

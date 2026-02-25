@@ -52,7 +52,7 @@ export class JavaDocChunker extends BaseChunker {
 		const combined = header
 			? `${header}\n\n---\n\n${group.join('\n\n')}`
 			: group.join('\n\n');
-		const chunk = this.createChunk(doc, chunkIndex, combined, 'api_methods');
+		const chunk = this.createChunk(doc, chunkIndex, combined);
 		if (sectionPath && sectionPath.length > 0) chunk.metadata.section_path = sectionPath;
 		yield chunk;
 	}
@@ -156,7 +156,7 @@ export class JavaDocChunker extends BaseChunker {
 		const title = this.extractHeaderText(doc.content);
 
 		if (doc.content.length <= this.chunkSize) {
-			const chunk = this.createChunk(doc, 0, doc.content, 'demo');
+			const chunk = this.createChunk(doc, 0, doc.content);
 			if (title) chunk.metadata.section_path = [title];
 			yield chunk;
 			return;
@@ -172,7 +172,7 @@ export class JavaDocChunker extends BaseChunker {
 			if (i > 0 && header && !text.startsWith('#') && !text.startsWith('```')) {
 				text = header + '\n\n' + text;
 			}
-			const chunk = this.createChunk(doc, chunkIndex, text, 'demo');
+			const chunk = this.createChunk(doc, chunkIndex, text);
 			if (title) chunk.metadata.section_path = [title];
 			yield chunk;
 			chunkIndex++;
@@ -190,7 +190,7 @@ export class JavaDocChunker extends BaseChunker {
 			const h = this.extractHeaderText(section);
 			for (const text of this.splitProtected(section)) {
 				if (text.trim().length < this.minChunkSize) continue;
-				const chunk = this.createChunk(doc, chunkIndex, text, 'docs');
+				const chunk = this.createChunk(doc, chunkIndex, text);
 				if (h) chunk.metadata.section_path = [h];
 				yield chunk;
 				chunkIndex++;

@@ -241,7 +241,7 @@ export class RagSearcher implements ISearcher {
 				chunk_id: String(p.id),
 				chunk_index: (p.payload?.chunk_index as number) ?? 0,
 				content: (p.payload?.content as string) ?? '',
-				metadata: (p.payload?.metadata as ChunkMetadata) ?? { category: '', file_name: '', path_hierarchy: [] },
+				metadata: (p.payload?.metadata as ChunkMetadata) ?? { relative_path: '', category: '' },
 			}))
 			.sort((a, b) => a.chunk_index - b.chunk_index);
 	}

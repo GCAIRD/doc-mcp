@@ -81,10 +81,7 @@ export class DocumentLoader {
 		const parts = relPath.split(path.sep).filter(Boolean);
 
 		const metadata: Document['metadata'] = {
-			file_path: filePath,
 			relative_path: relPath,
-			file_name: path.basename(filePath, path.extname(filePath)),
-			path_hierarchy: parts.slice(0, -1),
 		};
 
 		if (parts.length > 0) {

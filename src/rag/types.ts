@@ -3,9 +3,8 @@
  */
 
 export interface ChunkMetadata {
+	relative_path: string;
 	category: string;
-	file_name: string;
-	path_hierarchy: string[];
 	[key: string]: unknown;
 }
 
