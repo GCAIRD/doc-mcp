@@ -1,0 +1,25 @@
+{
+	"name": "gc-doc-mcp-benchmark",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"description": "Benchmark suite for GC-DOC-MCP: protocol compliance + retrieval quality + agent e2e",
+	"engines": {
+		"node": ">=20.0.0"
+	},
+	"scripts": {
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"test:protocol": "vitest run protocol/",
+		"eval": "npx promptfoo eval",
+		"eval:view": "npx promptfoo view"
+	},
+	"devDependencies": {
+		"@modelcontextprotocol/sdk": "^1.0.4",
+		"promptfoo": "^0.120.0",
+		"tsx": "^4.19.2",
+		"typescript": "^5.6.3",
+		"vitest": "^2.1.4",
+		"zod": "^3.23.8"
+	}
+}

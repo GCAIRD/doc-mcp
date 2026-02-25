@@ -36,3 +36,12 @@ Thumbs.db
 .mcp.json
 .playwright-mcp
 node_modules/
+
+# Benchmark
+benchmark/node_modules/
+benchmark/results/
+benchmark/.env
+benchmark/dist/
+
+# Special
+forguncy-plugin-master-skill/

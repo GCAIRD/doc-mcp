@@ -1,0 +1,87 @@
+# Wyn 检索质量测试数据集
+
+# ── 核心功能 ──────────────────────────────────────
+
+- description: "仪表板设计"
+  vars:
+    prompt: "Wyn 仪表板"
+  options:
+    provider: "MCP Search (Wyn)"
+  assert:
+    - type: javascript
+      value: |
+        const d = JSON.parse(output);
+        return d.results.some(r =>
+          r.content.includes('仪表板') ||
+          r.content.toLowerCase().includes('dashboard')
+        );
+
+- description: "报表设计"
+  vars:
+    prompt: "Wyn 报表设计器"
+  options:
+    provider: "MCP Search (Wyn)"
+  assert:
+    - type: javascript
+      value: |
+        const d = JSON.parse(output);
+        return d.results.some(r =>
+          r.content.includes('报表') ||
+          r.content.toLowerCase().includes('report')
+        );
+
+- description: "数据源连接"
+  vars:
+    prompt: "Wyn 数据源配置"
+  options:
+    provider: "MCP Search (Wyn)"
+  assert:
+    - type: javascript
+      value: |
+        const d = JSON.parse(output);
+        return d.results.some(r =>
+          r.content.includes('数据源') ||
+          r.content.toLowerCase().includes('datasource')
+        );
+
+- description: "嵌入式集成"
+  vars:
+    prompt: "Wyn 嵌入式集成 API"
+  options:
+    provider: "MCP Search (Wyn)"
+  assert:
+    - type: javascript
+      value: |
+        const d = JSON.parse(output);
+        return d.results.some(r =>
+          r.content.includes('嵌入') ||
+          r.content.toLowerCase().includes('embed')
+        );
+
+- description: "自定义可视化插件"
+  vars:
+    prompt: "Wyn 自定义可视化插件开发"
+  options:
+    provider: "MCP Search (Wyn)"
+  assert:
+    - type: javascript
+      value: |
+        const d = JSON.parse(output);
+        return d.results.some(r =>
+          r.content.includes('插件') ||
+          r.content.toLowerCase().includes('plugin') ||
+          r.content.includes('可视化')
+        );
+
+# ── 负面测试 ──────────────────────────────────────
+
+- description: "不相关查询"
+  vars:
+    prompt: "Vue Router 路由配置"
+  options:
+    provider: "MCP Search (Wyn)"
+  assert:
+    - type: javascript
+      value: |
+        const d = JSON.parse(output);
+        return d.results.length === 0 || d.results[0].score < 0.7;

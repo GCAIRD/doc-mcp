@@ -1,0 +1,47 @@
+# GC-DOC-MCP 检索质量评测配置
+# 运行: npx promptfoo eval
+# 查看: npx promptfoo view
+
+description: "GC-DOC-MCP Retrieval Quality Benchmark"
+
+providers:
+  - id: exec
+    label: "MCP Search (SpreadJS)"
+    config:
+      command: "node retrieval/call-search.js spreadjs \"{{prompt}}\""
+
+  - id: exec
+    label: "MCP Search (GcExcel)"
+    config:
+      command: "node retrieval/call-search.js gcexcel \"{{prompt}}\""
+
+  - id: exec
+    label: "MCP Search (Forguncy)"
+    config:
+      command: "node retrieval/call-search.js forguncy \"{{prompt}}\""
+
+  - id: exec
+    label: "MCP Search (Wyn)"
+    config:
+      command: "node retrieval/call-search.js wyn \"{{prompt}}\""
+
+# 测试数据集 — 按产品分文件
+tests:
+  - retrieval/datasets/spreadjs.yaml
+  - retrieval/datasets/gcexcel.yaml
+  - retrieval/datasets/forguncy.yaml
+  - retrieval/datasets/wyn.yaml
+
+# 全局默认断言
+defaultTest:
+  assert:
+    # 基础：必须返回结果
+    - type: javascript
+      value: |
+        const data = JSON.parse(output);
+        return data.results && data.results.length > 0;
+    # 基础：响应时间 < 5s
+    - type: javascript
+      value: |
+        const data = JSON.parse(output);
+        return data.search_time_ms < 5000;

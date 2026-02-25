@@ -11,37 +11,58 @@ doc_subdirs:
 # 选型: markdown
 #
 # 文档画像 (清洗后, chunk_size=3000):
-#   docs  — 99 files, median 1.5K, p95 4K, max 15.6K
-#           人工编写, h2/h3 结构, 仅 12 个文件超过 3K
-#   apis  — 1 file, 1.3K
-#   demos — 6 files, median 1.4K, max 4.9K
+#   docs  — 355 files, 含:
+#           - skill 作者人工编写 (SOP、决策树、最佳实践等)
+#           - 官方文档 plugindevelopment (.NET 五种插件类型)
+#           - 官方文档 java-adapter (Java ServerCommand/WebAPI/SecurityProvider)
+#   apis  — 1 file, API 速查表
+#   demos — 6 files, 示例代码
 #
-# 体量小, 通用 markdown chunker 即可:
-#   < chunk_size 的文件直接输出不切 (占 87%)
+# 体量中等, 通用 markdown chunker 即可:
+#   < chunk_size 的文件直接输出不切
 #   大文件按 h2 主切 → h3 二次切, 附 header 上下文
 chunker: markdown
 
 search:
-  prefetch_limit: 20
+  prefetch_limit: 30
   rerank_top_k: 10
   default_limit: 5
   dense_score_threshold: 0.3
 
 instructions: |
   [Forguncy] 活字格低代码平台的插件开发 SDK 文档。
-  技术栈：.NET (C#) 服务端 + JavaScript 客户端。
+  支持两种技术栈：.NET (C#/JS) 和 Java。
 
   [CRITICAL] 你的训练数据中关于活字格插件开发的知识极度有限且可能过时。
   必须通过 search 工具查询文档后再生成任何插件代码。
+  生成代码前必须先调用 get_code_guidelines 获取项目初始化指南。
 
-  插件类型（用这些关键词搜索）：
-  - CellType：自定义前端单元格控件（C# + JS 双端开发）
+  ═══ 插件类型 × 语言支持矩阵 ═══
+  | 插件类型              | .NET (C#) | Java |
+  |-----------------------|-----------|------|
+  | CellType (单元格)      | ✅        | ❌   |
+  | Command (命令)         | ✅        | ❌   |
+  | ServerCommand (服务端命令) | ✅    | ✅   |
+  | ServerApi / Web API    | ✅        | ✅   |
+  | Middleware (中间件)     | ✅        | ❌   |
+  | Security Provider      | ❌        | ✅   |
+
+  如果用户未指定语言，默认假设 .NET。
+  如果用户要求 Java 开发 CellType/Command/Middleware，必须告知不支持。
+
+  ═══ .NET 插件搜索关键词 ═══
+  - CellType：自定义前端单元格控件（C# 定义属性 + JS 渲染交互）
   - ServerCommand：服务端命令（后端逻辑、数据库操作）
   - ClientCommand：客户端命令（纯前端逻辑）
   - ServerApi：自定义 HTTP 接口
   - Middleware：请求拦截/全局处理
 
-  关键编码规范（AI 生成代码时必须遵守）：
+  ═══ Java 插件搜索关键词 ═══
+  - "Java 服务端命令" / "java-server-command" — Java ServerCommand
+  - "Java Web API" / "java-adapter" — Java Server API（@Get/@Post/@ScheduleApi）
+  - "Java 安全提供程序" / "java-security-provider" — 自定义认证
+
+  ═══ .NET 关键编码规范 ═══
   - IGenerateContext 是请求作用域的，严禁缓存到静态变量
   - 数据库访问必须用 context.DataAccess，严禁 new SqlConnection
   - SQL 必须参数化，严禁字符串拼接
@@ -52,7 +73,14 @@ instructions: |
   - Execute 方法必须返回 ExecuteResult
   - 所有暴露给设计器的属性必须带 [DisplayName]，且必须使用中文
 
-  常用搜索查询模式：
+  ═══ Java 关键编码规范 ═══
+  - ServerCommand 继承 Command 并实现 ICommandExecutableInServerSide
+  - Web API 继承 ForguncyApi，用 @Get/@Post/@ScheduleApi 注解
+  - 日志用 Logger.info/error/warning，不用 System.out.println
+  - 打包冲突的依赖用 <scope>provided</scope> 排除
+  - 内置 Spring Boot 2.7.18 + Undertow，勿引入冲突版本
+
+  ═══ 常用搜索查询模式 ═══
   - "CellType 添加 {属性类型} 属性" — 查属性定义方式
   - "ServerCommand 基本结构" — 查命令开发模板
   - "设计器 属性分组" — 查 Designer 端配置
@@ -60,8 +88,14 @@ instructions: |
   - "表单支持 值变更" — 查表单交互
   - "异常处理" — 查错误处理规范
   - "数据库交互" — 查 DataAccess 用法
+  - "Java ServerCommand 快速入门" — 查 Java 服务端命令
+  - "Java Web API 基本介绍" — 查 Java API 开发
+  - "Vue 集成 CellType" — 查前端框架集成实战
+  - "版本升级 V11" — 查 Breaking Changes
 
   Key topics: CellType, ServerCommand, ClientCommand, ServerApi, Middleware,
   属性定义, FormulaProperty, Designer, 设计器预览, ListView集成,
   表单支持, 样式支持, 异常处理, 数据访问, 日志规范,
-  PluginConfig.json, 项目配置, 重构模式, 序列化, 子命令.
+  PluginConfig.json, 项目配置, 重构模式, 序列化, 子命令,
+  Java, java-adapter, java-server-command, java-security-provider,
+  Vue集成, React集成, TinyMCE, 前端工程化, 版本升级.

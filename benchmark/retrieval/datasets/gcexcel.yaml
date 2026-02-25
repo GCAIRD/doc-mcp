@@ -1,0 +1,144 @@
+# GcExcel 检索质量测试数据集
+
+# ── 精确查询 ──────────────────────────────────────────
+
+- description: "Workbook 创建"
+  vars:
+    prompt: "GcExcel 创建 Workbook"
+  options:
+    provider: "MCP Search (GcExcel)"
+  assert:
+    - type: javascript
+      value: |
+        const d = JSON.parse(output);
+        return d.results.some(r =>
+          r.content.toLowerCase().includes('workbook')
+        );
+
+- description: "Range 设置值"
+  vars:
+    prompt: "GcExcel Range 设置单元格值"
+  options:
+    provider: "MCP Search (GcExcel)"
+  assert:
+    - type: javascript
+      value: |
+        const d = JSON.parse(output);
+        return d.results.some(r =>
+          r.content.toLowerCase().includes('range') ||
+          r.content.includes('单元格')
+        );
+
+- description: "公式计算"
+  vars:
+    prompt: "GcExcel 公式计算引擎"
+  options:
+    provider: "MCP Search (GcExcel)"
+  assert:
+    - type: javascript
+      value: |
+        const d = JSON.parse(output);
+        return d.results.some(r =>
+          r.content.toLowerCase().includes('formula') ||
+          r.content.includes('公式')
+        );
+
+# ── 功能型查询 ──────────────────────────────────────
+
+- description: "PDF 导出配置"
+  vars:
+    prompt: "GcExcel 导出 PDF"
+  options:
+    provider: "MCP Search (GcExcel)"
+  assert:
+    - type: javascript
+      value: |
+        const d = JSON.parse(output);
+        return d.results.some(r =>
+          r.content.toLowerCase().includes('pdf')
+        );
+
+- description: "数据透视表"
+  vars:
+    prompt: "GcExcel 数据透视表 PivotTable"
+  options:
+    provider: "MCP Search (GcExcel)"
+  assert:
+    - type: javascript
+      value: |
+        const d = JSON.parse(output);
+        return d.results.some(r =>
+          r.content.toLowerCase().includes('pivot') ||
+          r.content.includes('透视')
+        );
+
+- description: "条件格式"
+  vars:
+    prompt: "GcExcel 条件格式"
+  options:
+    provider: "MCP Search (GcExcel)"
+  assert:
+    - type: javascript
+      value: |
+        const d = JSON.parse(output);
+        return d.results.some(r =>
+          r.content.toLowerCase().includes('conditionalformat') ||
+          r.content.includes('条件格式')
+        );
+
+- description: "图表创建"
+  vars:
+    prompt: "GcExcel 创建图表 Chart"
+  options:
+    provider: "MCP Search (GcExcel)"
+  assert:
+    - type: javascript
+      value: |
+        const d = JSON.parse(output);
+        return d.results.some(r =>
+          r.content.toLowerCase().includes('chart') ||
+          r.content.includes('图表')
+        );
+
+- description: "模板填充"
+  vars:
+    prompt: "GcExcel 模板填充功能"
+  options:
+    provider: "MCP Search (GcExcel)"
+  assert:
+    - type: javascript
+      value: |
+        const d = JSON.parse(output);
+        return d.results.some(r =>
+          r.content.includes('模板') ||
+          r.content.toLowerCase().includes('template')
+        );
+
+# ── 产品隔离 ──────────────────────────────────────
+
+- description: "不应返回 SpreadJS 前端文档"
+  vars:
+    prompt: "前端表格控件 CDN 引用"
+  options:
+    provider: "MCP Search (GcExcel)"
+  assert:
+    - type: javascript
+      value: |
+        const d = JSON.parse(output);
+        // GcExcel 是服务端 Java/.NET 组件，不应返回前端 CDN 相关内容
+        return !d.results.some(r =>
+          r.content.includes('cdn.grapecity.com.cn/SpreadJS')
+        );
+
+# ── 负面测试 ──────────────────────────────────────
+
+- description: "不相关查询"
+  vars:
+    prompt: "微信小程序开发入门"
+  options:
+    provider: "MCP Search (GcExcel)"
+  assert:
+    - type: javascript
+      value: |
+        const d = JSON.parse(output);
+        return d.results.length === 0 || d.results[0].score < 0.7;

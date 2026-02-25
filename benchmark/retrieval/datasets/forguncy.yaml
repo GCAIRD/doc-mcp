@@ -1,0 +1,119 @@
+# Forguncy 检索质量测试数据集
+
+# ── .NET 插件开发 ──────────────────────────────────
+
+- description: "CellType 开发"
+  vars:
+    prompt: "Forguncy CellType 自定义单元格"
+  options:
+    provider: "MCP Search (Forguncy)"
+  assert:
+    - type: javascript
+      value: |
+        const d = JSON.parse(output);
+        return d.results.some(r =>
+          r.content.toLowerCase().includes('celltype') ||
+          r.content.includes('单元格')
+        );
+
+- description: "ServerCommand 基本结构"
+  vars:
+    prompt: "Forguncy ServerCommand 基本结构"
+  options:
+    provider: "MCP Search (Forguncy)"
+  assert:
+    - type: javascript
+      value: |
+        const d = JSON.parse(output);
+        return d.results.some(r =>
+          r.content.toLowerCase().includes('servercommand') ||
+          r.content.includes('服务端命令')
+        );
+
+- description: "数据库交互 DataAccess"
+  vars:
+    prompt: "Forguncy 数据库交互 DataAccess"
+  options:
+    provider: "MCP Search (Forguncy)"
+  assert:
+    - type: javascript
+      value: |
+        const d = JSON.parse(output);
+        return d.results.some(r =>
+          r.content.toLowerCase().includes('dataaccess') ||
+          r.content.includes('数据库')
+        );
+
+# ── Java 插件开发 ──────────────────────────────────
+
+- description: "Java ServerCommand"
+  vars:
+    prompt: "Forguncy Java 服务端命令"
+  options:
+    provider: "MCP Search (Forguncy)"
+  assert:
+    - type: javascript
+      value: |
+        const d = JSON.parse(output);
+        return d.results.some(r =>
+          r.content.toLowerCase().includes('java') &&
+          (r.content.toLowerCase().includes('command') || r.content.includes('命令'))
+        );
+
+- description: "Java Web API"
+  vars:
+    prompt: "Forguncy Java Web API 基本介绍"
+  options:
+    provider: "MCP Search (Forguncy)"
+  assert:
+    - type: javascript
+      value: |
+        const d = JSON.parse(output);
+        return d.results.some(r =>
+          r.content.toLowerCase().includes('java') &&
+          (r.content.toLowerCase().includes('api') || r.content.toLowerCase().includes('webapi'))
+        );
+
+# ── 编码规范 ──────────────────────────────────────
+
+- description: "FormulaProperty 属性绑定"
+  vars:
+    prompt: "Forguncy FormulaProperty 属性定义"
+  options:
+    provider: "MCP Search (Forguncy)"
+  assert:
+    - type: javascript
+      value: |
+        const d = JSON.parse(output);
+        return d.results.some(r =>
+          r.content.includes('FormulaProperty') ||
+          r.content.includes('公式属性')
+        );
+
+- description: "异常处理规范"
+  vars:
+    prompt: "Forguncy 异常处理"
+  options:
+    provider: "MCP Search (Forguncy)"
+  assert:
+    - type: javascript
+      value: |
+        const d = JSON.parse(output);
+        return d.results.some(r =>
+          r.content.includes('异常') ||
+          r.content.toLowerCase().includes('exception') ||
+          r.content.toLowerCase().includes('error')
+        );
+
+# ── 负面测试 ──────────────────────────────────────
+
+- description: "不相关技术查询"
+  vars:
+    prompt: "Kubernetes 集群部署"
+  options:
+    provider: "MCP Search (Forguncy)"
+  assert:
+    - type: javascript
+      value: |
+        const d = JSON.parse(output);
+        return d.results.length === 0 || d.results[0].score < 0.7;

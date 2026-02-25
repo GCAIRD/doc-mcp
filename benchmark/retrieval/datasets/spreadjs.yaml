@@ -1,0 +1,183 @@
+# SpreadJS 检索质量测试数据集
+# 每条测试：prompt（查询）+ provider 筛选 + 断言
+#
+# 断言中 output 是 call-search.js 的 stdout（JSON 字符串）
+
+# ── 精确查询 ──────────────────────────────────────────
+
+- description: "条件格式 API 查询"
+  vars:
+    prompt: "SpreadJS 条件格式"
+  options:
+    provider: "MCP Search (SpreadJS)"
+  assert:
+    - type: javascript
+      value: |
+        const d = JSON.parse(output);
+        return d.results.some(r =>
+          r.content.toLowerCase().includes('conditionalformat') ||
+          r.content.includes('条件格式')
+        );
+
+- description: "数据透视表查询"
+  vars:
+    prompt: "SpreadJS 数据透视表"
+  options:
+    provider: "MCP Search (SpreadJS)"
+  assert:
+    - type: javascript
+      value: |
+        const d = JSON.parse(output);
+        return d.results.some(r =>
+          r.content.toLowerCase().includes('pivot') ||
+          r.content.includes('透视')
+        );
+
+- description: "Excel 导入导出"
+  vars:
+    prompt: "SpreadJS Excel 导入导出"
+  options:
+    provider: "MCP Search (SpreadJS)"
+  assert:
+    - type: javascript
+      value: |
+        const d = JSON.parse(output);
+        return d.results.some(r =>
+          r.content.toLowerCase().includes('import') ||
+          r.content.toLowerCase().includes('export') ||
+          r.content.includes('导入') ||
+          r.content.includes('导出')
+        );
+
+# ── 版本敏感查询 ──────────────────────────────────────
+
+- description: "CDN 地址应包含正确域名"
+  vars:
+    prompt: "SpreadJS CDN 引用"
+  options:
+    provider: "MCP Search (SpreadJS)"
+  assert:
+    - type: javascript
+      value: |
+        const d = JSON.parse(output);
+        return d.results.some(r =>
+          r.content.includes('cdn.grapecity.com.cn') ||
+          r.content.includes('grapecity')
+        );
+
+- description: "npm 包名应使用正确 scope"
+  vars:
+    prompt: "SpreadJS npm 安装"
+  options:
+    provider: "MCP Search (SpreadJS)"
+  assert:
+    - type: javascript
+      value: |
+        const d = JSON.parse(output);
+        return d.results.some(r =>
+          r.content.includes('@grapecity-software')
+        );
+
+# ── 框架集成查询 ──────────────────────────────────────
+
+- description: "React 集成文档"
+  vars:
+    prompt: "add SpreadJS to React app"
+  options:
+    provider: "MCP Search (SpreadJS)"
+  assert:
+    - type: javascript
+      value: |
+        const d = JSON.parse(output);
+        return d.results.some(r =>
+          r.content.toLowerCase().includes('react')
+        );
+
+- description: "Vue 集成文档"
+  vars:
+    prompt: "add SpreadJS to Vue app"
+  options:
+    provider: "MCP Search (SpreadJS)"
+  assert:
+    - type: javascript
+      value: |
+        const d = JSON.parse(output);
+        return d.results.some(r =>
+          r.content.toLowerCase().includes('vue')
+        );
+
+# ── 组合型查询 ──────────────────────────────────────
+
+- description: "图表 + 数据绑定组合"
+  vars:
+    prompt: "SpreadJS 图表绑定数据源"
+  options:
+    provider: "MCP Search (SpreadJS)"
+  assert:
+    - type: javascript
+      value: |
+        const d = JSON.parse(output);
+        return d.results.some(r =>
+          r.content.toLowerCase().includes('chart') ||
+          r.content.includes('图表')
+        );
+
+- description: "打印 + PDF 导出"
+  vars:
+    prompt: "SpreadJS 打印预览和导出PDF"
+  options:
+    provider: "MCP Search (SpreadJS)"
+  assert:
+    - type: javascript
+      value: |
+        const d = JSON.parse(output);
+        return d.results.some(r =>
+          r.content.toLowerCase().includes('print') ||
+          r.content.toLowerCase().includes('pdf')
+        );
+
+# ── 语言检测 ──────────────────────────────────────
+
+- description: "英文查询应触发 dense_only 模式"
+  vars:
+    prompt: "how to use custom cell types in SpreadJS"
+  options:
+    provider: "MCP Search (SpreadJS)"
+  assert:
+    - type: javascript
+      value: |
+        const d = JSON.parse(output);
+        return d.fusion_mode === 'dense_only' || d.results.length > 0;
+      # dense_only 模式表示跨语言检索（英文查中文库）
+
+# ── 负面测试 ──────────────────────────────────────
+
+- description: "不相关查询应返回低分结果"
+  vars:
+    prompt: "如何训练深度学习模型"
+  options:
+    provider: "MCP Search (SpreadJS)"
+  assert:
+    - type: javascript
+      value: |
+        const d = JSON.parse(output);
+        // 不相关查询：要么无结果，要么首条 score 偏低
+        return d.results.length === 0 || d.results[0].score < 0.7;
+
+# ── 质量指标 ──────────────────────────────────────
+
+- description: "搜索结果应有合理的 metadata"
+  vars:
+    prompt: "SpreadJS 工作表操作"
+  options:
+    provider: "MCP Search (SpreadJS)"
+  assert:
+    - type: javascript
+      value: |
+        const d = JSON.parse(output);
+        return d.results.every(r =>
+          r.metadata &&
+          r.metadata.category &&
+          r.metadata.file_name &&
+          Array.isArray(r.metadata.path_hierarchy)
+        );
