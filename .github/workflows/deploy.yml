@@ -17,7 +17,7 @@ jobs:
           script: |
             cd GC-DOC-MCP-v2
             git pull
-            cd tutorial && npm ci && npm run build && cd ..
+            cd frontend && npm ci && npm run build && cd ..
             docker compose down
             docker compose build
             docker compose up -d

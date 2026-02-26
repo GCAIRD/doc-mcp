@@ -48,8 +48,8 @@ COPY --from=builder /app/dist ./dist
 # Product configs
 COPY products/ ./products/
 
-# Tutorial static files
-COPY tutorial/dist ./tutorial/dist
+# Frontend static files
+COPY frontend/dist ./frontend/dist
 
 # Entrypoint
 COPY docker-entrypoint.sh /docker-entrypoint.sh

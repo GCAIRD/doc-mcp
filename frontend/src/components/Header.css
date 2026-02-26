@@ -1,0 +1,144 @@
+.header {
+	padding: 1rem 2rem;
+	border-bottom: 1px solid var(--border-default);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	background: var(--bg-secondary);
+}
+
+.header-left {
+	display: flex;
+	align-items: center;
+	gap: 2rem;
+}
+
+.logo {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	text-decoration: none;
+}
+
+.logo-icon {
+	width: 36px;
+	height: 36px;
+	background: var(--accent-primary);
+	border-radius: var(--radius-md);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 700;
+	font-size: 1rem;
+	color: white;
+	font-family: var(--font-display);
+}
+
+.logo-text {
+	font-family: var(--font-display);
+	font-size: 1.25rem;
+	font-weight: 700;
+	color: var(--text-primary);
+}
+
+.nav-links {
+	display: flex;
+	gap: 0.25rem;
+}
+
+.nav-link {
+	padding: 0.4rem 0.75rem;
+	border-radius: var(--radius-sm);
+	text-decoration: none;
+	font-size: 0.875rem;
+	font-weight: 500;
+	color: var(--text-secondary);
+	transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.nav-link:hover {
+	color: var(--text-primary);
+	background: var(--bg-tertiary);
+}
+
+.nav-link.active {
+	color: var(--accent-primary);
+	background: var(--accent-glow);
+}
+
+.header-actions {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+}
+
+/* Theme Toggle */
+.theme-toggle {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 34px;
+	height: 34px;
+	border: 1px solid var(--border-default);
+	border-radius: var(--radius-sm);
+	background: transparent;
+	color: var(--text-secondary);
+	cursor: pointer;
+	transition: all var(--transition-fast);
+}
+
+.theme-toggle:hover {
+	color: var(--text-primary);
+	border-color: var(--border-hover);
+	background: var(--bg-tertiary);
+}
+
+/* Language Switcher */
+.lang-switcher {
+	display: flex;
+	gap: 2px;
+	background: var(--bg-tertiary);
+	border-radius: var(--radius-sm);
+	padding: 2px;
+}
+
+.lang-btn {
+	padding: 0.3rem 0.6rem;
+	border: none;
+	border-radius: 3px;
+	background: transparent;
+	color: var(--text-muted);
+	font-size: 0.75rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all var(--transition-fast);
+}
+
+.lang-btn:hover {
+	color: var(--text-primary);
+}
+
+.lang-btn.active {
+	background: var(--accent-primary);
+	color: white;
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+	.header {
+		padding: 0.75rem 1rem;
+	}
+
+	.header-left {
+		gap: 1rem;
+	}
+
+	.logo-text {
+		display: none;
+	}
+
+	.nav-link {
+		font-size: 0.8rem;
+		padding: 0.35rem 0.5rem;
+	}
+}

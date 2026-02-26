@@ -172,5 +172,47 @@
 		"title": "在线体验",
 		"description": "在浏览器中直接体验 RAG 搜索能力",
 		"button": "打开 Playground"
+	},
+	"nav": {
+		"setup": "配置指南",
+		"playground": "在线体验"
+	},
+	"theme": {
+		"light": "浅色",
+		"dark": "深色",
+		"system": "跟随系统"
+	},
+	"playground": {
+		"title": "RAG Playground",
+		"brandTag": "DEMO",
+		"subtitle": "语义检索，精准定位文档知识",
+		"queryPlaceholder": "输入查询内容，如：如何创建工作簿",
+		"listTools": "列出工具",
+		"search": "搜索文档",
+		"availableTools": "可用工具",
+		"loading": "加载中...",
+		"requestLog": "请求日志",
+		"searchResults": "搜索结果",
+		"docDetails": "文档详情",
+		"waitingQuery": "等待查询...",
+		"selectResult": "选择一个结果查看完整文档",
+		"description": "描述",
+		"paramSchema": "参数 Schema",
+		"noDesc": "暂无描述",
+		"none": "无",
+		"noTools": "暂无可用工具",
+		"loadFailed": "加载失败",
+		"searching": "搜索中...",
+		"noSearchTool": "未找到可用的搜索工具",
+		"searchFailed": "搜索失败",
+		"noMatch": "无匹配结果",
+		"viewContent": "查看内容",
+		"fetchDoc": "获取完整文档",
+		"loadingDoc": "加载文档...",
+		"noFetchTool": "未找到文档获取工具",
+		"fetchFailed": "获取失败",
+		"enterQuery": "请输入查询内容",
+		"result": "结果",
+		"rawResponse": "原始响应"
 	}
 }

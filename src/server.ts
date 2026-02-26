@@ -5,7 +5,7 @@
  */
 
 import express from 'express';
-import type { Request, Response, RequestHandler } from 'express';
+import type { Request, Response } from 'express';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Server as HttpServer } from 'node:http';
@@ -20,7 +20,7 @@ import { requestContext, type RequestContext } from './shared/request-context.js
 const logger = createDefaultLogger('HTTP');
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
-const TUTORIAL_DIST = join(__dirname, '../tutorial/dist');
+const FRONTEND_DIST = join(__dirname, '../frontend/dist');
 
 /** Session 超时时间：30 分钟 */
 const SESSION_TTL_MS = 30 * 60 * 1000;
@@ -36,18 +36,6 @@ interface SessionEntry {
 	transport: StreamableHTTPServerTransport;
 	lastActivity: number;
 	clientInfo: { name: string; version: string } | null;
-}
-
-function serveTutorial(page: 'index' | 'playground'): RequestHandler {
-	return (_req: Request, res: Response): void => {
-		const fileName = page === 'index' ? 'index.html' : 'playground.html';
-		res.sendFile(join(TUTORIAL_DIST, fileName), (err) => {
-			if (err) {
-				logger.warn(`Tutorial page not found: ${fileName}`);
-				res.status(404).json({ error: 'Tutorial page not found', page });
-			}
-		});
-	};
 }
 
 /** JSON-RPC 错误响应 */
@@ -201,10 +189,6 @@ export async function startServer(
 		next();
 	});
 
-	// Routes
-	app.get('/', serveTutorial('index'));
-	app.get('/playground', serveTutorial('playground'));
-
 	// Health: 展示所有已注册产品
 	app.get('/health', (_req: Request, res: Response): void => {
 		res.json({
@@ -232,9 +216,20 @@ export async function startServer(
 	}
 
 	// Static assets
-	app.use(express.static(TUTORIAL_DIST, { index: false }));
+	app.use(express.static(FRONTEND_DIST, { index: false }));
 
-	// 404
+	// SPA fallback: non-API GET requests serve index.html for React Router
+	app.get('*', (req: Request, res: Response, next) => {
+		if (req.path.startsWith('/mcp/') || req.path === '/health') {
+			next();
+			return;
+		}
+		res.sendFile(join(FRONTEND_DIST, 'index.html'), (err) => {
+			if (err) next(err);
+		});
+	});
+
+	// 404 for non-GET or API 404s
 	app.use((_req, res) => {
 		res.status(404).json({ error: 'Not found' });
 	});

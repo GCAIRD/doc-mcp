@@ -172,5 +172,47 @@
 		"title": "今すぐ試す",
 		"description": "ブラウザで RAG 検索機能を直接体験",
 		"button": "Playground を開く"
+	},
+	"nav": {
+		"setup": "設定ガイド",
+		"playground": "プレイグラウンド"
+	},
+	"theme": {
+		"light": "ライト",
+		"dark": "ダーク",
+		"system": "システム"
+	},
+	"playground": {
+		"title": "RAG Playground",
+		"brandTag": "DEMO",
+		"subtitle": "セマンティック検索でドキュメントの知識を正確に特定",
+		"queryPlaceholder": "クエリを入力（例：ワークブックの作成方法）",
+		"listTools": "ツール一覧",
+		"search": "ドキュメント検索",
+		"availableTools": "利用可能なツール",
+		"loading": "読み込み中...",
+		"requestLog": "リクエストログ",
+		"searchResults": "検索結果",
+		"docDetails": "ドキュメント詳細",
+		"waitingQuery": "クエリを待機中...",
+		"selectResult": "結果を選択してドキュメントを表示",
+		"description": "説明",
+		"paramSchema": "パラメータスキーマ",
+		"noDesc": "説明なし",
+		"none": "なし",
+		"noTools": "利用可能なツールなし",
+		"loadFailed": "読み込み失敗",
+		"searching": "検索中...",
+		"noSearchTool": "検索ツールが見つかりません",
+		"searchFailed": "検索失敗",
+		"noMatch": "一致する結果なし",
+		"viewContent": "内容を表示",
+		"fetchDoc": "ドキュメント取得",
+		"loadingDoc": "ドキュメント読み込み中...",
+		"noFetchTool": "取得ツールが見つかりません",
+		"fetchFailed": "取得失敗",
+		"enterQuery": "クエリを入力してください",
+		"result": "結果",
+		"rawResponse": "レスポンス"
 	}
 }
