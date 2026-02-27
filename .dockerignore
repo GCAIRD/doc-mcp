@@ -26,7 +26,5 @@ dist/
 LICENSE
 .github/
 
-# Tutorial source (dist already copied in Dockerfile)
-tutorial/src/
-tutorial/node_modules/
-tutorial/.gitignore
+# Benchmark
+benchmark/

@@ -6,8 +6,6 @@
 
 import express from 'express';
 import type { Request, Response } from 'express';
-import { join } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import type { Server as HttpServer } from 'node:http';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
@@ -18,9 +16,6 @@ import { createDefaultLogger } from './shared/logger.js';
 import { requestContext, type RequestContext } from './shared/request-context.js';
 
 const logger = createDefaultLogger('HTTP');
-
-const __dirname = fileURLToPath(new URL('.', import.meta.url));
-const FRONTEND_DIST = join(__dirname, '../frontend/dist');
 
 /** Session 超时时间：30 分钟 */
 const SESSION_TTL_MS = 30 * 60 * 1000;
@@ -215,21 +210,7 @@ export async function startServer(
 		logger.info('MCP endpoint registered', { path: mcpPath });
 	}
 
-	// Static assets
-	app.use(express.static(FRONTEND_DIST, { index: false }));
-
-	// SPA fallback: non-API GET requests serve index.html for React Router
-	app.get('*', (req: Request, res: Response, next) => {
-		if (req.path.startsWith('/mcp/') || req.path === '/health') {
-			next();
-			return;
-		}
-		res.sendFile(join(FRONTEND_DIST, 'index.html'), (err) => {
-			if (err) next(err);
-		});
-	});
-
-	// 404 for non-GET or API 404s
+	// 404
 	app.use((_req, res) => {
 		res.status(404).json({ error: 'Not found' });
 	});
