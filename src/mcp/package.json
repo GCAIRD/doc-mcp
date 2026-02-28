@@ -5,9 +5,9 @@
 	"type": "module",
 	"main": "./dist/index.js",
 	"scripts": {
-		"build": "tsc -b",
+		"build": "tsup",
 		"dev": "tsx watch src/index.ts",
-		"serve": "node dist/index.js",
+		"serve": "node dist/index.mjs",
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
@@ -19,6 +19,7 @@
 	"devDependencies": {
 		"@types/express": "^5.0.0",
 		"@types/node": "^20.17.6",
+		"tsup": "^8.4.0",
 		"tsx": "^4.19.2",
 		"typescript": "^5.6.3"
 	}

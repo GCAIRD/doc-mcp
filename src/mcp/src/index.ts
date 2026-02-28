@@ -2,9 +2,6 @@
  * GC-DOC-MCP v2 - Application Entry Point
  */
 
-import { readFile } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
-import { resolve } from 'node:path';
 import {
 	getEnv,
 	loadConfig,
@@ -17,15 +14,10 @@ import { createSearcher } from './rag/searcher.js';
 import { startServer } from './http.js';
 import type { ProductEntry, ServerHandle } from './http.js';
 
-const logger = createDefaultLogger('MAIN');
+declare const APP_VERSION: string;
 
-/** 从本包 package.json 读取版本号 */
-async function getVersion(): Promise<string> {
-	const __dirname = fileURLToPath(new URL('.', import.meta.url));
-	const pkgPath = resolve(__dirname, '../package.json');
-	const pkg = JSON.parse(await readFile(pkgPath, 'utf-8'));
-	return pkg.version ?? '0.0.0';
-}
+const logger = createDefaultLogger('MAIN');
+const version = typeof APP_VERSION !== 'undefined' ? APP_VERSION : '0.0.0-dev';
 
 async function main(): Promise<void> {
 	try {
@@ -62,7 +54,6 @@ async function main(): Promise<void> {
 			}),
 		);
 
-		const version = await getVersion();
 		const handle = await startServer(products, env.PORT, env.HOST, version);
 		logger.info(`Server ready at http://${env.HOST}:${env.PORT}`);
 
