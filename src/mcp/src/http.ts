@@ -4,6 +4,8 @@
  * Express + MCP Streamable HTTP endpoint (multi-product)
  */
 
+import { existsSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 import express from 'express';
 import type { Request, Response } from 'express';
 import type { Server as HttpServer } from 'node:http';
@@ -208,6 +210,22 @@ export async function startServer(
 		app.delete(mcpPath, handler);
 
 		logger.info('MCP endpoint registered', { path: mcpPath });
+	}
+
+	// 静态前端（可选）：Docker 中为 /app/public，开发时为 cwd/public
+	const publicDir = resolve(process.cwd(), 'public');
+	if (existsSync(join(publicDir, 'index.html'))) {
+		app.use(express.static(publicDir));
+
+		// SPA fallback：非 API 路径的 GET 请求返回 index.html
+		app.get('*', (req, res, next) => {
+			if (req.path.startsWith('/mcp/') || req.path === '/health') {
+				next();
+				return;
+			}
+			res.sendFile(join(publicDir, 'index.html'));
+		});
+		logger.info('Frontend enabled', { path: publicDir });
 	}
 
 	// 404

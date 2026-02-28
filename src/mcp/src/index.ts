@@ -33,26 +33,35 @@ async function main(): Promise<void> {
 			rateLimiter,
 		});
 
-		// 为每个产品加载配置并创建 searcher
-		const products: ProductEntry[] = await Promise.all(
-			productIds.map(async (productId) => {
-				const config = await loadConfig(productId, env.DOC_LANG);
-				const searcher = createSearcher({
-					qdrantUrl: env.QDRANT_URL,
-					qdrantApiKey: env.QDRANT_API_KEY,
-					collection: config.variant.collection,
-					docLanguage: config.variant.doc_language,
-					embedder,
-					rerankModel: env.VOYAGE_RERANK_MODEL,
-					voyageApiKey: env.VOYAGE_API_KEY,
-					prefetchLimit: config.product.search.prefetch_limit,
-					rerankTopK: config.product.search.rerank_top_k,
-					denseScoreThreshold: config.product.search.dense_score_threshold,
-				});
-				logger.info(`Loaded: ${config.product.name} (${config.variant.collection})`);
-				return { config, searcher };
+		// 为每个产品加载配置并创建 searcher（跳过缺失配置的产品）
+		const results = await Promise.all(
+			productIds.map(async (productId): Promise<ProductEntry | null> => {
+				try {
+					const config = await loadConfig(productId, env.DOC_LANG);
+					const searcher = createSearcher({
+						qdrantUrl: env.QDRANT_URL,
+						qdrantApiKey: env.QDRANT_API_KEY,
+						collection: config.variant.collection,
+						docLanguage: config.variant.doc_language,
+						embedder,
+						rerankModel: env.VOYAGE_RERANK_MODEL,
+						voyageApiKey: env.VOYAGE_API_KEY,
+						prefetchLimit: config.product.search.prefetch_limit,
+						rerankTopK: config.product.search.rerank_top_k,
+						denseScoreThreshold: config.product.search.dense_score_threshold,
+					});
+					logger.info(`Loaded: ${config.product.name} (${config.variant.collection})`);
+					return { config, searcher };
+				} catch (err) {
+					logger.warn(`Skipping ${productId}: ${err instanceof Error ? err.message : String(err)}`);
+					return null;
+				}
 			}),
 		);
+		const products = results.filter((p): p is ProductEntry => p !== null);
+		if (products.length === 0) {
+			throw new Error('No products loaded — check PRODUCT list and language YAML files');
+		}
 
 		const handle = await startServer(products, env.PORT, env.HOST, version);
 		logger.info(`Server ready at http://${env.HOST}:${env.PORT}`);

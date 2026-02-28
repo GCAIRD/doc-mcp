@@ -1,0 +1,210 @@
+{
+	"title": "DOC-MCP",
+	"subtitle": "MESCIUS 製品ドキュメント RAG + MCP サービス",
+	"description": "以下の手順に従って、AI クライアントで MCP サービスを設定してください",
+	"categories": {
+		"ide": "IDE",
+		"chat": "チャット",
+		"general": "汎用"
+	},
+	"clients": {
+		"copilot": "GitHub Copilot",
+		"cursor": "Cursor",
+		"windsurf": "Windsurf",
+		"cline": "Cline",
+		"claudedesktop": "Claude Desktop",
+		"codex": "OpenAI Codex CLI",
+		"jetbrains": "JetBrains IDE",
+		"lobechat": "LobeChat",
+		"other": "汎用設定"
+	},
+	"copilot": {
+		"title": "VS Code で GitHub Copilot MCP を設定",
+		"steps": [
+			"<strong>GitHub Copilot</strong> と <strong>GitHub Copilot Chat</strong> 拡張機能がインストールされていることを確認",
+			"最新の VS Code では MCP サポートがデフォルトで有効化されており、追加設定は不要"
+		],
+		"note": "MCP サーバーは2つの方法で設定できます：<strong>ワークスペース設定</strong>（推奨）または<strong>コマンドパレット</strong>。",
+		"addTitle": "ワークスペース設定（推奨）",
+		"addDesc": "プロジェクトルートに <code>.vscode/mcp.json</code> ファイルを作成：",
+		"altTitle": "MCP: Add Server コマンドを使用",
+		"altSteps": [
+			"コマンドパレットを開く (<kbd>Cmd+Shift+P</kbd> または <kbd>Ctrl+Shift+P</kbd>)",
+			"<strong>\"MCP: Add Server\"</strong> と入力して選択",
+			"サーバータイプとして <strong>\"HTTP (sse)\"</strong> を選択",
+			"サーバー URL を入力",
+			"サーバー名を入力（例：<strong>spreadjs-mcp</strong>、<strong>gcexcel-mcp</strong>）"
+		],
+		"usageTitle": "GitHub Copilot で MCP ツールを使用",
+		"usageSteps": [
+			"VS Code で Copilot Chat を開く（アクティビティバーの Copilot アイコンをクリック）",
+			"チャットドロップダウンメニューから <strong>Agent モード</strong> に切り替え",
+			"<strong>ツール (🔧)</strong> ボタンをクリックして利用可能な MCP ツールを表示"
+		],
+		"manageTip": "<strong>\"MCP: List Servers\"</strong> コマンドで設定済みサーバーを管理：サーバーの開始/停止/再起動、ログの表示、利用可能なツールの参照。"
+	},
+	"cursor": {
+		"title": "Cursor で MCP を設定",
+		"steps": [
+			"<kbd>Shift+Command+J</kbd> (Mac) または <kbd>Shift+Ctrl+J</kbd> (Windows/Linux) を押して Cursor の設定を開く",
+			"左サイドバーで <strong>\"MCP & Integrations\"</strong> を探す",
+			"<strong>\"+ New MCP Server\"</strong> をクリック"
+		],
+		"note": "これにより <code>mcp.json</code> ファイルが開きます。編集が必要です。",
+		"addTitle": "MCP サーバー設定を追加",
+		"addDesc": "以下の設定をコピーして、<code>mcp.json</code> ファイルの <code>mcpServers</code> キーの下に貼り付けてください。"
+	},
+	"windsurf": {
+		"title": "Windsurf で MCP を設定",
+		"steps": [
+			"Windsurf エディタを開く",
+			"<strong>設定 → Extensions → MCP</strong> に移動",
+			"<strong>\"Add Server\"</strong> をクリック"
+		],
+		"note": "Windsurf は Cursor と同じ設定形式を使用します。",
+		"addTitle": "MCP サーバー設定を追加",
+		"addDesc": "以下の設定をコピーして MCP 設定に追加してください。"
+	},
+	"cline": {
+		"title": "Cline で MCP を設定",
+		"steps": [
+			"VS Code で Cline 拡張機能を開く",
+			"設定アイコンをクリック",
+			"<strong>\"MCP Servers\"</strong> 設定を探す"
+		],
+		"note": "Cline は UI または設定ファイルから MCP サーバーを追加できます。",
+		"addTitle": "MCP サーバー設定を追加",
+		"addDesc": "以下の設定を Cline の MCP 設定に追加してください。"
+	},
+	"claudedesktop": {
+		"title": "Claude Desktop で MCP を設定",
+		"steps": [
+			"Claude Desktop アプリを開く",
+			"<strong>設定 → 開発者 → 設定を編集</strong> に移動",
+			"<code>claude_desktop_config.json</code> ファイルを編集"
+		],
+		"note": "Claude Desktop の設定ファイルは <strong>stdio</strong> トランスポートのみ対応。リモート HTTP サーバーには <code>mcp-remote</code> ブリッジが必要です。または <strong>設定 → 統合</strong> から UI でリモートサーバーを追加できます。",
+		"addTitle": "MCP サーバー設定を追加",
+		"addDesc": "<code>claude_desktop_config.json</code> に以下の設定を追加。<code>mcp-remote</code> で HTTP 接続をブリッジします："
+	},
+	"codex": {
+		"title": "OpenAI Codex CLI で MCP を設定",
+		"steps": [
+			"Codex CLI をインストール：<code>npm install -g @openai/codex</code>",
+			"設定ファイルを作成または編集：<code>~/.codex/config.toml</code>（グローバル）または <code>.codex/config.toml</code>（プロジェクト）"
+		],
+		"note": "Codex CLI は JSON ではなく <strong>TOML</strong> 形式を使用します。下記の JSON 設定は参考用です — 実際の設定ファイルでは TOML 形式を使用してください。",
+		"addTitle": "MCP サーバー設定を追加",
+		"addDesc": "<code>config.toml</code> ファイルに以下を追加。Codex は TOML 形式で <code>[mcp_servers.name]</code> セクションと <code>endpoint</code> フィールドを使用します。"
+	},
+	"jetbrains": {
+		"title": "JetBrains IDE で MCP を設定",
+		"steps": [
+			"JetBrains IDE（IntelliJ IDEA、WebStorm、PyCharm など）を開く",
+			"<strong>Settings/Preferences → Tools → AI Assistant → MCP Servers</strong> に移動",
+			"<strong>\"+\"</strong> ボタンをクリックして新しいサーバーを追加"
+		],
+		"note": "AI Assistant プラグインがインストールされ、MCP サポートが有効になっている必要があります。一部の古い IDE バージョンでは MCP がサポートされていない場合があります。",
+		"addTitle": "MCP サーバー設定を追加",
+		"addDesc": "MCP Servers 設定に以下のサーバー情報を追加してください。"
+	},
+	"lobechat": {
+		"title": "LobeChat で MCP を設定",
+		"steps": [
+			"LobeChat アプリまたは Web 版を開く",
+			"<strong>設定 → 言語モデル → MCP</strong> に移動",
+			"<strong>\"MCP サーバーを追加\"</strong> をクリック"
+		],
+		"note": "LobeChat は MCP をサポートするオープンソースのマルチモデル AI クライアントです。<a href=\"https://lobehub.com/mcp\" target=\"_blank\">LobeHub MCP マーケットプレイス</a>で他の MCP サービスを探すことができます。",
+		"addTitle": "MCP サーバー設定を追加",
+		"addDesc": "以下の設定を LobeChat の MCP 設定に追加してください。"
+	},
+	"other": {
+		"title": "汎用 MCP 統合",
+		"intro": "本サービスは Streamable HTTP プロトコルのみをサポートしています。使用する製品に応じて MCP エンドポイントを選択してください：",
+		"spreadjsTitle": "SpreadJS MCP サービス",
+		"spreadjsDesc": "SpreadJS JavaScript スプレッドシートコンポーネントのドキュメント検索用：",
+		"gcexcelTitle": "GcExcel MCP サービス",
+		"gcexcelDesc": "GcExcel サーバーサイド Excel コンポーネントのドキュメント検索用：",
+		"forguncyTitle": "Forguncy MCP サービス",
+		"forguncyDesc": "Forguncy ローコードプラットフォーム プラグイン SDK のドキュメント検索用：",
+		"wynTitle": "Wyn Enterprise MCP サービス",
+		"wynDesc": "Wyn 組み込みビジネスインテリジェンスのドキュメント検索用：",
+		"configTitle": "一般的な設定ファイルの場所",
+		"configLocations": [
+			"<code>.vscode/mcp.json</code> (VS Code ワークスペース)",
+			"<code>~/.config/app/mcp.json</code> (Linux)",
+			"<code>~/Library/Application Support/app/mcp.json</code> (macOS)",
+			"<code>%APPDATA%/app/mcp.json</code> (Windows)"
+		],
+		"stepsTitle": "統合手順",
+		"steps": [
+			"アプリケーションで MCP 設定を探す（\"MCP\"、\"Model Context Protocol\"、または \"Tools\" を検索）",
+			"トランスポート方式として <strong>Streamable HTTP</strong> を選択",
+			"上記のパターンを使用して接続を設定",
+			"アプリケーションを再起動し、サーバーが利用可能なツールに表示されることを確認"
+		],
+		"troubleTitle": "トラブルシューティング",
+		"troubleItems": [
+			"<strong>接続の問題</strong>：サーバー URL がアクセス可能か確認、ネットワーク接続を確認",
+			"<strong>ツール検出</strong>：クライアントが MCP 機能をサポートしているか確認、設定ファイルの構文をチェック",
+			"<strong>プロトコルの問題</strong>：本サービスは Streamable HTTP プロトコルのみをサポート、SSE や stdio はサポートされていません"
+		]
+	},
+	"copied": "コピーしました！",
+	"copy": "コピー",
+	"products": {
+		"title": "対応製品",
+		"spreadjs": "SpreadJS - JavaScript スプレッドシートコンポーネント",
+		"gcexcel": "GcExcel - サーバーサイド Excel コンポーネント",
+		"forguncy": "Forguncy - ローコードプラットフォーム プラグイン SDK",
+		"wyn": "Wyn Enterprise - 組み込みビジネスインテリジェンス"
+	},
+	"tryNow": {
+		"title": "今すぐ試す",
+		"description": "ブラウザで RAG 検索機能を直接体験",
+		"button": "Playground を開く"
+	},
+	"nav": {
+		"setup": "設定ガイド",
+		"playground": "プレイグラウンド"
+	},
+	"theme": {
+		"light": "ライト",
+		"dark": "ダーク",
+		"system": "システム"
+	},
+	"playground": {
+		"title": "RAG Playground",
+		"brandTag": "DEMO",
+		"subtitle": "セマンティック検索でドキュメントの知識を正確に特定",
+		"queryPlaceholder": "クエリを入力（例：ワークブックの作成方法）",
+		"listTools": "ツール一覧",
+		"search": "ドキュメント検索",
+		"availableTools": "利用可能なツール",
+		"loading": "読み込み中...",
+		"requestLog": "リクエストログ",
+		"searchResults": "検索結果",
+		"docDetails": "ドキュメント詳細",
+		"waitingQuery": "クエリを待機中...",
+		"selectResult": "結果を選択してドキュメントを表示",
+		"description": "説明",
+		"paramSchema": "パラメータスキーマ",
+		"noDesc": "説明なし",
+		"none": "なし",
+		"noTools": "利用可能なツールなし",
+		"loadFailed": "読み込み失敗",
+		"searching": "検索中...",
+		"noSearchTool": "検索ツールが見つかりません",
+		"searchFailed": "検索失敗",
+		"noMatch": "一致する結果なし",
+		"viewContent": "内容を表示",
+		"fetchDoc": "ドキュメント取得",
+		"loadingDoc": "ドキュメント読み込み中...",
+		"noFetchTool": "取得ツールが見つかりません",
+		"fetchFailed": "取得失敗",
+		"enterQuery": "クエリを入力してください",
+		"result": "結果",
+		"rawResponse": "レスポンス"
+	}
+}

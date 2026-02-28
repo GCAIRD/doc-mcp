@@ -1,0 +1,119 @@
+/* ============================================
+   Design Token System — Light & Dark themes
+   ============================================ */
+
+/* --- Light theme (default) --- */
+
+:root,
+[data-theme="light"] {
+	/* Backgrounds */
+	--bg-primary: #f7f4ed;
+	--bg-secondary: #fffdf8;
+	--bg-tertiary: #f0ebe3;
+	--bg-code: #f8f5ef;
+	--bg-overlay: rgba(26, 24, 20, 0.6);
+
+	/* Text */
+	--text-primary: #1a1814;
+	--text-secondary: #5c5750;
+	--text-muted: #8a847a;
+
+	/* Accent */
+	--accent-primary: #c45d35;
+	--accent-primary-hover: #b35330;
+	--accent-secondary: #2a7c7c;
+	--accent-secondary-hover: #23706f;
+	--accent-tertiary: #d4a853;
+	--accent-glow: rgba(196, 93, 53, 0.15);
+
+	/* Borders */
+	--border-default: #e5e0d5;
+	--border-hover: #ccc5b8;
+
+	/* Shadows */
+	--shadow-soft: 0 1px 3px rgba(26, 24, 20, 0.08);
+	--shadow-medium: 0 4px 12px rgba(26, 24, 20, 0.12);
+	--shadow-elevated: 0 8px 24px rgba(26, 24, 20, 0.16);
+
+	/* Status */
+	--color-success: #2e7d32;
+	--color-error: #c45d35;
+	--color-warning: #d4a853;
+
+	/* Code syntax */
+	--syntax-key: #c45d35;
+	--syntax-string: #2a7c7c;
+	--syntax-number: #b8860b;
+	--syntax-boolean: #8b5cf6;
+	--syntax-null: #8a847a;
+	--syntax-keyword: #c45d35;
+	--syntax-comment: #8a847a;
+	--syntax-function: #2a7c7c;
+
+	/* Log panel (always dark regardless of theme) */
+	--log-bg: #1a1814;
+	--log-text: #d0ccc5;
+	--log-req: #7ec8e3;
+	--log-res: #98c379;
+	--log-err: #e06c75;
+
+	/* Fonts */
+	--font-display: 'Crimson Pro', Georgia, serif;
+	--font-body: 'Inter', 'Noto Sans SC', system-ui, sans-serif;
+	--font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+	/* Sizing */
+	--radius-sm: 4px;
+	--radius-md: 8px;
+	--radius-lg: 12px;
+	--radius-xl: 16px;
+
+	/* Transitions */
+	--transition-fast: 0.15s ease;
+	--transition-normal: 0.25s ease;
+}
+
+/* --- Dark theme --- */
+
+[data-theme="dark"] {
+	/* 背景层次拉大：primary 最深，secondary 明显抬升，tertiary 再抬 */
+	--bg-primary: #121110;
+	--bg-secondary: #1e1c18;
+	--bg-tertiary: #2a2722;
+	--bg-code: #16140f;
+	--bg-overlay: rgba(0, 0, 0, 0.75);
+
+	--text-primary: #f0ebe2;
+	--text-secondary: #b0a898;
+	--text-muted: #7a7268;
+
+	--accent-primary: #e8764a;
+	--accent-primary-hover: #f48a5e;
+	--accent-secondary: #45b8b8;
+	--accent-secondary-hover: #58cccc;
+	--accent-tertiary: #ecc872;
+	--accent-glow: rgba(232, 118, 74, 0.18);
+
+	/* 边框比 bg-secondary 亮一档，确保卡片边界清晰 */
+	--border-default: #3d3830;
+	--border-hover: #554e42;
+
+	--shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.4);
+	--shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.5);
+	--shadow-elevated: 0 8px 24px rgba(0, 0, 0, 0.6);
+
+	--color-success: #66bb6a;
+	--color-error: #e8764a;
+	--color-warning: #ecc872;
+
+	--syntax-key: #e8764a;
+	--syntax-string: #45b8b8;
+	--syntax-number: #ecc872;
+	--syntax-boolean: #b49afa;
+	--syntax-null: #7a7268;
+	--syntax-keyword: #e8764a;
+	--syntax-comment: #7a7268;
+	--syntax-function: #45b8b8;
+
+	--log-bg: #0c0b0a;
+}

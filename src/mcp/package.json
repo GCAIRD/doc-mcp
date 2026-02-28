@@ -7,7 +7,7 @@
 	"scripts": {
 		"build": "tsup",
 		"dev": "tsx watch src/index.ts",
-		"serve": "node dist/index.mjs",
+		"serve": "node dist/index.js",
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
