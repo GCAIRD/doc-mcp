@@ -37,16 +37,17 @@ export interface EmbedResult {
 	tokens: number;
 }
 
-/** Voyage API 单次 batch 的 token 上限（留 10% 余量，实际限制 120k） */
-const MAX_BATCH_TOKENS = 100_000;
+/** Voyage API 单次 batch 的 token 上限（实际限制 120k，留 50% 余量应对估算偏差） */
+const MAX_BATCH_TOKENS = 60_000;
 
 /**
- * 估算文本 token 数（粗略估算：英文 4 字符/token，中文 1.5 字符/token）
+ * 估算文本 token 数
+ * 保守估算：英文/代码 2.5 字符/token（代码 token 密度高），中文 1.5 字符/token
  */
 function estimateTokens(text: string): number {
 	const chineseChars = (text.match(/[\u4e00-\u9fa5]/g) || []).length;
 	const otherChars = text.length - chineseChars;
-	return Math.ceil(chineseChars / 1.5 + otherChars / 4);
+	return Math.ceil(chineseChars / 1.5 + otherChars / 2.5);
 }
 
 /**

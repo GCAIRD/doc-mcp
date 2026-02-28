@@ -15,17 +15,12 @@ dist/
 *.swo
 *~
 
+# Local backup
+.local/
+
 # Qdrant database (runtime)
 qdrant/database/*
 !qdrant/database/.gitkeep
-
-# Storage (legacy, can remove once fully migrated)
-storage/qdrant/*
-storage/checkpoints/*
-storage/logs/*
-!storage/qdrant/.gitkeep
-!storage/checkpoints/.gitkeep
-!storage/logs/.gitkeep
 
 # Raw data
 src/embed/raw_data/*

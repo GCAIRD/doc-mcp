@@ -3,19 +3,20 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy workspace root + package files
+# Copy workspace root + all package.json files
 COPY package.json package-lock.json ./
 COPY src/shared/package.json ./src/shared/
+COPY src/embed/package.json ./src/embed/
 COPY src/mcp/package.json ./src/mcp/
 
-RUN npm ci --workspace=@gc-doc/shared --workspace=@gc-doc/mcp
+RUN npm ci
 
 # Copy source for shared + mcp only
 COPY src/shared/ ./src/shared/
 COPY src/mcp/ ./src/mcp/
 
-# Build shared first, then mcp (project references)
-RUN npm run build -w @gc-doc/shared && npm run build -w @gc-doc/mcp
+# Build shared first (generates dist/), then mcp (resolves @gc-doc/shared via symlink → dist/)
+RUN npx tsc -b src/shared && npx tsc -b src/mcp
 
 # ── Stage 2: Runtime ───────────────────────────────────
 FROM node:20-alpine
@@ -25,9 +26,10 @@ ENV NODE_ENV=production
 
 COPY package.json package-lock.json ./
 COPY src/shared/package.json ./src/shared/
+COPY src/embed/package.json ./src/embed/
 COPY src/mcp/package.json ./src/mcp/
 
-RUN npm ci --workspace=@gc-doc/shared --workspace=@gc-doc/mcp --omit=dev
+RUN npm ci --omit=dev
 
 COPY --from=builder /app/src/shared/dist ./src/shared/dist
 COPY --from=builder /app/src/mcp/dist ./src/mcp/dist

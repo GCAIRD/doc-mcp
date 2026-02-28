@@ -8,8 +8,10 @@
 
 # Runtime data
 qdrant/database
-raw_data
-storage
+src/embed/raw_data
+
+# Local backup
+.local
 
 # Environment
 .env
@@ -18,7 +20,7 @@ storage
 # Build artifacts
 **/dist
 **/node_modules
-*.tsbuildinfo
+**/*.tsbuildinfo
 
 # Agent
 .claude
@@ -28,7 +30,6 @@ storage
 # Docs and benchmark
 benchmark
 *.md
-!src/*/package.json
 
 # Devops
 devops
