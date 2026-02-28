@@ -14,8 +14,8 @@ import {
 	ConfigError,
 } from '@gc-doc/shared';
 import { createSearcher } from './rag/searcher.js';
-import { startServer, stopServer } from './http.js';
-import type { ProductEntry } from './http.js';
+import { startServer } from './http.js';
+import type { ProductEntry, ServerHandle } from './http.js';
 
 const logger = createDefaultLogger('MAIN');
 
@@ -63,10 +63,10 @@ async function main(): Promise<void> {
 		);
 
 		const version = await getVersion();
-		await startServer(products, env.PORT, env.HOST, version);
+		const handle = await startServer(products, env.PORT, env.HOST, version);
 		logger.info(`Server ready at http://${env.HOST}:${env.PORT}`);
 
-		setupShutdownHandlers();
+		setupShutdownHandlers(handle);
 	} catch (err) {
 		if (err instanceof Error) {
 			logger.error(`Startup failed: ${err.message}`);
@@ -78,11 +78,11 @@ async function main(): Promise<void> {
 	}
 }
 
-function setupShutdownHandlers(): void {
+function setupShutdownHandlers(handle: ServerHandle): void {
 	const shutdown = async (signal: string): Promise<void> => {
 		logger.info(`Received ${signal}, shutting down...`);
 		try {
-			await stopServer();
+			await handle.close();
 			logger.info('Shutdown complete');
 			process.exit(0);
 		} catch (err) {

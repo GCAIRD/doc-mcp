@@ -27,6 +27,11 @@ export interface ProductEntry {
 	searcher: ISearcher;
 }
 
+export interface ServerHandle {
+	server: HttpServer;
+	close: () => Promise<void>;
+}
+
 interface SessionEntry {
 	transport: StreamableHTTPServerTransport;
 	lastActivity: number;
@@ -148,21 +153,16 @@ function createMcpHandler(config: ResolvedConfig, searcher: ISearcher, version: 
 	};
 }
 
-let httpServer: HttpServer | null = null;
-
 /**
- * Start HTTP server with MCP endpoints for all products
+ * 创建并启动 HTTP 服务，返回 { server, close } handle。
+ * 不使用模块级单例，支持多实例并行（集成测试场景）。
  */
 export async function startServer(
 	products: ProductEntry[],
 	port: number,
 	host: string,
 	version: string,
-): Promise<HttpServer> {
-	if (httpServer) {
-		throw new Error('Server already running');
-	}
-
+): Promise<ServerHandle> {
 	const app = express();
 	app.use(express.json());
 
@@ -216,33 +216,25 @@ export async function startServer(
 	});
 
 	// Listen
-	await new Promise<void>((resolve, reject) => {
-		const server = app.listen(port, host, () => {
+	const server = await new Promise<HttpServer>((resolve, reject) => {
+		const s = app.listen(port, host, () => {
 			logger.info('Server listening', { url: `http://${host}:${port}` });
-			resolve();
+			resolve(s);
 		});
-		server.on('error', reject);
-		httpServer = server;
+		s.on('error', reject);
 	});
 
-	return httpServer!;
-}
-
-/**
- * Stop HTTP server
- */
-export async function stopServer(): Promise<void> {
-	if (!httpServer) return;
-
-	await new Promise<void>((resolve, reject) => {
-		httpServer!.close((err) => {
-			if (err) reject(err);
-			else {
-				logger.info('Server stopped');
-				resolve();
-			}
+	const close = async (): Promise<void> => {
+		await new Promise<void>((resolve, reject) => {
+			server.close((err) => {
+				if (err) reject(err);
+				else {
+					logger.info('Server stopped');
+					resolve();
+				}
+			});
 		});
-	});
+	};
 
-	httpServer = null;
+	return { server, close };
 }

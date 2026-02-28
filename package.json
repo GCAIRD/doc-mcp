@@ -4,7 +4,8 @@
 	"workspaces": [
 		"src/shared",
 		"src/embed",
-		"src/mcp"
+		"src/mcp",
+		"benchmark"
 	],
 	"engines": {
 		"node": ">=20.0.0"

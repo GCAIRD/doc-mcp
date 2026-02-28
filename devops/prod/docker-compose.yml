@@ -1,21 +1,32 @@
 # 生产部署模板
-# 用法: docker compose --env-file ./cn/mcp/.env -f docker-compose.yml up -d
 #
-# qdrant 和 mcp 可以部署在不同 VM 上：
-# - qdrant VM: 只启动 qdrant 服务
-# - mcp VM: 只启动 mcp 服务，QDRANT_URL 指向 qdrant VM
+# 前置: 在仓库根目录构建 MCP 镜像
+#   docker build -f src/mcp/Dockerfile -t gc-doc-mcp:latest .
+#
+# 用法（以 en 为例）:
+#   docker compose --env-file ./en/mcp/.env up -d
+#
+# 仅启动单个服务:
+#   docker compose --env-file ./en/mcp/.env up qdrant
+#   docker compose --env-file ./en/mcp/.env up mcp
+#
+# 分 VM 部署:
+#   qdrant VM: docker compose --env-file ./en/mcp/.env up qdrant
+#   mcp    VM: docker compose --env-file ./en/mcp/.env up mcp
+#              （.env 中 QDRANT_URL 设为 http://<qdrant-vm-ip>:6333）
 
 services:
   qdrant:
     image: qdrant/qdrant:v1.16
-    container_name: gc-doc-qdrant-${DOC_LANG:-cn}
+    container_name: gc-doc-qdrant-${DOC_LANG:-en}
     restart: unless-stopped
     volumes:
       - qdrant_data:/qdrant/storage
+      - ./${DOC_LANG:-en}/qdrant/config.yaml:/qdrant/config/production.yaml:ro
     ports:
       - "${QDRANT_PORT:-6333}:6333"
     healthcheck:
-      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/localhost/6333'"]
+      test: ["CMD-SHELL", "wget -q -O- http://localhost:6333/healthz || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -23,7 +34,7 @@ services:
 
   mcp:
     image: gc-doc-mcp:latest
-    container_name: gc-doc-mcp-${DOC_LANG:-cn}
+    container_name: gc-doc-mcp-${DOC_LANG:-en}
     restart: unless-stopped
     environment:
       PRODUCT: ${PRODUCT}

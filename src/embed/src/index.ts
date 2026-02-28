@@ -24,7 +24,6 @@ import { createIndexer } from './indexer.js';
 const logger = createDefaultLogger('EMBED');
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const EMBED_ROOT = join(__dirname, '..');
-const MONOREPO_ROOT = join(EMBED_ROOT, '..', '..');
 
 const { values: args } = parseArgs({
 	options: {
@@ -74,7 +73,7 @@ async function embedProduct(
 		collection: config.variant.collection,
 		embedder,
 		batchSize: env.BATCH_SIZE,
-		checkpointPath: join(MONOREPO_ROOT, 'storage', `checkpoint-${productId}.json`),
+		checkpointPath: join(EMBED_ROOT, 'checkpoints', `checkpoint-${productId}.json`),
 		logger,
 	});
 

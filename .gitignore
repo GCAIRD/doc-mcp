@@ -22,6 +22,10 @@ dist/
 qdrant/database/*
 !qdrant/database/.gitkeep
 
+# Embed checkpoints (runtime)
+src/embed/checkpoints/*
+!src/embed/checkpoints/.gitkeep
+
 # Raw data
 src/embed/raw_data/*
 !src/embed/raw_data/.gitkeep

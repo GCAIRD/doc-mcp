@@ -8,6 +8,8 @@
 		"node": ">=20.0.0"
 	},
 	"scripts": {
+		"build": "echo 'TODO: benchmark build not implemented yet'",
+		"typecheck": "echo 'TODO: benchmark typecheck not implemented yet'",
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"test:protocol": "vitest run protocol/",

@@ -3,13 +3,19 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy workspace root + all package.json files
+# MCP 镜像只需要 shared + mcp 两个 workspace。
+# 根 package.json 声明了全部 workspace（含 embed、benchmark），
+# 直接 npm ci 会因缺少它们的 package.json 而报错。
+# 因此这里用 node 缩减 workspaces 后再安装。
 COPY package.json package-lock.json ./
 COPY src/shared/package.json ./src/shared/
-COPY src/embed/package.json ./src/embed/
 COPY src/mcp/package.json ./src/mcp/
 
-RUN npm ci
+RUN node -e "\
+  const p=JSON.parse(require('fs').readFileSync('package.json','utf8'));\
+  p.workspaces=['src/shared','src/mcp'];\
+  require('fs').writeFileSync('package.json',JSON.stringify(p,null,2));" \
+  && npm ci
 
 # Copy source for shared + mcp only
 COPY src/shared/ ./src/shared/
@@ -26,10 +32,13 @@ ENV NODE_ENV=production
 
 COPY package.json package-lock.json ./
 COPY src/shared/package.json ./src/shared/
-COPY src/embed/package.json ./src/embed/
 COPY src/mcp/package.json ./src/mcp/
 
-RUN npm ci --omit=dev
+RUN node -e "\
+  const p=JSON.parse(require('fs').readFileSync('package.json','utf8'));\
+  p.workspaces=['src/shared','src/mcp'];\
+  require('fs').writeFileSync('package.json',JSON.stringify(p,null,2));" \
+  && npm ci --omit=dev
 
 COPY --from=builder /app/src/shared/dist ./src/shared/dist
 COPY --from=builder /app/src/mcp/dist ./src/mcp/dist
