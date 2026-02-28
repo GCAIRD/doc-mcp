@@ -1,43 +1,25 @@
 {
-	"name": "gc-doc-mcp",
-	"version": "2.0.0",
-	"description": "GrapeCity Documentation MCP Service - RAG-based document search",
-	"type": "module",
-	"license": "MIT",
-	"author": "GrapeCity",
-	"keywords": [
-		"mcp",
-		"rag",
-		"vector-search",
-		"documentation",
-		"spreadjs",
-		"gcexcel"
+	"name": "gc-doc-mcp-monorepo",
+	"private": true,
+	"workspaces": [
+		"src/shared",
+		"src/embed",
+		"src/mcp"
 	],
 	"engines": {
 		"node": ">=20.0.0"
 	},
 	"scripts": {
-		"dev": "tsx watch src/index.ts",
-		"build": "tsc",
-		"embed": "node --env-file=.env --import=tsx/esm src/embed.ts",
-		"embed:compiled": "node dist/embed.js",
-		"serve": "node dist/index.js",
-		"test": "vitest",
-		"typecheck": "tsc --noEmit"
-	},
-	"dependencies": {
-		"@modelcontextprotocol/sdk": "^1.0.4",
-		"@qdrant/js-client-rest": "^1.16.2",
-		"express": "^4.19.2",
-		"franc": "^6.2.0",
-		"voyageai": "^0.1.0",
-		"yaml": "^2.5.1",
-		"zod": "^3.23.8"
+		"build": "npm run build --workspaces",
+		"build:shared": "npm run build -w @gc-doc/shared",
+		"build:embed": "npm run build -w @gc-doc/embed",
+		"build:mcp": "npm run build -w @gc-doc/mcp",
+		"dev": "npm run dev -w @gc-doc/mcp",
+		"embed": "npm run embed -w @gc-doc/embed",
+		"typecheck": "npm run typecheck --workspaces",
+		"test": "vitest"
 	},
 	"devDependencies": {
-		"@types/express": "^5.0.0",
-		"@types/node": "^20.17.6",
-		"tsx": "^4.19.2",
 		"typescript": "^5.6.3",
 		"vitest": "^2.1.4"
 	}

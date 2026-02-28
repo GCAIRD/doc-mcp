@@ -15,7 +15,11 @@ dist/
 *.swo
 *~
 
-# Storage (runtime data)
+# Qdrant database (runtime)
+qdrant/database/*
+!qdrant/database/.gitkeep
+
+# Storage (legacy, can remove once fully migrated)
 storage/qdrant/*
 storage/checkpoints/*
 storage/logs/*
@@ -24,8 +28,8 @@ storage/logs/*
 !storage/logs/.gitkeep
 
 # Raw data
-raw_data/*
-!raw_data/.gitkeep
+src/embed/raw_data/*
+!src/embed/raw_data/.gitkeep
 
 # OS
 .DS_Store
@@ -35,7 +39,6 @@ Thumbs.db
 .claude
 .mcp.json
 .playwright-mcp
-node_modules/
 
 # Benchmark
 benchmark/node_modules/

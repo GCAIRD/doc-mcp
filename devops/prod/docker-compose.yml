@@ -1,0 +1,47 @@
+# 生产部署模板
+# 用法: docker compose --env-file ./cn/mcp/.env -f docker-compose.yml up -d
+#
+# qdrant 和 mcp 可以部署在不同 VM 上：
+# - qdrant VM: 只启动 qdrant 服务
+# - mcp VM: 只启动 mcp 服务，QDRANT_URL 指向 qdrant VM
+
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.16
+    container_name: gc-doc-qdrant-${DOC_LANG:-cn}
+    restart: unless-stopped
+    volumes:
+      - qdrant_data:/qdrant/storage
+    ports:
+      - "${QDRANT_PORT:-6333}:6333"
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/localhost/6333'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  mcp:
+    image: gc-doc-mcp:latest
+    container_name: gc-doc-mcp-${DOC_LANG:-cn}
+    restart: unless-stopped
+    environment:
+      PRODUCT: ${PRODUCT}
+      DOC_LANG: ${DOC_LANG}
+      PORT: ${PORT:-8900}
+      VOYAGE_API_KEY: ${VOYAGE_API_KEY}
+      QDRANT_URL: ${QDRANT_URL:-http://qdrant:6333}
+      QDRANT_API_KEY: ${QDRANT_API_KEY:-}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      PRODUCTS_DIR: /app/products
+    ports:
+      - "${PORT:-8900}:${PORT:-8900}"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O-", "http://localhost:${PORT:-8900}/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  qdrant_data:

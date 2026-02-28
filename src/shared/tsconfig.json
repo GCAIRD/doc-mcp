@@ -10,12 +10,9 @@
 		"forceConsistentCasingInFileNames": true,
 		"resolveJsonModule": true,
 		"declaration": true,
-		"composite": true
+		"composite": true,
+		"outDir": "./dist",
+		"rootDir": "./src"
 	},
-	"references": [
-		{ "path": "src/shared" },
-		{ "path": "src/embed" },
-		{ "path": "src/mcp" }
-	],
-	"files": []
+	"include": ["src/**/*"]
 }
