@@ -1,22 +1,13 @@
 name: Deploy
 
+# TODO: 部署流程待配置
 on:
   push:
-    branches: [add_forguncy_wyn]
+    branches: [main]
 
 jobs:
-  deploy:
+  placeholder:
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to server
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            cd GC-DOC-MCP-v2
-            git pull
-            docker compose down
-            docker compose build
-            docker compose up -d
+      - name: No-op
+        run: echo "Deployment not configured yet"
