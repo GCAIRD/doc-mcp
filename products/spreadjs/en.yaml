@@ -15,16 +15,101 @@ description: SpreadJS JavaScript spreadsheet component documentation
 resources:
   cdn_scripts:
     name: SpreadJS CDN Scripts
-    description: SpreadJS CDN reference links for pure HTML pages or rapid prototyping
+    description: SpreadJS 19.0.0 CDN reference links for all modules. For pure HTML pages or rapid prototyping.
     mimeType: text/html
     content: |
-      <!-- SpreadJS CDN Links -->
-      <!-- Version dynamically generated to avoid hardcoding -->
+      <!-- SpreadJS 19.0.0 CDN -->
+      <!-- Styles (required) -->
+      <link href="https://cdn.mescius.com/spreadjs/hosted/css/gc.spread.sheets.excel2013white.19.0.0.css" rel="stylesheet" type="text/css" />
+      <link href="https://cdn.mescius.com/spreadjs/hosted/css/gc.spread.sheets.designer.19.0.0.min.css" rel="stylesheet" type="text/css" />
+
+      <!-- Core library (required) -->
+      <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/gc.spread.sheets.all.19.0.0.min.js"></script>
+
+      <!-- Optional modules - include as needed -->
+      <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/plugins/gc.spread.sheets.shapes.19.0.0.min.js"></script>
+      <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/plugins/gc.spread.sheets.charts.19.0.0.min.js"></script>
+      <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/plugins/gc.spread.sheets.datacharts.19.0.0.min.js"></script>
+      <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/plugins/gc.spread.sheets.slicers.19.0.0.min.js"></script>
+      <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/plugins/gc.spread.sheets.print.19.0.0.min.js"></script>
+      <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/plugins/gc.spread.sheets.barcode.19.0.0.min.js"></script>
+      <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/plugins/gc.spread.sheets.pdf.19.0.0.min.js"></script>
+      <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/plugins/gc.spread.pivot.pivottables.19.0.0.min.js"></script>
+      <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/plugins/gc.spread.sheets.tablesheet.19.0.0.min.js"></script>
+      <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/plugins/gc.spread.sheets.ganttsheet.19.0.0.min.js"></script>
+      <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/plugins/gc.spread.report.reportsheet.19.0.0.min.js"></script>
+      <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/plugins/gc.spread.sheets.formulapanel.19.0.0.min.js"></script>
+      <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/plugins/gc.spread.sheets.ai.19.0.0.min.js"></script>
+      <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/plugins/gc.spread.sheets.io.19.0.0.min.js"></script>
+
+      <!-- Designer (optional) -->
+      <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/gc.spread.sheets.designer.resource.en.19.0.0.min.js"></script>
+      <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/gc.spread.sheets.designer.all.19.0.0.min.js"></script>
+
+      <!-- Framework support (optional) -->
+      <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/interop/gc.spread.sheets.react.19.0.0.min.js"></script>
+      <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/interop/gc.spread.sheets.vue.19.0.0.min.js"></script>
+      <script type="text/javascript" src="https://cdn.mescius.com/spreadjs/hosted/scripts/interop/gc.spread.sheets.angular.19.0.0.min.js"></script>
 
   npm_packages:
     name: SpreadJS npm Packages
-    description: SpreadJS npm package list for React/Vue/Angular projects
+    description: SpreadJS 19.0.0 npm package list. For React/Vue/Angular projects.
     mimeType: text/plain
     content: |
-      # SpreadJS npm Packages
+      # SpreadJS npm Packages (v19.0.0)
       # Scope: @mescius
+
+      ## Core Package (required)
+      @mescius/spread-sheets          # Core library
+
+      ## Optional Feature Modules
+      @mescius/spread-sheets-shapes           # Shapes
+      @mescius/spread-sheets-charts           # Charts
+      @mescius/spread-sheets-datacharts-addon # Data charts addon
+      @mescius/spread-sheets-slicers          # Slicers
+      @mescius/spread-sheets-sparklines       # Sparklines
+      @mescius/spread-sheets-print            # Print
+      @mescius/spread-sheets-barcode          # Barcode
+      @mescius/spread-sheets-pdf              # PDF export
+      @mescius/spread-sheets-pivot-addon      # Pivot tables
+      @mescius/spread-sheets-tablesheet       # Data manager
+      @mescius/spread-sheets-ganttsheet       # Gantt chart
+      @mescius/spread-sheets-reportsheet-addon # Report sheet
+      @mescius/spread-sheets-formula-panel    # Formula panel
+      @mescius/spread-sheets-ai-addon         # AI addon
+      @mescius/spread-sheets-io               # Excel import/export
+
+      ## Designer (optional)
+      @mescius/spread-sheets-designer              # Designer core
+      @mescius/spread-sheets-designer-resources-en # Designer EN resources
+
+      ## Collaboration (optional)
+      @mescius/js-collaboration              # Collaboration core
+      @mescius/js-collaboration-client       # Collaboration client
+      @mescius/js-collaboration-ot           # Operational Transform (OT)
+      @mescius/js-collaboration-ot-client    # OT client
+      @mescius/js-collaboration-presence     # Presence
+      @mescius/js-collaboration-presence-client # Presence client
+      @mescius/js-collaboration-ot-sqlite    # OT SQLite storage
+
+      ## React Wrappers
+      @mescius/spread-sheets-react            # React component
+      @mescius/spread-sheets-designer-react   # React designer component
+
+      ## Vue Wrappers
+      @mescius/spread-sheets-vue              # Vue component
+      @mescius/spread-sheets-designer-vue     # Vue designer component
+
+      ## Angular Wrappers
+      @mescius/spread-sheets-angular          # Angular component
+      @mescius/spread-sheets-designer-angular # Angular designer component
+
+      ---
+      Install example (React):
+      npm install @mescius/spread-sheets @mescius/spread-sheets-react
+
+      Install example (Vue):
+      npm install @mescius/spread-sheets @mescius/spread-sheets-vue
+
+      Install example (Angular):
+      npm install @mescius/spread-sheets @mescius/spread-sheets-angular
