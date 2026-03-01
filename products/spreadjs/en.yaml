@@ -5,7 +5,7 @@ company_short: MCS
 doc_language: en
 
 collection: spreadjs_en
-raw_data: spreadjs/en
+raw_data: en/spreadjs
 
 npm_scope: '@mescius'
 cdn_domain: cdn.mescius.com
