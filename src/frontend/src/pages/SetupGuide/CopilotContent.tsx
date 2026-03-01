@@ -20,7 +20,7 @@ export default function CopilotContent() {
 			<h3 className="section-title">{t('copilot.addTitle')}</h3>
 			<p className="section-desc" dangerouslySetInnerHTML={{ __html: t('copilot.addDesc') }} />
 			{products.map((p) => (
-				<CodeBlock key={p} code={getClientConfig('copilot', p)} label={`.vscode/mcp.json (${t(`products.${p}`)})`} />
+				<CodeBlock key={p.id} code={getClientConfig('copilot', p.endpoint, `${p.id}-mcp`)} label={`.vscode/mcp.json (${p.name})`} />
 			))}
 
 			<h3 className="section-title" style={{ marginTop: '2rem' }}>{t('copilot.altTitle')}</h3>

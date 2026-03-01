@@ -27,7 +27,7 @@ export default function ClientContent({ client }: ClientContentProps) {
 			<h3 className="section-title">{t(`${client}.addTitle`)}</h3>
 			<p className="section-desc" dangerouslySetInnerHTML={{ __html: t(`${client}.addDesc`) }} />
 			{products.map((p) => (
-				<CodeBlock key={p} code={getClientConfig(client, p)} label={t(`products.${p}`)} />
+				<CodeBlock key={p.id} code={getClientConfig(client, p.endpoint, `${p.id}-mcp`)} label={p.name} />
 			))}
 		</div>
 	);

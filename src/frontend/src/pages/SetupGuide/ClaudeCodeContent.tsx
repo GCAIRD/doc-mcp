@@ -1,7 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Copy, Check } from 'lucide-react';
 import { useClipboard } from '../../hooks/useClipboard';
-import { MCP_URLS } from '../../lib/config';
 import { useActiveProducts } from '../../hooks/useActiveProducts';
 
 function CommandBlock({ command, label }: { command: string; label?: string }) {
@@ -45,9 +44,9 @@ export default function ClaudeCodeContent() {
 			<p className="section-desc" dangerouslySetInnerHTML={{ __html: t('claudecode.addDesc') }} />
 			{products.map((p) => (
 				<CommandBlock
-					key={p}
-					command={`claude mcp add ${p}-docs --transport http ${MCP_URLS[p]}`}
-					label={t(`products.${p}`)}
+					key={p.id}
+					command={`claude mcp add ${p.id}-docs --transport http ${p.endpoint}`}
+					label={p.name}
 				/>
 			))}
 			<p className="section-desc" style={{ marginTop: '0.75rem' }} dangerouslySetInnerHTML={{ __html: t('claudecode.scopeNote') }} />

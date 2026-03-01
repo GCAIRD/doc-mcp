@@ -1,16 +1,8 @@
-import { type ProductId } from '../lib/config';
 import { useActiveProducts } from '../hooks/useActiveProducts';
 
-const PRODUCT_LABELS: Record<ProductId, string> = {
-	spreadjs: 'SpreadJS',
-	gcexcel: 'GcExcel',
-	forguncy: 'Forguncy',
-	wyn: 'Wyn',
-};
-
 interface ProductSelectorProps {
-	value: ProductId;
-	onChange: (productId: ProductId) => void;
+	value: string;
+	onChange: (productId: string) => void;
 }
 
 export default function ProductSelector({ value, onChange }: ProductSelectorProps) {
@@ -20,11 +12,11 @@ export default function ProductSelector({ value, onChange }: ProductSelectorProp
 		<select
 			className="product-select"
 			value={value}
-			onChange={(e) => onChange(e.target.value as ProductId)}
+			onChange={(e) => onChange(e.target.value)}
 		>
-			{products.map((id) => (
-				<option key={id} value={id}>
-					{PRODUCT_LABELS[id]}
+			{products.map((p) => (
+				<option key={p.id} value={p.id}>
+					{p.name}
 				</option>
 			))}
 		</select>

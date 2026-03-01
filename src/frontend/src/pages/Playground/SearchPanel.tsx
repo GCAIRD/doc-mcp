@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import ProductSelector from '../../components/ProductSelector';
 import ToolChip from '../../components/ToolChip';
 import SearchResultCard from '../../components/SearchResultCard';
-import type { ProductId } from '../../lib/config';
 import type { McpTool, McpSearchResult } from '../../types/mcp';
 
 interface SearchPanelProps {
@@ -11,13 +10,13 @@ interface SearchPanelProps {
 	searchResults: McpSearchResult[];
 	isSearching: boolean;
 	isLoadingTools: boolean;
-	currentProduct: ProductId;
+	currentProduct: string;
 	error: string | null;
 	onListTools: () => void;
 	onSearch: (query: string) => void;
 	onViewContent: (index: number) => void;
 	onFetchDoc: (docId: string) => void;
-	onSwitchProduct: (productId: ProductId) => void;
+	onSwitchProduct: (productId: string) => void;
 	onShowToolInfo: (tool: McpTool) => void;
 }
 

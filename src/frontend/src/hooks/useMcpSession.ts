@@ -1,6 +1,6 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { McpClient } from '../lib/mcp-client';
-import { MCP_URLS, type ProductId } from '../lib/config';
+import { useActiveProducts, type Product } from './useActiveProducts';
 import type { McpTool, McpSearchResult, LogEntry, LogEntryType } from '../types/mcp';
 
 export interface McpSessionState {
@@ -12,7 +12,7 @@ export interface McpSessionState {
 	isFetching: boolean;
 	isLoadingTools: boolean;
 	error: string | null;
-	currentProduct: ProductId;
+	currentProduct: string;
 }
 
 export interface McpSessionActions {
@@ -20,11 +20,12 @@ export interface McpSessionActions {
 	search: (query: string) => Promise<void>;
 	fetchDoc: (docId: string) => Promise<void>;
 	viewContent: (index: number) => void;
-	switchProduct: (productId: ProductId) => void;
+	switchProduct: (productId: string) => void;
 	clearDoc: () => void;
 }
 
 export function useMcpSession(): McpSessionState & McpSessionActions {
+	const products = useActiveProducts();
 	const [tools, setTools] = useState<McpTool[]>([]);
 	const [searchResults, setSearchResults] = useState<McpSearchResult[]>([]);
 	const [docContent, setDocContent] = useState<string | null>(null);
@@ -33,7 +34,7 @@ export function useMcpSession(): McpSessionState & McpSessionActions {
 	const [isFetching, setIsFetching] = useState(false);
 	const [isLoadingTools, setIsLoadingTools] = useState(false);
 	const [error, setError] = useState<string | null>(null);
-	const [currentProduct, setCurrentProduct] = useState<ProductId>('spreadjs');
+	const [currentProduct, setCurrentProduct] = useState('');
 	const logIdRef = useRef(0);
 
 	const addLog = useCallback((type: LogEntryType, message: string) => {
@@ -43,9 +44,18 @@ export function useMcpSession(): McpSessionState & McpSessionActions {
 		]);
 	}, []);
 
-	const clientRef = useRef(new McpClient(MCP_URLS.spreadjs, addLog));
+	const clientRef = useRef<McpClient | null>(null);
+
+	// 首个产品加载后初始化 client
+	useEffect(() => {
+		if (products.length > 0 && !clientRef.current) {
+			clientRef.current = new McpClient(products[0].endpoint, addLog);
+			setCurrentProduct(products[0].id);
+		}
+	}, [products, addLog]);
 
 	const listTools = useCallback(async () => {
+		if (!clientRef.current) return;
 		setIsLoadingTools(true);
 		setError(null);
 		try {
@@ -59,6 +69,7 @@ export function useMcpSession(): McpSessionState & McpSessionActions {
 	}, []);
 
 	const search = useCallback(async (query: string) => {
+		if (!clientRef.current) return;
 		setIsSearching(true);
 		setError(null);
 		try {
@@ -72,6 +83,7 @@ export function useMcpSession(): McpSessionState & McpSessionActions {
 	}, []);
 
 	const fetchDoc = useCallback(async (docId: string) => {
+		if (!clientRef.current) return;
 		setIsFetching(true);
 		setError(null);
 		try {
@@ -95,14 +107,20 @@ export function useMcpSession(): McpSessionState & McpSessionActions {
 		[searchResults]
 	);
 
-	const switchProduct = useCallback((productId: ProductId) => {
+	const switchProduct = useCallback((productId: string) => {
+		const p = products.find((p) => p.id === productId);
+		if (!p) return;
 		setCurrentProduct(productId);
-		clientRef.current.setServerUrl(MCP_URLS[productId]);
+		if (clientRef.current) {
+			clientRef.current.setServerUrl(p.endpoint);
+		} else {
+			clientRef.current = new McpClient(p.endpoint, addLog);
+		}
 		setTools([]);
 		setSearchResults([]);
 		setDocContent(null);
 		setError(null);
-	}, []);
+	}, [products, addLog]);
 
 	const clearDoc = useCallback(() => setDocContent(null), []);
 

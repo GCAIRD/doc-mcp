@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import CodeBlock from '../../components/CodeBlock';
 import UrlBlock from '../../components/UrlBlock';
-import { getClientConfig, MCP_URLS } from '../../lib/config';
+import { getClientConfig } from '../../lib/config';
 import { useActiveProducts } from '../../hooks/useActiveProducts';
 
 export default function OtherContent() {
@@ -14,11 +14,10 @@ export default function OtherContent() {
 			<p className="intro-text">{t('other.intro')}</p>
 
 			{products.map((p, i) => (
-				<div key={p} style={i > 0 ? { marginTop: '2rem' } : undefined}>
-					<h3 className="section-title">{t(`other.${p}Title`)}</h3>
-					<p className="section-desc">{t(`other.${p}Desc`)}</p>
-					<UrlBlock url={MCP_URLS[p]} label="Streamable HTTP Endpoint" />
-					<CodeBlock code={getClientConfig('other', p)} label={t(`products.${p}`)} />
+				<div key={p.id} style={i > 0 ? { marginTop: '2rem' } : undefined}>
+					<h3 className="section-title">{p.name}</h3>
+					<UrlBlock url={p.endpoint} label="Streamable HTTP Endpoint" />
+					<CodeBlock code={getClientConfig('other', p.endpoint, `${p.id}-mcp`)} label={p.name} />
 				</div>
 			))}
 
