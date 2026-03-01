@@ -261,7 +261,6 @@ export async function startServer(
 				id: p.config.product.id,
 				name: p.config.product.name,
 				lang: p.config.variant.lang,
-				collection: p.config.variant.collection,
 				endpoint: `/mcp/${p.config.product.id}`,
 			})),
 			timestamp: new Date().toISOString(),
