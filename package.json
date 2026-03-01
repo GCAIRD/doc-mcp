@@ -5,6 +5,7 @@
 		"src/shared",
 		"src/embed",
 		"src/mcp",
+		"src/frontend",
 		"benchmark"
 	],
 	"engines": {
@@ -16,6 +17,7 @@
 		"build:embed": "npm run build -w @gc-doc/embed",
 		"build:mcp": "npm run build -w @gc-doc/mcp",
 		"dev": "npm run dev -w @gc-doc/mcp",
+		"dev:frontend": "npm run dev -w doc-mcp-frontend",
 		"embed": "npm run embed -w @gc-doc/embed",
 		"typecheck": "npm run typecheck --workspaces",
 		"test": "vitest"

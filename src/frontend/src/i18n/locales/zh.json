@@ -1,6 +1,6 @@
 {
-	"title": "DOC-MCP",
-	"subtitle": "MESCIUS 产品文档 RAG + MCP 服务",
+	"title": "MESCIUS DOC MCP",
+	"subtitle": "MESCIUS 开发者组件 MCP 服务",
 	"description": "按照以下说明在您的 AI 客户端中配置 MCP 服务",
 	"categories": {
 		"ide": "IDE",

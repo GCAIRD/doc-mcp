@@ -236,6 +236,10 @@
 	align-items: start;
 }
 
+.playground-grid > * {
+	min-width: 0;
+}
+
 /* Panel */
 .panel {
 	background: var(--bg-secondary);

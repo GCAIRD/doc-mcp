@@ -1,6 +1,6 @@
 {
-	"title": "DOC-MCP",
-	"subtitle": "MESCIUS Product Documentation RAG + MCP Service",
+	"title": "MESCIUS DOC MCP",
+	"subtitle": "MCP Server For Developer Components of MESCIUS",
 	"description": "Follow the instructions below to configure the MCP service in your AI client",
 	"categories": {
 		"ide": "IDE",
