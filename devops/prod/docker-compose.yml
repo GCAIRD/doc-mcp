@@ -17,7 +17,7 @@
 
 services:
   qdrant:
-    image: qdrant/qdrant:v1.16
+    image: qdrant/qdrant:v1.17
     container_name: gc-doc-qdrant-${DOC_LANG:-en}
     restart: unless-stopped
     volumes:
@@ -33,7 +33,7 @@ services:
       start_period: 30s
 
   mcp:
-    image: gc-doc-mcp:latest
+    image: mcp:latest
     container_name: gc-doc-mcp-${DOC_LANG:-en}
     restart: unless-stopped
     environment:
