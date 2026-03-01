@@ -233,7 +233,7 @@
 	display: grid;
 	grid-template-columns: 1fr 1fr;
 	gap: 1.5rem;
-	align-items: start;
+	align-items: stretch;
 }
 
 .playground-grid > * {
@@ -245,7 +245,8 @@
 	background: var(--bg-secondary);
 	border: 1px solid var(--border-default);
 	border-radius: var(--radius-md);
-	overflow: hidden;
+	display: flex;
+	flex-direction: column;
 }
 
 .panel-header {
@@ -274,8 +275,8 @@
 
 .panel-body {
 	padding: 1rem;
-	max-height: 50vh;
-	overflow-y: auto;
+	flex: 1;
+	min-height: 300px;
 }
 
 /* Result Items */
@@ -382,7 +383,6 @@
 
 /* Doc View */
 .doc-view {
-	max-height: 50vh;
 }
 
 /* Modal */

@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './hooks/useTheme';
 import { HealthProvider } from './hooks/useHealth';
 import Header from './components/Header';
+import StatusBar from './components/StatusBar';
 import SetupGuide from './pages/SetupGuide/SetupGuide';
 import Playground from './pages/Playground/Playground';
 import Landing from './pages/Landing/Landing';
@@ -20,6 +21,7 @@ export default function App() {
 						<Route path="/profile" element={<Profile />} />
 						<Route path="*" element={<Navigate to="/" replace />} />
 					</Routes>
+					<StatusBar />
 				</div>
 			</HealthProvider>
 		</ThemeProvider>

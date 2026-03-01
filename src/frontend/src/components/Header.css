@@ -41,16 +41,6 @@
 	color: var(--text-primary);
 }
 
-.version-badge {
-	font-size: 0.7rem;
-	font-weight: 500;
-	color: var(--text-muted);
-	background: var(--bg-tertiary);
-	padding: 0.1rem 0.4rem;
-	border-radius: var(--radius-sm);
-	align-self: center;
-}
-
 .nav-links {
 	display: flex;
 	gap: 0.25rem;

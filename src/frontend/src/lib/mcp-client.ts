@@ -99,10 +99,20 @@ export class McpClient {
 
 		// Extract text content from response
 		if (result.content && Array.isArray(result.content)) {
-			return result.content
+			const text = result.content
 				.filter((c) => c.type === 'text' && c.text)
 				.map((c) => c.text)
 				.join('\n');
+
+			// Try parsing as JSON to extract full_content (structured response)
+			try {
+				const parsed = JSON.parse(text);
+				if (parsed.full_content) return parsed.full_content;
+			} catch {
+				// Not JSON, use as-is (plain text / multi-chunk response)
+			}
+
+			return text;
 		}
 		return typeof result === 'string' ? result : JSON.stringify(result, null, 2);
 	}

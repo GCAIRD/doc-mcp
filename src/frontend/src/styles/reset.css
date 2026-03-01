@@ -19,3 +19,13 @@ body {
 #root {
 	min-height: 100vh;
 }
+
+.app {
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+}
+
+.app > :not(header):not(footer) {
+	flex: 1;
+}

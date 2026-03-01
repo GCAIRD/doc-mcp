@@ -72,6 +72,8 @@ export function useMcpSession(): McpSessionState & McpSessionActions {
 		if (!clientRef.current) return;
 		setIsSearching(true);
 		setError(null);
+		setSearchResults([]);
+		setDocContent(null);
 		try {
 			const results = await clientRef.current.search(query);
 			setSearchResults(results);
