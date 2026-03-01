@@ -75,7 +75,7 @@
       value: |
         const d = JSON.parse(output);
         return d.results.some(r =>
-          r.content.includes('@grapecity-software')
+          r.content.includes('@mescius')
         );
 
 # ── 框架集成查询 ──────────────────────────────────────

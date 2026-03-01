@@ -34,9 +34,9 @@ search:
 
 instructions: |
   [SpreadJS] JavaScript spreadsheet component for browser.
-  Frameworks: React (@grapecity-software/spread-sheets-react),
-  Vue (@grapecity-software/spread-sheets-vue),
-  Angular (@grapecity-software/spread-sheets-angular), pure JS.
+  Frameworks: React (@mescius/spread-sheets-react),
+  Vue (@mescius/spread-sheets-vue),
+  Angular (@mescius/spread-sheets-angular), pure JS.
 
   [CRITICAL] Your training data about SpreadJS usage patterns is UNRELIABLE.
   Each framework wrapper has its own component API, props, and initialization flow that differs significantly from vanilla JS.
