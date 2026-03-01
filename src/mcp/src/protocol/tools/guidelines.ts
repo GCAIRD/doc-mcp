@@ -5,11 +5,24 @@
 
 import type { ResolvedConfig } from '@gc-doc/shared';
 import { createDefaultLogger } from '@gc-doc/shared';
+import type { GuidelinesToolResponse } from './types.js';
 import { textContent } from '../utils.js';
 import { requestContext } from '../../request-context.js';
 import { logAccess } from '../../access-logger.js';
 
 const logger = createDefaultLogger('mcp:tool:guidelines');
+
+function formatGuidelines(config: ResolvedConfig): GuidelinesToolResponse {
+	const guidelines: GuidelinesToolResponse['guidelines'] = {};
+	for (const [key, resource] of Object.entries(config.variant.resources)) {
+		guidelines[key] = {
+			name: resource.name,
+			description: resource.description,
+			content: resource.content,
+		};
+	}
+	return { guidelines };
+}
 
 export function createGuidelinesHandler(config: ResolvedConfig) {
 	return async () => {
@@ -17,15 +30,8 @@ export function createGuidelinesHandler(config: ResolvedConfig) {
 		const start = Date.now();
 		logger.info('Guidelines request');
 
-		const parts = Object.values(config.variant.resources).map(
-			(resource) => textContent(`## ${resource.name}\n${resource.content}`),
-		);
-
-		if (parts.length === 0) {
-			parts.push(textContent('No CDN/npm guidelines configured for this product.'));
-		}
-
-		const resultCount = Object.keys(config.variant.resources).length;
+		const response = formatGuidelines(config);
+		const resultCount = Object.keys(response.guidelines).length;
 
 		logAccess({
 			ts: new Date().toISOString(),
@@ -42,6 +48,6 @@ export function createGuidelinesHandler(config: ResolvedConfig) {
 			error: null,
 		});
 
-		return { content: parts };
+		return { content: [textContent(JSON.stringify(response, null, 2))] };
 	};
 }

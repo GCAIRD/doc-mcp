@@ -5,24 +5,24 @@
 import type { ResolvedConfig } from '@gc-doc/shared';
 import { createDefaultLogger, SearchError } from '@gc-doc/shared';
 import type { ISearcher, SearchResponse } from '../../rag/types.js';
+import type { SearchToolResponse } from './types.js';
 import { textContent } from '../utils.js';
 import { requestContext } from '../../request-context.js';
 import { logAccess } from '../../access-logger.js';
 
 const logger = createDefaultLogger('mcp:tool:search');
 
-function formatSearchResponse(response: SearchResponse) {
-	return [
-		textContent(JSON.stringify({
-			query: response.query,
-			results: response.results,
-			search_time_ms: response.search_time_ms,
-			rerank_used: response.rerank_used,
-			fusion_mode: response.fusion_mode,
-			detected_lang: response.detected_lang,
-			doc_language: response.doc_language,
-		}, null, 2)),
-	];
+function formatSearchResponse(response: SearchResponse): SearchToolResponse {
+	return {
+		query: response.query,
+		results: response.results,
+		search_time_ms: response.search_time_ms,
+		rerank_used: response.rerank_used,
+		fusion_mode: response.fusion_mode,
+		detected_lang: response.detected_lang,
+		doc_language: response.doc_language,
+		next_step: "Determine if further queries are needed: If your next code will call APIs mentioned in results and you're not 100% certain of parameter order, types, or return values, you should fetch full docs or search again for that specific API.",
+	};
 }
 
 /**
@@ -63,7 +63,7 @@ export function createSearchHandler(
 				},
 			});
 
-			return { content: formatSearchResponse(response) };
+			return { content: [textContent(JSON.stringify(formatSearchResponse(response), null, 2))] };
 		} catch (err) {
 			logAccess({
 				ts: new Date().toISOString(),
