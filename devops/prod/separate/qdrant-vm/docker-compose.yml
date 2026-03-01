@@ -3,6 +3,8 @@ services:
     image: qdrant/qdrant:v1.17
     container_name: doc-mcp-qdrant
     restart: unless-stopped
+    environment:
+      - QDRANT__SERVICE__API_KEY=my_secret_api_key_here
     volumes:
       - ./qdrant_data:/qdrant/storage
     ports:
