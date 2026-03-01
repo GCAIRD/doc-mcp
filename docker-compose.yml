@@ -1,10 +1,10 @@
 services:
   qdrant:
     image: qdrant/qdrant:v1.17
-    container_name: gc-doc-qdrant
+    container_name: doc-mcp-qdrant
     restart: unless-stopped
     volumes:
-      - ../../qdrant/database:/qdrant/storage
+      - ./qdrant/database:/qdrant/storage
     ports:
       - "${QDRANT_PORT:-6333}:6333"
     healthcheck:
@@ -15,25 +15,24 @@ services:
       start_period: 30s
 
   mcp:
+    image: leyserkids/doc-mcp-server:latest
+    container_name: doc-mcp-server
     build:
-      context: ../..
-      dockerfile: src/mcp/Dockerfile
-    container_name: gc-doc-mcp
+      context: .
+      dockerfile: Dockerfile
     restart: unless-stopped
     env_file:
-      - ../../.env
+      - .env
+    environment:
+      QDRANT_URL: http://qdrant:6333
+      PORT: ${PORT:-8900}
+    ports:
+      - "${PORT:-8900}:${PORT:-8900}"
     depends_on:
       qdrant:
         condition: service_healthy
-    environment:
-      QDRANT_URL: http://qdrant:6333
-      PRODUCTS_DIR: /app/products
-    ports:
-      - "${PORT:-8900}:${PORT:-8900}"
-    volumes:
-      - ../../products:/app/products:ro
     healthcheck:
-      test: ["CMD", "wget", "-q", "-O-", "http://localhost:${PORT:-8900}/health"]
+      test: ["CMD", "wget", "-q", "-O-", "http://127.0.0.1:${PORT:-8900}/health"]
       interval: 30s
       timeout: 10s
       retries: 3

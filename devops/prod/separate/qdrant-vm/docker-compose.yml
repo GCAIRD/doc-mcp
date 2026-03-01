@@ -1,0 +1,15 @@
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.17
+    container_name: doc-mcp-qdrant
+    restart: unless-stopped
+    volumes:
+      - ./qdrant_data:/qdrant/storage
+    ports:
+      - "${QDRANT_PORT:-6333}:6333"
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c ':> /dev/tcp/localhost/6333' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s

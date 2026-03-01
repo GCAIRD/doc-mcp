@@ -281,15 +281,23 @@ export async function startServer(
 
 	// Accept 协商：text/markdown 返回结构化服务描述
 	app.get('/', (req: Request, res: Response, next) => {
-		if (!req.accepts('text/markdown')) {
+		const bestMatch = req.accepts(['text/html', 'text/markdown']);
+
+		if (bestMatch === 'text/html' || !bestMatch) {
 			next();
 			return;
 		}
-		const baseUrl = `${req.protocol}://${req.get('host')}`;
-		const md = generateServiceMarkdown(products, baseUrl, version);
-		res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
-		res.setHeader('Vary', 'Accept');
-		res.send(md);
+
+		if (bestMatch === 'text/markdown') {
+			const baseUrl = `${req.protocol}://${req.get('host')}`;
+			const md = generateServiceMarkdown(products, baseUrl, version);
+			res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
+			res.setHeader('Vary', 'Accept');
+			res.send(md);
+			return;
+		}
+        
+        next();
 	});
 
 	// 静态前端（可选）：Docker 中为 /app/public，开发时为 cwd/public

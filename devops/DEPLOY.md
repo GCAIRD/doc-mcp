@@ -22,14 +22,13 @@ Both services can run on the same VM or on separate VMs.
 Run from the **repository root**:
 
 ```bash
-docker build -f src/mcp/Dockerfile -t gc-doc-mcp:latest .
+docker compose build
 ```
 
 Push to a registry if needed:
 
 ```bash
-docker tag gc-doc-mcp:latest your-registry/gc-doc-mcp:latest
-docker push your-registry/gc-doc-mcp:latest
+docker compose push
 ```
 
 ## 2. Configure Environment
@@ -134,8 +133,6 @@ npm run embed -w @gc-doc/embed -- --force
 
 ```
 devops/
-├── dev/
-│   └── docker-compose.yml      # Dev environment (local build + bind mount)
 ├── prod/
 │   ├── docker-compose.yml      # Production template
 │   ├── en/
