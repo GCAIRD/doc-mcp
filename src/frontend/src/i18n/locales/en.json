@@ -13,9 +13,11 @@
 		"windsurf": "Windsurf",
 		"cline": "Cline",
 		"claudedesktop": "Claude Desktop",
+		"claudecode": "Claude Code",
 		"codex": "OpenAI Codex CLI",
 		"jetbrains": "JetBrains IDE",
 		"lobechat": "LobeChat",
+		"cherrystudio": "Cherry Studio",
 		"other": "Universal Config"
 	},
 	"copilot": {
@@ -87,6 +89,20 @@
 		"addTitle": "Add MCP Server Configuration",
 		"addDesc": "Add the following configuration to <code>claude_desktop_config.json</code>. This uses <code>mcp-remote</code> to bridge the HTTP connection:"
 	},
+	"claudecode": {
+		"title": "Configure MCP in Claude Code",
+		"steps": [
+			"Install Claude Code: <code>npm install -g @anthropic-ai/claude-code</code>",
+			"Run the following command in your terminal to add the MCP server"
+		],
+		"note": "Claude Code supports <strong>Streamable HTTP</strong> transport natively. No bridge or proxy is needed.",
+		"addTitle": "Add MCP Server",
+		"addDesc": "Run the command below to add the server. Use <code>--scope user</code> to make it available across all projects, or omit it for project-local scope.",
+		"scopeNote": "Scope options: <code>local</code> (default, current project only), <code>user</code> (all projects), <code>project</code> (shared via <code>.mcp.json</code>).",
+		"verifyTitle": "Verify Configuration",
+		"verifyDesc": "Check that the server was added successfully:",
+		"verifyCommands": ["claude mcp list", "claude mcp get spreadjs-docs"]
+	},
 	"codex": {
 		"title": "Configure MCP in OpenAI Codex CLI",
 		"steps": [
@@ -118,6 +134,17 @@
 		"note": "LobeChat is an open-source multi-model AI client with MCP support. Visit <a href=\"https://lobehub.com/mcp\" target=\"_blank\">LobeHub MCP Marketplace</a> to discover more MCP services.",
 		"addTitle": "Add MCP Server Configuration",
 		"addDesc": "Add the following configuration to LobeChat's MCP settings."
+	},
+	"cherrystudio": {
+		"title": "Configure MCP in Cherry Studio",
+		"steps": [
+			"Open Cherry Studio and go to <strong>Settings</strong>",
+			"Select <strong>MCP Servers</strong> in the left sidebar",
+			"Click <strong>\"+ Add\"</strong> in the top right corner, then select <strong>\"Import from JSON\"</strong>"
+		],
+		"note": "Cherry Studio supports both SSE and Streamable HTTP transports. Use <code>streamableHttp</code> as the type for this service.",
+		"addTitle": "Add MCP Server Configuration",
+		"addDesc": "Copy the configuration below and paste it into the JSON import dialog."
 	},
 	"other": {
 		"title": "Universal MCP Integration",

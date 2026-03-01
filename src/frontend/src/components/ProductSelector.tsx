@@ -1,4 +1,5 @@
-import { PRODUCTS, type ProductId } from '../lib/config';
+import { type ProductId } from '../lib/config';
+import { useActiveProducts } from '../hooks/useActiveProducts';
 
 const PRODUCT_LABELS: Record<ProductId, string> = {
 	spreadjs: 'SpreadJS',
@@ -13,13 +14,15 @@ interface ProductSelectorProps {
 }
 
 export default function ProductSelector({ value, onChange }: ProductSelectorProps) {
+	const products = useActiveProducts();
+
 	return (
 		<select
 			className="product-select"
 			value={value}
 			onChange={(e) => onChange(e.target.value as ProductId)}
 		>
-			{PRODUCTS.map((id) => (
+			{products.map((id) => (
 				<option key={id} value={id}>
 					{PRODUCT_LABELS[id]}
 				</option>

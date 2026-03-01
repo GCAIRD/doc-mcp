@@ -1,9 +1,11 @@
 import { useTranslation } from 'react-i18next';
 import CodeBlock from '../../components/CodeBlock';
-import { getClientConfig, PRODUCTS, type ProductId } from '../../lib/config';
+import { getClientConfig } from '../../lib/config';
+import { useActiveProducts } from '../../hooks/useActiveProducts';
 
 export default function CopilotContent() {
 	const { t } = useTranslation();
+	const products = useActiveProducts();
 
 	return (
 		<div className="content-panel">
@@ -17,7 +19,7 @@ export default function CopilotContent() {
 
 			<h3 className="section-title">{t('copilot.addTitle')}</h3>
 			<p className="section-desc" dangerouslySetInnerHTML={{ __html: t('copilot.addDesc') }} />
-			{PRODUCTS.map((p: ProductId) => (
+			{products.map((p) => (
 				<CodeBlock key={p} code={getClientConfig('copilot', p)} label={`.vscode/mcp.json (${t(`products.${p}`)})`} />
 			))}
 

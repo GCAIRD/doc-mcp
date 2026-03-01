@@ -3,19 +3,21 @@ import { useTranslation } from 'react-i18next';
 import { ChevronDown, Table2, FileSpreadsheet, Puzzle, BarChart3 } from 'lucide-react';
 import { CLIENT_CATEGORIES } from '../../lib/config';
 import CopilotContent from './CopilotContent';
+import ClaudeCodeContent from './ClaudeCodeContent';
 import OtherContent from './OtherContent';
 import ClientContent from './ClientContent';
 import './SetupGuide.css';
 
 function SetupClientContent({ client }: { client: string }) {
 	if (client === 'copilot') return <CopilotContent />;
+	if (client === 'claudecode') return <ClaudeCodeContent />;
 	if (client === 'other') return <OtherContent />;
 	return <ClientContent client={client} />;
 }
 
 export default function SetupGuide() {
 	const { t } = useTranslation();
-	const [activeClient, setActiveClient] = useState('copilot');
+	const [activeClient, setActiveClient] = useState('other');
 	const [dropdownOpen, setDropdownOpen] = useState(false);
 	const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -69,7 +71,8 @@ export default function SetupGuide() {
 
 			<SetupClientContent client={activeClient} />
 
-			<div className="products">
+			{/* TODO: 多产品上线后恢复 */}
+			{/* <div className="products">
 				<h3>{t('products.title')}</h3>
 				<div className="product-list">
 					<div className="product-item">
@@ -89,7 +92,7 @@ export default function SetupGuide() {
 						<span>{t('products.wyn')}</span>
 					</div>
 				</div>
-			</div>
+			</div> */}
 		</div>
 	);
 }

@@ -12,8 +12,8 @@ export const MCP_URLS: Record<ProductId, string> = {
 
 // Client categories for Setup Guide
 export const CLIENT_CATEGORIES = [
-	{ id: 'ide', clients: ['copilot', 'cursor', 'windsurf', 'cline', 'claudedesktop', 'codex', 'jetbrains'] },
-	{ id: 'chat', clients: ['lobechat'] },
+	{ id: 'ide', clients: ['copilot', 'cursor', 'windsurf', 'cline', 'claudedesktop', 'claudecode', 'codex', 'jetbrains'] },
+	{ id: 'chat', clients: ['lobechat', 'cherrystudio'] },
 	{ id: 'general', clients: ['other'] },
 ] as const;
 
@@ -52,6 +52,10 @@ export function getClientConfig(client: string, product: ProductId = 'spreadjs')
 	// LobeChat: streamable-http
 	if (client === 'lobechat') {
 		return { mcpServers: { [serverName]: { type: 'streamable-http', url } } };
+	}
+	// Cherry Studio: streamableHttp (no hyphen)
+	if (client === 'cherrystudio') {
+		return { mcpServers: { [serverName]: { type: 'streamableHttp', url } } };
 	}
 	// Default: standard mcpServers format
 	return { mcpServers: { [serverName]: { type: 'http', url } } };

@@ -13,9 +13,11 @@
 		"windsurf": "Windsurf",
 		"cline": "Cline",
 		"claudedesktop": "Claude Desktop",
+		"claudecode": "Claude Code",
 		"codex": "OpenAI Codex CLI",
 		"jetbrains": "JetBrains IDE",
 		"lobechat": "LobeChat",
+		"cherrystudio": "Cherry Studio",
 		"other": "通用配置"
 	},
 	"copilot": {
@@ -87,6 +89,20 @@
 		"addTitle": "添加 MCP 服务器配置",
 		"addDesc": "将以下配置添加到 <code>claude_desktop_config.json</code>，使用 <code>mcp-remote</code> 桥接 HTTP 连接："
 	},
+	"claudecode": {
+		"title": "在 Claude Code 中配置 MCP",
+		"steps": [
+			"安装 Claude Code：<code>npm install -g @anthropic-ai/claude-code</code>",
+			"在终端中执行以下命令添加 MCP 服务器"
+		],
+		"note": "Claude Code 原生支持 <strong>Streamable HTTP</strong> 传输协议，无需桥接或代理。",
+		"addTitle": "添加 MCP 服务器",
+		"addDesc": "运行以下命令添加服务器。使用 <code>--scope user</code> 可在所有项目中使用，省略则仅限当前项目。",
+		"scopeNote": "作用域选项：<code>local</code>（默认，仅当前项目）、<code>user</code>（所有项目）、<code>project</code>（通过 <code>.mcp.json</code> 共享）。",
+		"verifyTitle": "验证配置",
+		"verifyDesc": "检查服务器是否添加成功：",
+		"verifyCommands": ["claude mcp list", "claude mcp get spreadjs-docs"]
+	},
 	"codex": {
 		"title": "在 OpenAI Codex CLI 中配置 MCP",
 		"steps": [
@@ -118,6 +134,17 @@
 		"note": "LobeChat 是开源的多模型 AI 客户端，支持 MCP 协议。可访问 <a href=\"https://lobehub.com/mcp\" target=\"_blank\">LobeHub MCP 市场</a> 发现更多 MCP 服务。",
 		"addTitle": "添加 MCP 服务器配置",
 		"addDesc": "将以下配置添加到 LobeChat 的 MCP 设置中。"
+	},
+	"cherrystudio": {
+		"title": "在 Cherry Studio 中配置 MCP",
+		"steps": [
+			"打开 Cherry Studio，进入<strong>设置</strong>",
+			"在左侧边栏选择 <strong>MCP Servers</strong>",
+			"点击右上角 <strong>\"+ 添加\"</strong>，然后选择 <strong>\"从 JSON 导入\"</strong>"
+		],
+		"note": "Cherry Studio 支持 SSE 和 Streamable HTTP 两种传输方式。本服务使用 <code>streamableHttp</code> 类型。",
+		"addTitle": "添加 MCP 服务器配置",
+		"addDesc": "复制以下配置并粘贴到 JSON 导入对话框中。"
 	},
 	"other": {
 		"title": "通用 MCP 集成",

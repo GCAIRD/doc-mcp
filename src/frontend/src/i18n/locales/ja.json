@@ -13,9 +13,11 @@
 		"windsurf": "Windsurf",
 		"cline": "Cline",
 		"claudedesktop": "Claude Desktop",
+		"claudecode": "Claude Code",
 		"codex": "OpenAI Codex CLI",
 		"jetbrains": "JetBrains IDE",
 		"lobechat": "LobeChat",
+		"cherrystudio": "Cherry Studio",
 		"other": "汎用設定"
 	},
 	"copilot": {
@@ -87,6 +89,20 @@
 		"addTitle": "MCP サーバー設定を追加",
 		"addDesc": "<code>claude_desktop_config.json</code> に以下の設定を追加。<code>mcp-remote</code> で HTTP 接続をブリッジします："
 	},
+	"claudecode": {
+		"title": "Claude Code で MCP を設定",
+		"steps": [
+			"Claude Code をインストール：<code>npm install -g @anthropic-ai/claude-code</code>",
+			"ターミナルで以下のコマンドを実行して MCP サーバーを追加"
+		],
+		"note": "Claude Code は <strong>Streamable HTTP</strong> トランスポートをネイティブにサポートしています。ブリッジやプロキシは不要です。",
+		"addTitle": "MCP サーバーを追加",
+		"addDesc": "以下のコマンドを実行してサーバーを追加します。<code>--scope user</code> を使用するとすべてのプロジェクトで利用可能になります。省略するとプロジェクトローカルになります。",
+		"scopeNote": "スコープオプション：<code>local</code>（デフォルト、現在のプロジェクトのみ）、<code>user</code>（全プロジェクト）、<code>project</code>（<code>.mcp.json</code> で共有）。",
+		"verifyTitle": "設定の確認",
+		"verifyDesc": "サーバーが正しく追加されたか確認：",
+		"verifyCommands": ["claude mcp list", "claude mcp get spreadjs-docs"]
+	},
 	"codex": {
 		"title": "OpenAI Codex CLI で MCP を設定",
 		"steps": [
@@ -118,6 +134,17 @@
 		"note": "LobeChat は MCP をサポートするオープンソースのマルチモデル AI クライアントです。<a href=\"https://lobehub.com/mcp\" target=\"_blank\">LobeHub MCP マーケットプレイス</a>で他の MCP サービスを探すことができます。",
 		"addTitle": "MCP サーバー設定を追加",
 		"addDesc": "以下の設定を LobeChat の MCP 設定に追加してください。"
+	},
+	"cherrystudio": {
+		"title": "Cherry Studio で MCP を設定",
+		"steps": [
+			"Cherry Studio を開き、<strong>設定</strong>に移動",
+			"左サイドバーで <strong>MCP Servers</strong> を選択",
+			"右上の <strong>\"+ 追加\"</strong> をクリックし、<strong>\"JSON からインポート\"</strong> を選択"
+		],
+		"note": "Cherry Studio は SSE と Streamable HTTP の両方をサポートしています。本サービスでは <code>streamableHttp</code> タイプを使用してください。",
+		"addTitle": "MCP サーバー設定を追加",
+		"addDesc": "以下の設定をコピーして、JSON インポートダイアログに貼り付けてください。"
 	},
 	"other": {
 		"title": "汎用 MCP 統合",

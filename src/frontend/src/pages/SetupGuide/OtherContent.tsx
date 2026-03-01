@@ -1,17 +1,19 @@
 import { useTranslation } from 'react-i18next';
 import CodeBlock from '../../components/CodeBlock';
 import UrlBlock from '../../components/UrlBlock';
-import { getClientConfig, PRODUCTS, MCP_URLS, type ProductId } from '../../lib/config';
+import { getClientConfig, MCP_URLS } from '../../lib/config';
+import { useActiveProducts } from '../../hooks/useActiveProducts';
 
 export default function OtherContent() {
 	const { t } = useTranslation();
+	const products = useActiveProducts();
 
 	return (
 		<div className="content-panel">
 			<h2>{t('other.title')}</h2>
 			<p className="intro-text">{t('other.intro')}</p>
 
-			{PRODUCTS.map((p: ProductId, i: number) => (
+			{products.map((p, i) => (
 				<div key={p} style={i > 0 ? { marginTop: '2rem' } : undefined}>
 					<h3 className="section-title">{t(`other.${p}Title`)}</h3>
 					<p className="section-desc">{t(`other.${p}Desc`)}</p>
