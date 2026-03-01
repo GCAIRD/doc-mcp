@@ -12,12 +12,77 @@ import type { Server as HttpServer } from 'node:http';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 import type { ResolvedConfig } from '@gc-doc/shared';
-import { createDefaultLogger } from '@gc-doc/shared';
+import { createDefaultLogger, getClientConfig, getClaudeCodeCommand, CLIENTS } from '@gc-doc/shared';
 import type { ISearcher } from './rag/types.js';
 import { MCPServer } from './protocol/server.js';
 import { requestContext, type RequestContext } from './request-context.js';
 
 const logger = createDefaultLogger('HTTP');
+
+/**
+ * 生成结构化 Markdown 服务描述，供 AI agent 通过 Accept: text/markdown 获取
+ */
+function generateServiceMarkdown(products: ProductEntry[], baseUrl: string, version: string): string {
+	const productSections = products.map((p) => {
+		const endpoint = `${baseUrl}/mcp/${p.config.product.id}`;
+		const id = p.config.product.id;
+		const input = { endpoint, serverName: `${id}-mcp` };
+
+		const clientConfigs = [
+			`**Claude Code** (CLI):`,
+			'```bash',
+			getClaudeCodeCommand(id, endpoint),
+			'```',
+			'',
+			...CLIENTS.map((c) => {
+				const label = c.configNote ? `**${c.label}** (\`${c.configNote}\`)` : `**${c.label}**`;
+				return [
+					`${label}:`,
+					'```json',
+					JSON.stringify(getClientConfig(c.id, input), null, 2),
+					'```',
+					'',
+				].join('\n');
+			}),
+		];
+
+		return [
+			`### ${p.config.product.name}`,
+			'',
+			`- **Endpoint**: \`${endpoint}\``,
+			`- **Transport**: Streamable HTTP`,
+			`- **Language**: ${p.config.variant.lang}`,
+			'',
+			'#### Setup',
+			'',
+			...clientConfigs,
+		].join('\n');
+	});
+
+	return [
+		'---',
+		'title: MESCIUS DOC MCP',
+		`description: MCP Server for developer components of MESCIUS`,
+		`version: ${version}`,
+		'transport: Streamable HTTP',
+		'---',
+		'',
+		'# MESCIUS DOC MCP',
+		'',
+		'MCP Server providing documentation search for MESCIUS developer components.',
+		'',
+		'## Tools',
+		'',
+		'- **search** — Search documentation with a natural language query. Returns ranked results.',
+		'- **fetch** — Retrieve full document content by doc_id.',
+		'- **get_code_guidelines** — Get CDN/npm import references for code generation.',
+		'',
+		'## Available Products',
+		'',
+		...productSections,
+	].join('\n');
+}
+
 
 /** Session 超时时间：30 分钟 */
 const SESSION_TTL_MS = 30 * 60 * 1000;
@@ -212,6 +277,19 @@ export async function startServer(
 
 		logger.info('MCP endpoint registered', { path: mcpPath });
 	}
+
+	// Accept 协商：text/markdown 返回结构化服务描述
+	app.get('/', (req: Request, res: Response, next) => {
+		if (!req.accepts('text/markdown')) {
+			next();
+			return;
+		}
+		const baseUrl = `${req.protocol}://${req.get('host')}`;
+		const md = generateServiceMarkdown(products, baseUrl, version);
+		res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
+		res.setHeader('Vary', 'Accept');
+		res.send(md);
+	});
 
 	// 静态前端（可选）：Docker 中为 /app/public，开发时为 cwd/public
 	const publicDir = resolve(process.cwd(), 'public');

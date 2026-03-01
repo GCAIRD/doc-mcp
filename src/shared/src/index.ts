@@ -5,6 +5,10 @@
 // Config
 export * from './config/index.js';
 
+// Client configs (shared between frontend and backend)
+export { getClientConfig, getClaudeCodeCommand, CLIENTS } from './client-configs.js';
+export type { ClientId, ClientMeta, ClientConfigInput } from './client-configs.js';
+
 // Utilities
 export { Logger, LogLevel, createDefaultLogger, getLogLevelFromEnv } from './logger.js';
 export type { LoggerOptions } from './logger.js';

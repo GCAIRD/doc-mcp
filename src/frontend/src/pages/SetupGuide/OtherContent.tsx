@@ -17,7 +17,7 @@ export default function OtherContent() {
 				<div key={p.id} style={i > 0 ? { marginTop: '2rem' } : undefined}>
 					<h3 className="section-title">{p.name}</h3>
 					<UrlBlock url={p.endpoint} label="Streamable HTTP Endpoint" />
-					<CodeBlock code={getClientConfig('other', p.endpoint, `${p.id}-mcp`)} label={p.name} />
+					<CodeBlock code={getClientConfig('other', { endpoint: p.endpoint, serverName: `${p.id}-mcp` })} label={p.name} />
 				</div>
 			))}
 
