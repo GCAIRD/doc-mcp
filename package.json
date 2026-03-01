@@ -1,5 +1,6 @@
 {
 	"name": "gc-doc-mcp-monorepo",
+	"version": "0.1.0",
 	"private": true,
 	"workspaces": [
 		"src/shared",

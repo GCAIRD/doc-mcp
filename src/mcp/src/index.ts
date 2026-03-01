@@ -13,11 +13,10 @@ import {
 import { createSearcher } from './rag/searcher.js';
 import { startServer } from './http.js';
 import type { ProductEntry, ServerHandle } from './http.js';
-
-declare const APP_VERSION: string;
+import rootPkg from '../../../package.json' with { type: 'json' };
 
 const logger = createDefaultLogger('MAIN');
-const version = typeof APP_VERSION !== 'undefined' ? APP_VERSION : '0.0.0-dev';
+const version: string = rootPkg.version;
 
 async function main(): Promise<void> {
 	try {

@@ -1,6 +1,6 @@
 {
 	"name": "gc-doc-mcp-benchmark",
-	"version": "1.0.0",
+	"version": "0.0.0",
 	"private": true,
 	"type": "module",
 	"description": "Benchmark suite for GC-DOC-MCP: protocol compliance + retrieval quality + agent e2e",

@@ -255,6 +255,7 @@ export async function startServer(
 	app.get('/health', (_req: Request, res: Response): void => {
 		res.json({
 			status: 'ok',
+			version,
 			products: products.map((p) => ({
 				id: p.config.product.id,
 				name: p.config.product.name,
