@@ -26,7 +26,7 @@ function formatSearchResponse(response: SearchResponse) {
 }
 
 /**
- * 创建 search tool handler（兼容 server.tool() 回调签名）
+ * 创建 search tool handler
  */
 export function createSearchHandler(
 	config: ResolvedConfig,

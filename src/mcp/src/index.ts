@@ -2,6 +2,7 @@
  * GC-DOC-MCP v2 - Application Entry Point
  */
 
+import { createRequire } from 'node:module';
 import {
 	getEnv,
 	loadConfig,
@@ -13,7 +14,9 @@ import {
 import { createSearcher } from './rag/searcher.js';
 import { startServer } from './http.js';
 import type { ProductEntry, ServerHandle } from './http.js';
-import rootPkg from '../../../package.json' with { type: 'json' };
+
+const require = createRequire(import.meta.url);
+const rootPkg = require('../../../package.json') as { version: string };
 
 const logger = createDefaultLogger('MAIN');
 const version: string = rootPkg.version;

@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { McpClient } from '../lib/mcp-client';
-import { useActiveProducts, type Product } from './useActiveProducts';
+import { useActiveProducts } from './useActiveProducts';
 import type { McpTool, McpSearchResult, LogEntry, LogEntryType } from '../types/mcp';
 
 export interface McpSessionState {

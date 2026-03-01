@@ -43,28 +43,35 @@ export class MCPServer {
 	private setupTools(searcher: ISearcher): void {
 		const defaultLimit = this.config.product.search.default_limit;
 
-		this.server.tool(
+		this.server.registerTool(
 			'search',
-			`Search ${this.config.variant.description} documentation. Returns ranked results with doc_id for fetching full content.`,
 			{
-				query: z.string().describe('Natural language search query'),
-				limit: z.number().int().min(1).max(20).default(defaultLimit)
-					.describe('Maximum number of results to return (1-20)'),
+				description: `Search ${this.config.variant.description} documentation. Returns ranked results with doc_id for fetching full content.`,
+				inputSchema: {
+					query: z.string().describe('Natural language search query'),
+					limit: z.number().int().min(1).max(20).default(defaultLimit)
+						.describe('Maximum number of results to return (1-20)'),
+				},
 			},
 			createSearchHandler(this.config, searcher),
 		);
 
-		this.server.tool(
+		this.server.registerTool(
 			'fetch',
-			`Fetch full document content from ${this.config.product.name} documentation by doc_id.`,
-			{ doc_id: z.string().describe('Document ID to fetch (obtained from search results)') },
+			{
+				description: `Fetch full document content from ${this.config.product.name} documentation by doc_id.`,
+				inputSchema: {
+					doc_id: z.string().describe('Document ID to fetch (obtained from search results)'),
+				},
+			},
 			createFetchHandler(this.config, searcher),
 		);
 
-		this.server.tool(
+		this.server.registerTool(
 			'get_code_guidelines',
-			'Get CDN scripts and npm package information for this product. Call BEFORE generating code with imports.',
-			{},
+			{
+				description: 'Get CDN scripts and npm package information for this product. Call BEFORE generating code with imports.',
+			},
 			createGuidelinesHandler(this.config),
 		);
 
@@ -77,7 +84,7 @@ export class MCPServer {
 	private setupResources(): void {
 		for (const [key, resource] of Object.entries(this.config.variant.resources)) {
 			const uri = `guidelines://${key}`;
-			this.server.resource(
+			this.server.registerResource(
 				key,
 				uri,
 				{ description: resource.description, mimeType: resource.mimeType },

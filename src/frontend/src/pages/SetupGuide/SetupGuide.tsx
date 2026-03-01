@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChevronDown, Table2, FileSpreadsheet, Puzzle, BarChart3 } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { CLIENT_CATEGORIES } from '../../lib/config';
 import CopilotContent from './CopilotContent';
 import ClaudeCodeContent from './ClaudeCodeContent';
