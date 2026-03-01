@@ -56,8 +56,8 @@ class VoyageReranker {
 		private readonly logger: Logger,
 	) {}
 
-	async rerank(query: string, documents: InternalSearchResult[], topK: number): Promise<InternalSearchResult[]> {
-		if (documents.length === 0) return [];
+	async rerank(query: string, documents: InternalSearchResult[], topK: number): Promise<{ results: InternalSearchResult[]; success: boolean }> {
+		if (documents.length === 0) return { results: [], success: true };
 
 		this.logger.debug(`Reranking ${documents.length} documents`);
 
@@ -89,16 +89,18 @@ class VoyageReranker {
 				throw new ApiError('Invalid rerank response: missing data');
 			}
 
-			return data.data
+			const reranked = data.data
 				.map(r => ({
 					...documents[r.index],
 					score: r.relevance_score,
 					source: 'rerank' as const,
 				}))
 				.sort((a, b) => b.score - a.score);
+
+			return { results: reranked, success: true };
 		} catch (error) {
 			this.logger.warn('Rerank failed, returning original results', { error: error instanceof Error ? error.message : String(error) });
-			return documents;
+			return { results: documents, success: false };
 		}
 	}
 }
@@ -181,9 +183,11 @@ export class RagSearcher implements ISearcher {
 
 		let results = mapQdrantResults(candidates);
 
-		const rerankUsed = useRerank !== false && !!this.reranker;
-		if (rerankUsed && this.reranker) {
-			results = await this.reranker.rerank(query, results, this.rerankTopK);
+		let rerankUsed = false;
+		if (useRerank !== false && this.reranker) {
+			const reranked = await this.reranker.rerank(query, results, this.rerankTopK);
+			results = reranked.results;
+			rerankUsed = reranked.success;
 		}
 		results = results.slice(0, finalLimit);
 
