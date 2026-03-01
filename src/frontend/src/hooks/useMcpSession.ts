@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { McpClient } from '../lib/mcp-client';
 import { useActiveProducts } from './useActiveProducts';
+import { useVersion } from './useHealth';
 import type { McpTool, McpSearchResult, LogEntry, LogEntryType } from '../types/mcp';
 
 export interface McpSessionState {
@@ -26,6 +27,7 @@ export interface McpSessionActions {
 
 export function useMcpSession(): McpSessionState & McpSessionActions {
 	const products = useActiveProducts();
+	const version = useVersion();
 	const [tools, setTools] = useState<McpTool[]>([]);
 	const [searchResults, setSearchResults] = useState<McpSearchResult[]>([]);
 	const [docContent, setDocContent] = useState<string | null>(null);
@@ -49,10 +51,10 @@ export function useMcpSession(): McpSessionState & McpSessionActions {
 	// 首个产品加载后初始化 client
 	useEffect(() => {
 		if (products.length > 0 && !clientRef.current) {
-			clientRef.current = new McpClient(products[0].endpoint, addLog);
+			clientRef.current = new McpClient(products[0].endpoint, version, addLog);
 			setCurrentProduct(products[0].id);
 		}
-	}, [products, addLog]);
+	}, [products, version, addLog]);
 
 	const listTools = useCallback(async () => {
 		if (!clientRef.current) return;
@@ -116,13 +118,13 @@ export function useMcpSession(): McpSessionState & McpSessionActions {
 		if (clientRef.current) {
 			clientRef.current.setServerUrl(p.endpoint);
 		} else {
-			clientRef.current = new McpClient(p.endpoint, addLog);
+			clientRef.current = new McpClient(p.endpoint, version, addLog);
 		}
 		setTools([]);
 		setSearchResults([]);
 		setDocContent(null);
 		setError(null);
-	}, [products, addLog]);
+	}, [products, version, addLog]);
 
 	const clearDoc = useCallback(() => setDocContent(null), []);
 

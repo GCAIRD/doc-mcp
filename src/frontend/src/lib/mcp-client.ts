@@ -1,7 +1,7 @@
 import type { McpTool, McpCallResult, McpSearchResult, LogEntryType } from '../types/mcp';
 
 const PROTOCOL_VERSION = '2025-03-26';
-const CLIENT_INFO = { name: 'RAG Playground', version: '1.0.0' };
+const CLIENT_NAME = 'RAG Playground';
 
 const SEARCH_TOOL_KEYWORDS = ['search', 'query', 'retrieve', 'rag'];
 const SEARCH_PARAM_NAMES = ['query', 'q', 'question', 'text', 'search', 'keyword'];
@@ -12,10 +12,12 @@ export class McpClient {
 	private sessionId: string | null = null;
 	private requestId = 0;
 	private serverUrl: string;
+	private version: string;
 	private onLog?: (type: LogEntryType, message: string) => void;
 
-	constructor(serverUrl: string, onLog?: (type: LogEntryType, message: string) => void) {
+	constructor(serverUrl: string, version: string, onLog?: (type: LogEntryType, message: string) => void) {
 		this.serverUrl = serverUrl;
+		this.version = version;
 		this.onLog = onLog;
 	}
 
@@ -32,7 +34,7 @@ export class McpClient {
 		const initResult = await this.rawCall('initialize', {
 			protocolVersion: PROTOCOL_VERSION,
 			capabilities: {},
-			clientInfo: CLIENT_INFO,
+			clientInfo: { name: CLIENT_NAME, version: this.version },
 		});
 
 		if (!this.sessionId) {

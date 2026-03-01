@@ -156,7 +156,7 @@ export class RagSearcher implements ISearcher {
 		const detectedLang = detectLanguage(query);
 		const useBm25 = detectedLang === this.docLanguage;
 
-		this.logger.info(
+		this.logger.debug(
 			`Search: "${query.substring(0, 50)}..." ` +
 			`lang=${detectedLang} doc=${this.docLanguage} bm25=${useBm25}`,
 		);
@@ -201,7 +201,7 @@ export class RagSearcher implements ISearcher {
 			metadata: r.metadata as ChunkMetadata,
 		}));
 
-		this.logger.info(`Returning ${searchResults.length} results (${fusionMode})`);
+		this.logger.debug(`Returning ${searchResults.length} results (${fusionMode})`);
 
 		return {
 			query,

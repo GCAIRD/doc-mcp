@@ -18,7 +18,7 @@ import type { ProductEntry, ServerHandle } from './http.js';
 const require = createRequire(import.meta.url);
 const rootPkg = require('../../../package.json') as { version: string };
 
-const logger = createDefaultLogger('MAIN');
+const logger = createDefaultLogger('main');
 const version: string = rootPkg.version;
 
 async function main(): Promise<void> {

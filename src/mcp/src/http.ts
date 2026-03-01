@@ -17,7 +17,8 @@ import type { ISearcher } from './rag/types.js';
 import { MCPServer } from './protocol/server.js';
 import { requestContext, type RequestContext } from './request-context.js';
 
-const logger = createDefaultLogger('HTTP');
+const httpLogger = createDefaultLogger('http');
+const sessionLogger = createDefaultLogger('mcp:session');
 
 /**
  * 生成结构化 Markdown 服务描述，供 AI agent 通过 Accept: text/markdown 获取
@@ -127,7 +128,7 @@ function createMcpHandler(config: ResolvedConfig, searcher: ISearcher, version: 
 			if (now - entry.lastActivity > SESSION_TTL_MS) {
 				entry.transport.close?.();
 				sessions.delete(sid);
-				logger.info('Session expired', { productId: config.product.id, sessionId: sid });
+				sessionLogger.info('Session expired', { productId: config.product.id, sessionId: sid });
 			}
 		}
 	}, SESSION_CLEANUP_INTERVAL_MS);
@@ -171,7 +172,7 @@ function createMcpHandler(config: ResolvedConfig, searcher: ISearcher, version: 
 					enableJsonResponse: true,
 					onsessioninitialized: (sid) => {
 						sessions.set(sid, { transport, lastActivity: Date.now(), clientInfo });
-						logger.info('MCP session created', {
+						sessionLogger.info('Session created', {
 							productId: config.product.id,
 							sessionId: sid,
 							client: clientInfo as unknown as Record<string, unknown>,
@@ -179,7 +180,7 @@ function createMcpHandler(config: ResolvedConfig, searcher: ISearcher, version: 
 					},
 				});
 
-				transport.onerror = (err) => logger.error('MCP transport error', {
+				transport.onerror = (err) => sessionLogger.error('Transport error', {
 					productId: config.product.id,
 					error: err instanceof Error ? err.message : String(err),
 				});
@@ -187,7 +188,7 @@ function createMcpHandler(config: ResolvedConfig, searcher: ISearcher, version: 
 					const sid = transport.sessionId;
 					if (sid) {
 						sessions.delete(sid);
-						logger.info('MCP session closed', { productId: config.product.id, sessionId: sid });
+						sessionLogger.info('Session closed', { productId: config.product.id, sessionId: sid });
 					}
 				};
 
@@ -209,7 +210,7 @@ function createMcpHandler(config: ResolvedConfig, searcher: ISearcher, version: 
 			// 无 session ID + 非 initialize 请求
 			jsonRpcError(res, 400, -32600, 'Bad Request: Missing session ID or not an initialize request.');
 		} catch (err) {
-			logger.error('MCP request error', {
+			sessionLogger.error('Request error', {
 				productId: config.product.id,
 				error: err instanceof Error ? err.message : String(err),
 			});
@@ -247,7 +248,7 @@ export async function startServer(
 	});
 
 	app.use((req, _res, next) => {
-		logger.debug(`${req.method} ${req.path}`);
+		httpLogger.debug(`${req.method} ${req.path}`);
 		next();
 	});
 
@@ -276,7 +277,7 @@ export async function startServer(
 		app.get(mcpPath, handler);
 		app.delete(mcpPath, handler);
 
-		logger.info('MCP endpoint registered', { path: mcpPath });
+		httpLogger.info('MCP endpoint registered', { path: mcpPath });
 	}
 
 	// Accept 协商：text/markdown 返回结构化服务描述
@@ -305,7 +306,7 @@ export async function startServer(
 			}
 			res.sendFile(join(publicDir, 'index.html'));
 		});
-		logger.info('Frontend enabled', { path: publicDir });
+		httpLogger.info('Frontend enabled', { path: publicDir });
 	}
 
 	// 404
@@ -316,7 +317,7 @@ export async function startServer(
 	// Listen
 	const server = await new Promise<HttpServer>((resolve, reject) => {
 		const s = app.listen(port, host, () => {
-			logger.info('Server listening', { url: `http://${host}:${port}` });
+			httpLogger.info('Server listening', { url: `http://${host}:${port}` });
 			resolve(s);
 		});
 		s.on('error', reject);
@@ -327,7 +328,7 @@ export async function startServer(
 			server.close((err) => {
 				if (err) reject(err);
 				else {
-					logger.info('Server stopped');
+					httpLogger.info('Server stopped');
 					resolve();
 				}
 			});

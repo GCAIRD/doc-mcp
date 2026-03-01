@@ -65,26 +65,30 @@ export class Logger {
 	private log(level: LogLevel, message: string, data?: Record<string, unknown>): void {
 		if (level < this.level) return;
 
-		const ts = new Date().toISOString();
-		const levelName = LEVEL_NAMES[level];
-		const stream = level >= LogLevel.ERROR ? process.stderr : process.stdout;
+		try {
+			const ts = new Date().toISOString();
+			const levelName = LEVEL_NAMES[level];
+			const stream = level >= LogLevel.ERROR ? process.stderr : process.stdout;
 
-		if (isTTY) {
-			const prefix = this.prefix ? `[${this.prefix}] ` : '';
-			const colored = colorize(levelName.padEnd(5), LEVEL_COLORS[level]);
-			const extra = data && Object.keys(data).length > 0
-				? ' ' + JSON.stringify(data)
-				: '';
-			stream.write(`${ts} ${colored} ${prefix}${message}${extra}\n`);
-		} else {
-			const entry: Record<string, unknown> = {
-				ts,
-				level: levelName,
-				...(this.prefix ? { module: this.prefix } : {}),
-				msg: message,
-				...data,
-			};
-			stream.write(JSON.stringify(entry) + '\n');
+			if (isTTY) {
+				const prefix = this.prefix ? `[${this.prefix}] ` : '';
+				const colored = colorize(levelName.padEnd(5), LEVEL_COLORS[level]);
+				const extra = data && Object.keys(data).length > 0
+					? ' ' + JSON.stringify(data)
+					: '';
+				stream.write(`${ts} ${colored} ${prefix}${message}${extra}\n`);
+			} else {
+				const entry: Record<string, unknown> = {
+					ts,
+					level: levelName,
+					...(this.prefix ? { module: this.prefix } : {}),
+					msg: message,
+					...data,
+				};
+				stream.write(JSON.stringify(entry) + '\n');
+			}
+		} catch {
+			// Logging must never affect business logic
 		}
 	}
 
